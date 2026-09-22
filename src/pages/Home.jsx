@@ -6,7 +6,7 @@ export default function Home(){
 
     return (
         <>
-            Ovo je MAIN
+            Ovo je ono sto pise na pocetnoj stranici
         </>
     )
 }

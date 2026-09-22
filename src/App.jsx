@@ -5,7 +5,8 @@ import Izbornik from './components/Izbornik'
 import { IME_APLIKACIJE, RouteNames } from './constants'
 import { Route, Routes } from 'react-router-dom'
 import Home from './pages/Home'
-import SmjerPregled from './pages/smjerovi/SmjerPregled'
+import O_Aplikaciji from './pages/O_Aplikaciji'
+import FishijadePregled from './pages/fishijade/FishijadePregled'
 
 function App() {
 
@@ -17,7 +18,8 @@ function App() {
 
           <Routes>
             <Route path={RouteNames.HOME} element={<Home />} />
-            <Route path={RouteNames.SMJEROVI} element={<SmjerPregled />} />
+            <Route path={RouteNames.FISHIJADE} element={<FishijadePregled />} />
+            <Route path={RouteNames.O_APLIKACIJI} element={<O_Aplikaciji/>} />
            
           </Routes>
 

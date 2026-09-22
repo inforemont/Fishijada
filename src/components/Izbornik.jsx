@@ -65,6 +65,12 @@ export default function Izbornik() {
                                 Fishijada 2026.
                             </NavDropdown.Item>
                         </NavDropdown>
+                        <Nav.Link
+                            onClick={() => navigate(RouteNames.O_APLIKACIJI)}
+                        >
+                            O Aplikaciji
+                        </Nav.Link>
+
                     </Nav>
                 </Navbar.Collapse>
             </Container>
