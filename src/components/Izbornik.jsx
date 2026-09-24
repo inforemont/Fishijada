@@ -24,7 +24,11 @@ export default function Izbornik() {
                             Početna
                         </Nav.Link>
                         <NavDropdown title="Fishijade" id="basic-nav-dropdown">
-                            <NavDropdown title="Sve Fishijade" id="basic-nav-dropdown">
+                            <NavDropdown.Item onClick={()=> navigate(RouteNames.FISHIJADE, {state :{godina: null}})}>
+                                <strong>Sve Fishijade</strong>
+                                </NavDropdown.Item>
+                        <NavDropdown.Divider />
+
                             <NavDropdown.Item
                                 onClick={() => navigate(RouteNames.FISHIJADE, { state: { godina: 2019 } })}
                             >
@@ -65,8 +69,12 @@ export default function Izbornik() {
                             >
                                 Fishijada 2026.
                             </NavDropdown.Item>
+                            <NavDropdown.Item
+                                onClick={() => navigate(RouteNames.FISHIJADE, { state: { godina: 2027 } })}
+                            >
+                                Fishijada 2027.
+                            </NavDropdown.Item>
                         </NavDropdown>
-                         </NavDropdown>
                         <Nav.Link
                             onClick={() => navigate(RouteNames.O_APLIKACIJI)}
                         >
