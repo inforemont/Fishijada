@@ -23,56 +23,56 @@ export default function Izbornik() {
                         >
                             Početna
                         </Nav.Link>
-                        <NavDropdown title="Fishijade" id="basic-nav-dropdown">
+                        <NavDropdown title="Fišijade" id="basic-nav-dropdown">
                             <NavDropdown.Item onClick={()=> navigate(RouteNames.FISHIJADE, {state :{godina: null}})}>
-                                <strong>Sve Fishijade</strong>
+                                <strong>Sve Fišijade</strong>
                                 </NavDropdown.Item>
                         <NavDropdown.Divider />
 
                             <NavDropdown.Item
                                 onClick={() => navigate(RouteNames.FISHIJADE, { state: { godina: 2019 } })}
                             >
-                                Fishijada 2019.
+                                Fišijada 2019.
                             </NavDropdown.Item>
                             <NavDropdown.Item
                                 onClick={() => navigate(RouteNames.FISHIJADE, { state: { godina: 2020 } })}
                             >
-                                Fishijada 2020.
+                                Fišijada 2020.
                             </NavDropdown.Item>
                             <NavDropdown.Item
                                 onClick={() => navigate(RouteNames.FISHIJADE, { state: { godina: 2021 } })}
                             >
-                                Fishijada 2021.
+                                Fišijada 2021.
                             </NavDropdown.Item>
                             <NavDropdown.Item
                                 onClick={() => navigate(RouteNames.FISHIJADE, { state: { godina: 2022 } })}
                             >
-                                Fishijada 2022.
+                                Fišijada 2022.
                             </NavDropdown.Item>
                             <NavDropdown.Item
                                 onClick={() => navigate(RouteNames.FISHIJADE, { state: { godina: 2023 } })}
                             >
-                                Fishijada 2023.
+                                Fišijada 2023.
                             </NavDropdown.Item>
                             <NavDropdown.Item
                                 onClick={() => navigate(RouteNames.FISHIJADE, { state: { godina: 2024 } })}
                             >
-                                Fishijada 2024.
+                                Fišijada 2024.
                             </NavDropdown.Item>
                             <NavDropdown.Item
                                 onClick={() => navigate(RouteNames.FISHIJADE, { state: { godina: 2025 } })}
                             >
-                                Fishijada 2025.
+                                Fišijada 2025.
                             </NavDropdown.Item>
                             <NavDropdown.Item
                                 onClick={() => navigate(RouteNames.FISHIJADE, { state: { godina: 2026 } })}
                             >
-                                Fishijada 2026.
+                                Fišijada 2026.
                             </NavDropdown.Item>
                             <NavDropdown.Item
                                 onClick={() => navigate(RouteNames.FISHIJADE, { state: { godina: 2027 } })}
                             >
-                                Fishijada 2027.
+                                Fišijada 2027.
                             </NavDropdown.Item>
                         </NavDropdown>
                         <Nav.Link

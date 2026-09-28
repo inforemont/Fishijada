@@ -5,6 +5,8 @@ import Badge from 'react-bootstrap/Badge';
 import Table from 'react-bootstrap/Table';
 import { GrValidate } from 'react-icons/gr';
 import { FcApproval, FcDisapprove } from 'react-icons/fc';
+import { NumericFormat } from 'react-number-format';
+import FormatDatuma from '../../components/FormatDatuma';
 
 export default function FishijadePregled() {
     const location = useLocation();
@@ -54,7 +56,7 @@ function FishijadeIzbor({ godina }) {
                     <tr>
                         <th>Naziv</th>
                         <th>Mjesto održavanja</th>
-                        <th>Cijena</th>
+                        <th>Kotizacija</th>
                         <th>Datum pokretanja</th>
                         <th>Održana</th>
                     </tr>
@@ -69,10 +71,26 @@ function FishijadeIzbor({ godina }) {
                                 style={{ cursor: 'pointer' }}
                                 onClick={() => navigate(`/fishijade/${fishijada.sifra}`)}
                             >
-                                <td>{fishijada.naziv}</td>
-                                <td>{fishijada.mjestoOdrzavanja}</td>
-                                <td>{fishijada.cijena} €</td>
-                                <td>{fishijada.datumPokretanja}</td>
+                                <td className='lead'>
+                                    {fishijada.naziv}
+                                    </td>
+                                <td className='text-end'>
+                                    {fishijada.mjestoOdrzavanja}
+                                    </td>
+                                <td className='desno'>
+                                    <NumericFormat
+                                    value={fishijada.cijena}
+                                    displayType={'text'}
+                                    decimalSeparator=","
+                                    decimalScale={2}
+                                    fixedDecimalScale='.'
+                                    suffix=' €'
+                                    prefix="="
+                                    />
+                                    </td>
+                                <td style={{textAlign: 'center'}}>
+                                        <FormatDatuma datum={fishijada.datumPokretanja} prikazDatuma="Nije postavljeno" />
+                                        </td>
 
                                 <td>
                                     <GrValidate 
