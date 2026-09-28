@@ -2,7 +2,7 @@ export const fishijade=[
 {
     sifra: 1,
     naziv:'Prva Fišijada 2019.',
-    mjestoOdrzavanja:'Beli Manastir Centar-Livada',
+    mjestoOdrzavanja:'Beli Manastir Trg Slobode-Livada',
     cijena: 2199.99,
     datumPokretanja:'2019-05-21T19:00:00',
     održana: true, // ovaj zadnji zarez ne smeta ali ni ne mora da bude
@@ -12,7 +12,7 @@ export const fishijade=[
 {
     sifra:2,
     naziv: 'Druga Fišijada 2020.',
-    mjestoOdrzavanja: 'Beli Manastir Centar-Livada',
+    mjestoOdrzavanja: 'Beli Manastir Trg Slobode-Livada',
     cijena: 1500,
     datumPokretanja:'2020-05-15T16:30:00',
     održana: true,
@@ -22,7 +22,7 @@ export const fishijade=[
 {
     sifra: 3,
     naziv: 'Treća Fišijada 2021.',
-    mjestoOdrzavanja: 'Beli Manastir Centar-Livada',
+    mjestoOdrzavanja: 'Beli Manastir Trg Slobode-Livada',
     cijena: 800,
     datumPokretanja: '2021-09-19T18:00:00',
     održana: true,
@@ -31,7 +31,7 @@ export const fishijade=[
 {
         sifra: 4,
         naziv: 'Četvrta Fišijada 2022.',
-        mjestoOdrzavanja: 'Beli Manastir Centar-Livada',
+        mjestoOdrzavanja: 'Beli Manastir Trg Slobode-Livada',
         cijena: 2399.99,
         datumPokretanja: '2022-06-01T18:00:00',
         održana: true,
@@ -39,7 +39,7 @@ export const fishijade=[
     {
         sifra: 5,
         naziv: 'Peta Fišijada 2023.',
-        mjestoOdrzavanja: 'Beli Manastir Centar-Livada',
+        mjestoOdrzavanja: 'Beli Manastir Trg Slobode-Livada',
         cijena: 1350.00,
         datumPokretanja: '2023-04-10T17:00:00',
         održana: true,
@@ -47,7 +47,7 @@ export const fishijade=[
     {
         sifra: 6,
         naziv: 'Šesta Fišijada 2024.',
-        mjestoOdrzavanja: 'Beli Manastir Centar-Livada',
+        mjestoOdrzavanja: 'Beli Manastir Trg Slobode-Livada',
         cijena: 999.50,
         datumPokretanja: '2024-10-15T18:30:00',
         održan: true,
@@ -55,7 +55,7 @@ export const fishijade=[
     {
         sifra: 7,
         naziv: 'Sedma Fišijada 2025.',
-        mjestoOdrzavanja: 'Beli Manastir Centar-Livada',
+        mjestoOdrzavanja: 'Beli Manastir Trg Slobode-Livada',
         cijena: 1850.00,
         datumPokretanja: '2025-09-01T19:00:00',
         održan: true,
