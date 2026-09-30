@@ -1,4 +1,4 @@
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from "react";
 import FishijadaService from "../../services/FishijadaService";
 import Badge from 'react-bootstrap/Badge';
@@ -7,14 +7,17 @@ import { GrValidate } from 'react-icons/gr';
 import { FcApproval, FcDisapprove } from 'react-icons/fc';
 import { NumericFormat } from 'react-number-format';
 import FormatDatuma from '../../components/FormatDatuma';
+import { RouteNames } from '../../constants';
 
 export default function FishijadePregled() {
     const location = useLocation();
     const godina = location.state?.godina;
 
+
+
     return (
         <div>
-            <h3>Pregled Fishijada</h3>
+            <h3 className='my-3'>Pregled Fishijada</h3>
 
             {godina ? (
                 <p>Odabrana je godina: <strong>{godina}.</strong></p>
@@ -51,6 +54,11 @@ function FishijadeIzbor({ godina }) {
 
     return (
         <>
+            <Link to={RouteNames.FISHIJADE_DODAJ}
+            className="btn btn-success w-100 my-3">
+                Dodavanje nove fišijade
+                </Link>
+
             <Table hover striped bordered> 
                 <thead>
                     <tr>

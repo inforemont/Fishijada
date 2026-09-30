@@ -7,6 +7,7 @@ import { Route, Routes } from 'react-router-dom'
 import Home from './pages/Home'
 import O_Aplikaciji from './pages/O_Aplikaciji'
 import FishijadePregled from './pages/fishijade/FishijadePregled'
+import FishijadaNovi from './pages/fishijade/FishijadaNovi'
 
 function App() {
 
@@ -20,6 +21,7 @@ function App() {
             <Route path={RouteNames.HOME} element={<Home />} />
             <Route path={RouteNames.FISHIJADE} element={<FishijadePregled />} />
             <Route path={RouteNames.O_APLIKACIJI} element={<O_Aplikaciji/>} />
+            <Route path={RouteNames.FISHIJADE_DODAJ} element={<FishijadaNovi/>} />
            
           </Routes>
 
