@@ -19,8 +19,8 @@ export default function FishijadaNovi() {
         const podaci = new FormData(e.target)
         dodaj({
             naziv: podaci.get('naziv'),
-            mjesto:podaci.get('mjestoOdrzavanja'),
-            kotizacija: parseFloat(podaci.get('kotizacija')),
+            mjestoOdrzavanja:podaci.get('mjestoOdrzavanja'),
+            cijena: parseFloat(podaci.get('kotizacija')),
             datumPokretanja: new Date(podaci.get('datumPokretanja')).toISOString(),
             aktivan: podaci.get('aktivan') === 'on'
         })
