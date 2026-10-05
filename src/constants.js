@@ -7,7 +7,8 @@ HOME: '/',
 FISHIJADE: '/fishijade',
 O_APLIKACIJI:'/oaplikaciji',
 FishijedaNovi:'/FishijadeNovi',
-FISHIJADE_DODAJ:'/fishijade/dodaj'
+FISHIJADE_DODAJ:'/fishijade/dodaj',
+FISHIJADE_PROMJENA: '/fishijade/:sifra',
 
 
 };
