@@ -8,6 +8,7 @@ import { FcApproval, FcDisapprove } from 'react-icons/fc';
 import { NumericFormat } from 'react-number-format';
 import FormatDatuma from '../../components/FormatDatuma';
 import { RouteNames } from '../../constants';
+import { Button } from "react-bootstrap";
 
 export default function FishijadePregled() {
     const location = useLocation();
@@ -67,6 +68,7 @@ function FishijadeIzbor({ godina }) {
                         <th>Kotizacija</th>
                         <th>Datum pokretanja</th>
                         <th>Održana</th>
+                        <th>Akcija</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -76,8 +78,7 @@ function FishijadeIzbor({ godina }) {
                         return (
                             <tr 
                                 key={fishijada.sifra}
-                                style={{ cursor: 'pointer' }}
-                                onClick={() => navigate(`/fishijade/${fishijada.sifra}`)}
+
                             >
                                 <td className='lead'>
                                     {fishijada.naziv}
@@ -113,9 +114,28 @@ function FishijadeIzbor({ godina }) {
                                         <FcDisapprove />
                                     )}
                                 </td>
+                               <td>
+                                <Button onClick={()=>{navigate(`/fishijade/${fishijada.sifra}`)}}>
+                                    Promjena
+                                </Button>
+                            </td>
                             </tr>
                         );
                     })}
+                </tbody>
+            </Table>
+            <Table>
+                <tbody>
+                    <td>Prvenstvo</td>
+                    <td>Vrijeme početka</td>
+                    <td>Broj kotlića</td>
+                    <td>Pobjednici</td>
+                    <td>Izvođači</td>
+                    <td>Nagrade</td>
+                    <td>Galerija slika</td>
+                    <tr>Prvenstvo Baranje</tr>
+                    <tr>Prvenstvo Hrvatske</tr>
+
                 </tbody>
             </Table>
 

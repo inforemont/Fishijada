@@ -33,6 +33,8 @@ export default function Izbornik() {
                                 onClick={() => navigate(RouteNames.FISHIJADE, { state: { godina: 2019 } })}
                             >
                                 Fišijada 2019.
+
+                                <tbody></tbody>
                             </NavDropdown.Item>
                             <NavDropdown.Item
                                 onClick={() => navigate(RouteNames.FISHIJADE, { state: { godina: 2020 } })}
