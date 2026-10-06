@@ -35,9 +35,16 @@ async function promjeni(sifra, izmjenjenaFishijada) {
     return { data: fishijade[index] };
 }
 
+async function obrisi(sifra) {
+    const index=fishijade.findIndex(s=>s.sifra===parseInt(sifra))
+    fishijade.splice(index,1)
+    
+}
+
 export default{
         get,
         dodaj,
         getBySifra,
         promjeni,
+        obrisi,
 }

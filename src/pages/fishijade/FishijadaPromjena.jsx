@@ -27,6 +27,8 @@ export default function FishijadaPromjena() {
         ucitajFishijadu()
     },[])
 
+    
+
     async function promjeni(sifra, fishijada){
         await FishijadaService.promjeni(sifra, fishijada).then(()=>{
             navigate(RouteNames.FISHIJADE)
@@ -98,6 +100,9 @@ export default function FishijadaPromjena() {
                     <Col>
                         <Button type="submit" variant="success">
                             Promjeni
+                        </Button>
+                         <Button variant="danger" onClick={()=>obrisi(fishijada.sifra)}>
+                                    Obriši
                         </Button>
                     </Col>
                 </Row>

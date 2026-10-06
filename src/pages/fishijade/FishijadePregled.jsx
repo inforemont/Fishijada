@@ -39,6 +39,16 @@ function FishijadeIzbor({ godina }) {
         ucitajFishijade();
     }, [godina]);
 
+       async function obrisi(sifra) {
+        if(!confirm('sigurno obrisati?')){
+            return
+        }
+
+       await FishijadaService.obrisi(sifra)
+       await  ucitajFishijade();
+        
+    }
+
     async function ucitajFishijade() {
         await FishijadaService.get().then((odgovor) => {
             let podaci = odgovor.data;
@@ -117,6 +127,10 @@ function FishijadeIzbor({ godina }) {
                                <td>
                                 <Button onClick={()=>{navigate(`/fishijade/${fishijada.sifra}`)}}>
                                     Promjena
+                                </Button>
+                                &nbsp;&nbsp;&nbsp;
+                                <Button variant="danger" onClick={()=>obrisi(fishijada.sifra)}>
+                                    Obriši
                                 </Button>
                             </td>
                             </tr>
