@@ -49,6 +49,11 @@ function FishijadeIzbor({ godina }) {
         
     }
 
+    function detalji(sifra) {
+        navigate(`/fishijade/detalji/${sifra}`);
+    }
+
+
     async function ucitajFishijade() {
         await FishijadaService.get().then((odgovor) => {
             let podaci = odgovor.data;
@@ -131,25 +136,17 @@ function FishijadeIzbor({ godina }) {
                                 &nbsp;&nbsp;&nbsp;
                                 <Button variant="danger" onClick={()=>obrisi(fishijada.sifra)}>
                                     Obriši
-                                </Button>
+                                </Button>   
+                                &nbsp;&nbsp;&nbsp;
+
+                                <Button variant="success" onClick={()=>{navigate(`/fishijade/${fishijada.sifra}`)}}>
+                                    Detalji
+                                    </Button>
                             </td>
+
                             </tr>
                         );
                     })}
-                </tbody>
-            </Table>
-            <Table>
-                <tbody>
-                    <td>Prvenstvo</td>
-                    <td>Vrijeme početka</td>
-                    <td>Broj kotlića</td>
-                    <td>Pobjednici</td>
-                    <td>Izvođači</td>
-                    <td>Nagrade</td>
-                    <td>Galerija slika</td>
-                    <tr>Prvenstvo Baranje</tr>
-                    <tr>Prvenstvo Hrvatske</tr>
-
                 </tbody>
             </Table>
 
