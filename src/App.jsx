@@ -9,6 +9,8 @@ import O_Aplikaciji from './pages/O_Aplikaciji'
 import FishijadePregled from './pages/fishijade/FishijadePregled'
 import FishijadaNovi from './pages/fishijade/FishijadaNovi'
 import FishijadaPromjena from './pages/fishijade/FishijadaPromjena'
+import FishijadaDetalji from './pages/fishijade/FishijadaDetalji'
+
 
 function App() {
 
@@ -24,6 +26,7 @@ function App() {
             <Route path={RouteNames.O_APLIKACIJI} element={<O_Aplikaciji/>} />
             <Route path={RouteNames.FISHIJADE_DODAJ} element={<FishijadaNovi/>} />
             <Route path={RouteNames.FISHIJADE_PROMJENA} element={<FishijadaPromjena/>} />
+            <Route path={RouteNames.FISHIJADE_DETALJI} element={<FishijadaDetalji/>} />
            
           </Routes>
 

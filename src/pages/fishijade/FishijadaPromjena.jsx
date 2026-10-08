@@ -35,6 +35,15 @@ export default function FishijadaPromjena() {
         })
     }
 
+    async function obrisi(sifra) {
+    if (!confirm('Sigurno obrisati?')) {
+        return;
+    }
+
+    await FishijadaService.obrisi(sifra);
+    navigate(RouteNames.FISHIJADE);
+}
+
     function obradiSubmit(e){
         e.preventDefault() 
         const podaci = new FormData(e.target)
@@ -98,10 +107,12 @@ export default function FishijadaPromjena() {
                         </Link>
                     </Col>
                     <Col>
-                        <Button type="submit" variant="success">
+                        <Button type="submit" variant="success" className="me-2">
                             Promjeni
                         </Button>
-                         <Button variant="danger" onClick={()=>obrisi(fishijada.sifra)}>
+
+                        &nbsp;&nbsp;&nbsp;
+                         <Button variant="danger" onClick={()=>obrisi(params.sifra)}>
                                     Obriši
                         </Button>
                     </Col>

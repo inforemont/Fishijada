@@ -139,7 +139,7 @@ function FishijadeIzbor({ godina }) {
                                 </Button>   
                                 &nbsp;&nbsp;&nbsp;
 
-                                <Button variant="success" onClick={()=>{navigate(`/fishijade/${fishijada.sifra}`)}}>
+                                <Button variant="success" onClick={()=>detalji(fishijada.sifra)}>
                                     Detalji
                                     </Button>
                             </td>
