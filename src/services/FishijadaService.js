@@ -1,50 +1,43 @@
-import { fishijade } from "./FishijadaPodaci";
+import FishijadaServiceMemorija from "./FishijadaServiceMemorija"
+import { DATA_SOURCE } from "../constants"
+import FishijadaServiceLocalStorage from "./FishijadaServiceLocalStorage"
 
-// 1/4 od CRUD: Read   - omogucujemo citanje podataka i prikaz na samoj stranici
-
-// napravimo funkciju 
-
-async function get(){   // get je blijed jer nema onaj export default
-    return {data: [...fishijade]} // [...] stvara novi niz sa istim podacima    
-}
- // pricamo sa udaljenim racunalom i ne znamo koliko ce odziv trajati i sve funkcije trebaju biti async
-async function getBySifra(sifra){
-    return {data: fishijade.find(s => s.sifra === parseInt(sifra))}
-}
-
-
-
- async function dodaj(fishijada){
-    if(fishijade.length===0){
-        fishijada.sifra=1
-    }else{
-        fishijada.sifra=fishijade[fishijade.length-1].sifra+1
-    }
-    fishijade.push(fishijada)
+let Servis = null
+switch(DATA_SOURCE){
+    case 'memorija':
+        Servis= FishijadaServiceMemorija
+        break
+    case 'localStorage':
+        Servis=FishijadaServiceLocalStorage
+        break
+    default:
+        Servis=null
 }
 
-async function promjeni(sifra, izmjenjenaFishijada) {
-    const index = fishijade.findIndex(s => s.sifra === parseInt(sifra));
-    if (index !== -1) {
-        fishijade[index] = { 
-            ...fishijade[index],
-            ...izmjenjenaFishijada, 
-            sifra: parseInt(sifra) 
-        };
-    }
-    return { data: fishijade[index] };
+const PrazanServis = {
+        get:async ()=>({data:[]}),
+        dodaj: async (fishijada)=>{console.error('Servis nije implementiran')},
+        getBySifra:async (sifra)=>({data:{}}),
+        promjeni:async (sifra,fishijada)=>{console.error('Servis nije implementiran')},
+        obrisi:async (sifra)=>{console.error('Servis nije implementiran')},
+
 }
 
-async function obrisi(sifra) {
-    const index=fishijade.findIndex(s=>s.sifra===parseInt(sifra))
-    fishijade.splice(index,1)
-    
-}
+const AktivniServis=Servis||PrazanServis
+
+
+
+
+
+
+
+
+
 
 export default{
-        get,
-        dodaj,
-        getBySifra,
-        promjeni,
-        obrisi,
+        get:()=>AktivniServis.get(),
+        dodaj:(fishijada)=>AktivniServis.dodaj(fishijada),
+        getBySifra:(sifra)=>AktivniServis.getBySifra(sifra),
+        promjeni:(sifra,fishijada)=>AktivniServis.promjeni(sifra,fishijada),
+        obrisi:(sifra)=>AktivniServis.obrisi(sifra),
 }

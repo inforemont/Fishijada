@@ -12,6 +12,11 @@ FISHIJADE_PROMJENA: '/fishijade/:sifra',
 FISHIJADE_DETALJI: '/fishijade/detalji/:sifra',
 
 
-};
+}
+
+// memorija, localStorage, firebase
+
+export const DATA_SOURCE='localStorage'
+
 
 
