@@ -10,6 +10,7 @@ import FishijadePregled from './pages/fishijade/FishijadePregled'
 import FishijadaNovi from './pages/fishijade/FishijadaNovi'
 import FishijadaPromjena from './pages/fishijade/FishijadaPromjena'
 import FishijadaDetalji from './pages/fishijade/FishijadaDetalji'
+import PrijavaPregled from './pages/prijave/PrijavaPregled'
 
 
 function App() {
@@ -27,6 +28,8 @@ function App() {
             <Route path={RouteNames.FISHIJADE_DODAJ} element={<FishijadaNovi/>} />
             <Route path={RouteNames.FISHIJADE_PROMJENA} element={<FishijadaPromjena/>} />
             <Route path={RouteNames.FISHIJADE_DETALJI} element={<FishijadaDetalji/>} />
+
+            <Route path={RouteNames.PRIJAVE} element={<PrijavaPregled />} />
            
           </Routes>
 

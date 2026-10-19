@@ -27,14 +27,15 @@ export default function Izbornik() {
                             <NavDropdown.Item onClick={()=> navigate(RouteNames.FISHIJADE, {state :{godina: null}})}>
                                 <strong>Sve Fišijade</strong>
                                 </NavDropdown.Item>
+                                <NavDropdown.Item onClick={()=> navigate(RouteNames.PRIJAVE, {state :{godina: null}})}>
+                                <strong>Sve Prijave</strong>
+                                </NavDropdown.Item>
                         <NavDropdown.Divider />
 
                             <NavDropdown.Item
                                 onClick={() => navigate(RouteNames.FISHIJADE, { state: { godina: 2019 } })}
                             >
                                 Fišijada 2019.
-
-                                <tbody></tbody>
                             </NavDropdown.Item>
                             <NavDropdown.Item
                                 onClick={() => navigate(RouteNames.FISHIJADE, { state: { godina: 2020 } })}

@@ -10,13 +10,18 @@ FishijedaNovi:'/FishijadeNovi',
 FISHIJADE_DODAJ:'/fishijade/dodaj',
 FISHIJADE_PROMJENA: '/fishijade/:sifra',
 FISHIJADE_DETALJI: '/fishijade/detalji/:sifra',
+PRIJAVE:'/prijave',
+PRIJAVE_DODAJ:'/prijave/dodaj',
+PRIJAVE_PROMJENA:'/prijave/:sifra',
+
+
 
 
 }
 
 // memorija, localStorage, firebase
 
-export const DATA_SOURCE='localStorage'
+export const DATA_SOURCE='memorija'
 
 
 
