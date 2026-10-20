@@ -1,16 +1,17 @@
 import { Link, useNavigate } from "react-router-dom";
 import { RouteNames } from "../../constants";
 import { Button, Col, Form, Row } from "react-bootstrap";
-import FishijadaService from "../../services/FishijadaService";
+import PrijavaService from "../../services/prijave/PrijavaService";
 
 
-export default function FishijadaNovi() {
+
+export default function PrijavaNovi() {
 
     const navigate = useNavigate()
 
-    async function dodaj(fishijada){
-        await FishijadaService.dodaj(fishijada).then(()=>{
-            navigate(RouteNames.FISHIJADE)
+    async function dodaj(prijava){
+        await PrijavaService.dodaj(prijava).then(()=>{
+            navigate(RouteNames.PRIJAVE)
         })
     }
 
@@ -18,11 +19,12 @@ export default function FishijadaNovi() {
         e.preventDefault() 
         const podaci = new FormData(e.target)
         dodaj({
-            naziv: podaci.get('naziv'),
-            mjestoOdrzavanja:podaci.get('mjestoOdrzavanja'),
-            cijena: parseFloat(podaci.get('kotizacija')),
-            datumPokretanja: new Date(podaci.get('datumPokretanja')).toISOString(),
-            aktivan: podaci.get('aktivan') === 'on'
+            imePrezime: podaci.get('imePrezime'),
+            ekipa:podaci.get('ekipa'),
+            stol: parseFloat(podaci.get('stol')),
+            email:podaci.get('email'),
+            kotizacijaPlacena: podaci.get('kotizacijaPlacena') === 'on',
+            prvenstvoHrvatske: podaci.get('prvenstvoHrvatske') === 'on',
         })
     }
 
@@ -30,39 +32,42 @@ export default function FishijadaNovi() {
     return (
         <>
             <h3 className="my-3">
-                Dodavanje nove fišijade
+                Dodavanje nove prijave
             </h3>
 
             <Form onSubmit={obradiSubmit}>
 
-                <Form.Group controlId="naziv">
-                    <Form.Label>Naziv</Form.Label>
-                    <Form.Control type="text" name="naziv" required />
+                <Form.Group controlId="imePrezime">
+                    <Form.Label>IME I PREZIME</Form.Label>
+                    <Form.Control type="text" name="imePrezime" required />
                 </Form.Group>
 
-                <Form.Group controlId="mjestoOdrzavanja">
-                    <Form.Label>Mjesto održavanja</Form.Label>
-                    <Form.Control type="text" name="mjestoOdrzavanja" />
+                <Form.Group controlId="ekipa">
+                    <Form.Label>EKIPA</Form.Label>
+                    <Form.Control type="text" name="ekipa" />
                 </Form.Group>
 
-                <Form.Group controlId="kotizacija">
-                    <Form.Label>Kotizacija</Form.Label>
-                    <Form.Control type="number" name="kotizacija" step={1} />
+                <Form.Group controlId="stol">
+                    <Form.Label>STOL</Form.Label>
+                    <Form.Control type="number" name="stol" />
                 </Form.Group>
 
-                <Form.Group controlId="datumPokretanja">
-                    <Form.Label>Datum pokretanja</Form.Label>
-                    <Form.Control type="date" name="datumPokretanja" />
+                <Form.Group controlId="email">
+                    <Form.Label>E-mail</Form.Label>
+                    <Form.Control type="email" name="email" />
                 </Form.Group>
 
-                <Form.Group controlId="aktivan" className="mt-3">
-                    <Form.Check label="Aktivan" name="aktivan" />
+                <Form.Group controlId="kotizacijaPlacena" className="mt-3">
+                    <Form.Check label="Kotizacija uplaćena" name="kotizacijaPlacena" />
+                </Form.Group>
+                 <Form.Group controlId="prvenstvoHrvatske" className="mt-3">
+                    <Form.Check label="Prvenstvo Hrvatske" name="prvenstvoHrvatske" />
                 </Form.Group>
 
 
                 <Row className="mt-4">
                     <Col>
-                        <Link to={RouteNames.FISHIJADE}
+                        <Link to={RouteNames.PRIJAVE}
                         className="btn btn-danger">
                             Odustani
                         </Link>
