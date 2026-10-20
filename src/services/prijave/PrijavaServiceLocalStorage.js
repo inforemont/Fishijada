@@ -12,7 +12,7 @@ function spremiUStorage(podaci){
 
 async function get(){   
     const prijave=dohvatSveIzStorage()
-    return{data:[prijave]}
+    return{data:prijave}
 }
 
 async function getBySifra(sifra){
@@ -24,7 +24,7 @@ async function getBySifra(sifra){
 
 
  async function dodaj(prijava){
-    const prijave=dohvatSveIzStorage
+    const prijave=dohvatSveIzStorage ()
     if(prijave.length===0){
         prijava.sifra=1
     }else{

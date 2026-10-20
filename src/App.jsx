@@ -12,6 +12,7 @@ import FishijadaPromjena from './pages/fishijade/FishijadaPromjena'
 import FishijadaDetalji from './pages/fishijade/FishijadaDetalji'
 import PrijavaPregled from './pages/prijave/PrijavaPregled'
 import PrijavaNovi from './pages/prijave/PrijavaNovi'
+import PrijavaPromjena from './pages/prijave/PrijavaPromjena'
 
 
 function App() {
@@ -32,6 +33,7 @@ function App() {
 
             <Route path={RouteNames.PRIJAVE} element={<PrijavaPregled />} />
             <Route path={RouteNames.PRIJAVE_DODAJ} element={<PrijavaNovi />} />
+            <Route path={RouteNames.PRIJAVE_PROMJENA} element={<PrijavaPromjena />} />
 
            
           </Routes>
