@@ -13,6 +13,11 @@ FISHIJADE_DETALJI: '/fishijade/detalji/:sifra',
 PRIJAVE:'/prijave',
 PRIJAVE_DODAJ:'/prijave/dodaj',
 PRIJAVE_PROMJENA:'/prijave/:sifra',
+LOKACIJE:'/lokacije',
+LOKACIJE:'/lokacije/dodaj',
+LOKACIJE:'/lokacije/:sifra',
+
+
 
 
 
@@ -21,7 +26,7 @@ PRIJAVE_PROMJENA:'/prijave/:sifra',
 
 // memorija, localStorage, firebase
 
-export const DATA_SOURCE='localStorage'
+export const DATA_SOURCE='memorija'
 
 
 

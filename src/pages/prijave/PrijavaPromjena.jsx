@@ -1,8 +1,9 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { RouteNames } from "../../constants";
 import { Button, Col, Form, Row } from "react-bootstrap";
 import PrijavaService from "../../services/prijave/PrijavaService";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+
 
 
 
@@ -36,7 +37,7 @@ export default function PrijavaPromjena() {
         promjeni({
             imePrezime: podaci.get('imePrezime'),
             ekipa:podaci.get('ekipa'),
-            stol: parseFloat(podaci.get('stol')),
+            stol: parseInt(podaci.get('stol')),
             email:podaci.get('email'),
             kotizacijaPlacena: podaci.get('kotizacijaPlacena') === 'on',
             prvenstvoHrvatske: podaci.get('prvenstvoHrvatske') === 'on',
@@ -78,11 +79,15 @@ export default function PrijavaPromjena() {
 
                 <Form.Group controlId="kotizacijaPlacena" className="mt-3">
                     <Form.Check label="Kotizacija uplaćena" name="kotizacijaPlacena" 
-                    defaultValue={prijava.kotizacijaPlacena} />
+                    key={prijava.kotizacijaPlacena?'kotizacija-true':'kotizacija:false'}
+                    name="kotizacijaPlacena"
+                    defaultChecked={prijava.kotizacijaPlacena} />
                 </Form.Group>
                  <Form.Group controlId="prvenstvoHrvatske" className="mt-3">
                     <Form.Check label="Prvenstvo Hrvatske" name="prvenstvoHrvatske" 
-                    defaultValue={prijava.prvenstvoHrvatske}/>
+                    key={prijava.prvenstvoHrvatske?'prvenstvo-true':'prvenstvo:false'}
+                    name="prvenstvoHrvatske"
+                    defaultChecked={prijava.prvenstvoHrvatske}/>
                 </Form.Group>
 
 

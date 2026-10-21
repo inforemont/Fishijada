@@ -82,7 +82,8 @@ function PrijaveIzbor({ godina }) {
                 </thead>
                 <tbody>
                     {prijave && prijave.map((prijava) => {
-                        const jeOdrzana = prijava.održana ?? prijava.održan ?? prijava.odrzana;
+                        const jePlaceno = prijava.kotizacijaPlacena;
+                        const jePrvenstvo=prijava.prvenstvoHrvatske;
 
                         return (
                             <tr 
@@ -99,41 +100,27 @@ function PrijaveIzbor({ godina }) {
                                     <NumericFormat
                                     value={prijava.stol}
                                     displayType={'text'}
-                                    decimalSeparator=","
-                                    decimalScale={2}
-                                    fixedDecimalScale='.'
-                                    suffix=' €'
-                                    prefix="="
                                     />
                                     </td>
                                 <td style={{textAlign: 'center'}}>
-                                        <FormatDatuma datum={prijava.email} prikazDatuma="Nije postavljeno" />
+                                        {prijava.email}
                                         </td>
 
-                                <td>
-                                    <GrValidate 
-                                        size={25}
-                                        color={jeOdrzana ? 'green' : 'red'}
-                                        title={jeOdrzana ? 'Održana' : 'Nije održana'}
-                                    />
+                                <td style={{textAlign:'center'}}>
                                     &nbsp;
-                                    {jeOdrzana ? (
-                                        <FcApproval />
+                                    {jePlaceno ? (
+                                        <FcApproval size={25} />
                                     ) : (
-                                        <FcDisapprove />
+                                        <FcDisapprove size={25} />
                                     )}
                                 </td>
                                 <td>
-                                    <GrValidate 
-                                        size={25}
-                                        color={jeOdrzana ? 'green' : 'red'}
-                                        title={jeOdrzana ? 'Održana' : 'Nije održana'}
-                                    />
+                                   
                                     &nbsp;
-                                    {jeOdrzana ? (
-                                        <FcApproval />
+                                    {jePrvenstvo ? (
+                                        <FcApproval size={25} />
                                     ) : (
-                                        <FcDisapprove />
+                                        <FcDisapprove size={25} />
                                     )}
                                 </td>
                                <td>

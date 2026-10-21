@@ -1,58 +1,62 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import FishijadaService from "../../services/FishijadaService";
+import PrijavaService from "../../services/prijave/PrijavaService";
 import { Button, Table } from "react-bootstrap";
 import { RouteNames } from "../../constants";
 
-export default function FishijadaDetalji() {
+export default function PrijavaDetalji() {
     const { sifra } = useParams()
     const navigate = useNavigate()
-    const [fishijada, setFishijada] = useState(null)
+    const [prijava, setPrijava] = useState(null)
 
     useEffect(() => {
         ucitajDetalje()
     }, [sifra]);
 
     async function ucitajDetalje() {
-        await FishijadaService.getBySifra(sifra).then((odgovor) => {
-            setFishijada(odgovor.data)
+        await PrijavaService.getBySifra(sifra).then((odgovor) => {
+            setPrijava(odgovor.data)
         })
     }
 
-    if (!fishijada) {
+    if (!prijava) {
         return <p className="mt-3">Učitavanje podataka...</p>;
     }
 
     return (
         <div>
-            <h3 className="my-3">Detalji fišijade: {fishijada.naziv}</h3>
+            <h3 className="my-3">Detalji prijave: {prijava.naziv}</h3>
             
             <Table hover striped bordered className="mt-3">
                 <tbody>
                     <tr>
-                        <td><strong>Naziv:</strong></td>
-                        <td>{fishijada.naziv}</td>
+                        <td><strong>Ime i Prezime:</strong></td>
+                        <td>{prijava.imePrezime}</td>
                     </tr>
                     <tr>
-                        <td><strong>Mjesto održavanja:</strong></td>
-                        <td>{fishijada.mjestoOdrzavanja}</td>
+                        <td><strong>Ekipa:</strong></td>
+                        <td>{prijava.ekipa}</td>
                     </tr>
                     <tr>
-                        <td><strong>Kotizacija:</strong></td>
-                        <td>{fishijada.cijena} €</td>
+                        <td><strong>Stol:</strong></td>
+                        <td>{prijava.stol} </td>
                     </tr>
                     <tr>
-                        <td><strong>Datum pokretanja:</strong></td>
-                        <td>{fishijada.datumPokretanja}</td>
+                        <td><strong>E-mail:</strong></td>
+                        <td>{prijava.email}</td>
                     </tr>
                     <tr>
-                        <td><strong>Status aktivnosti:</strong></td>
-                        <td>{fishijada.aktivan ? 'Aktivna' : 'Neaktivna'}</td>
+                        <td><strong>Kotizacija uplaćena?:</strong></td>
+                        <td>{prijava.kotizacijaPlacena ? 'Aktivna' : 'Neaktivna'}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Prvenstvo Hrvatske?:</strong></td>
+                        <td>{prijava.prvenstvoHrvatske ? 'Aktivna' : 'Neaktivna'}</td>
                     </tr>
                 </tbody>
             </Table>
 
-            <Button variant="secondary" onClick={() => navigate(RouteNames.FISHIJADE)} className="mt-3">
+            <Button variant="secondary" onClick={() => navigate(RouteNames.PRIJAVE)} className="mt-3">
                 Natrag na pregled
             </Button>
         </div>

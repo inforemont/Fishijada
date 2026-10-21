@@ -30,6 +30,9 @@ export default function Izbornik() {
                                 <NavDropdown.Item onClick={()=> navigate(RouteNames.PRIJAVE, {state :{godina: null}})}>
                                 <strong>Sve Prijave</strong>
                                 </NavDropdown.Item>
+                                 <NavDropdown.Item onClick={()=> navigate(RouteNames.LOKACIJE, {state :{godina: null}})}>
+                                <strong>Sve Lokacije</strong>
+                                </NavDropdown.Item>
                         <NavDropdown.Divider />
 
                             <NavDropdown.Item
