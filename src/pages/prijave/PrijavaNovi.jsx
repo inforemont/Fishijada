@@ -1,19 +1,31 @@
 import { Link, useNavigate } from "react-router-dom";
 import { RouteNames } from "../../constants";
-import { Button, Col, Form, Row } from "react-bootstrap";
+import { Button, Col, Form, FormLabel, Row } from "react-bootstrap";
 import PrijavaService from "../../services/prijave/PrijavaService";
+import { useState, useEffect } from "react";
+import LokacijaService from "../../services/lokacije/LokacijaService";
+
 
 
 
 export default function PrijavaNovi() {
 
     const navigate = useNavigate()
+    const[lokacije,setLokacije]=useState([])
+    const [odabranaLokacija, setOdabranaLokacija] = useState('');
+
+    useEffect(()=>{
+        LokacijaService.get().then((o)=>{
+            setLokacije(o.data);
+        })
+    },[])
 
     async function dodaj(prijava){
         await PrijavaService.dodaj(prijava).then(()=>{
             navigate(RouteNames.PRIJAVE)
         })
     }
+
 
     function obradiSubmit(e){
         e.preventDefault() 
@@ -25,8 +37,12 @@ export default function PrijavaNovi() {
             email:podaci.get('email'),
             kotizacijaPlacena: podaci.get('kotizacijaPlacena') === 'on',
             prvenstvoHrvatske: podaci.get('prvenstvoHrvatske') === 'on',
+            lokacija: parseInt(podaci.get('lokacija')),
         })
     }
+
+    const odabraniObjekt = lokacije.find(l => l.sifra == odabranaLokacija);
+    const jeBeliManastir = odabraniObjekt?.mjesto === 'Beli Manastir';
 
 
     return (
@@ -60,9 +76,29 @@ export default function PrijavaNovi() {
                 <Form.Group controlId="kotizacijaPlacena" className="mt-3">
                     <Form.Check label="Kotizacija uplaćena" name="kotizacijaPlacena" />
                 </Form.Group>
-                 <Form.Group controlId="prvenstvoHrvatske" className="mt-3">
-                    <Form.Check label="Prvenstvo Hrvatske" name="prvenstvoHrvatske" />
-                </Form.Group>
+
+                {jeBeliManastir && (
+                    <Form.Group controlId="prvenstvoHrvatske" className="mt-3">
+                        <Form.Check label="Prvenstvo Hrvatske" name="prvenstvoHrvatske" />
+                    </Form.Group>
+                )}
+
+                <Form.Group controlId="lokacija" className="mt-3">
+                    <FormLabel>LOKACIJA</FormLabel>
+                    <Form.Select 
+                        name="lokacija"
+                        required
+                        value={odabranaLokacija}
+                        onChange={(e) => setOdabranaLokacija(e.target.value)}
+                    >
+                        <option value="">Odaberi lokaciju...</option>
+                        {lokacije && lokacije.map((l)=>(
+                            <option key={l.sifra} value={l.sifra}>
+                            {l.mjesto}
+                            </option>
+                        ))}
+                    </Form.Select>
+                    </Form.Group>
 
 
                 <Row className="mt-4">

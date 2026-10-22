@@ -18,12 +18,12 @@ export default function FishijadePregled() {
 
     return (
         <div>
-            <h3 className='my-3'>Pregled Fishijada</h3>
+            <h3 className='my-3'>Pregled svih fišijada u Belom Manastiru</h3>
 
             {godina ? (
                 <p>Odabrana je godina: <strong>{godina}.</strong></p>
             ) : (
-                <p>Nije odabrana niti jedna godina (prikaz svih fishijada).</p>
+                <p>Prikaz svih održanih fišijada:.</p>
             )}
             <FishijadeIzbor godina={godina} />
         </div>

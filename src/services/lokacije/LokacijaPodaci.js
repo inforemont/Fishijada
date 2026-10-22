@@ -1,6 +1,7 @@
 export const lokacije=[
 {
     sifra: 1,
+    regija:'Baranja',
     mjesto:'Beli Manastir',
     zupanija:'Osječko-baranjska',
     posta:31300
@@ -9,6 +10,7 @@ export const lokacije=[
 
 {
     sifra: 2,
+    regija:'Baranja',
     mjesto:'Knezevi vinogradi',
     zupanija:'Osječko-baranjska',
     posta:31309
@@ -17,6 +19,7 @@ export const lokacije=[
 
 {
     sifra: 3,
+    regija:'Baranja',
     mjesto:'Luč',
     zupanija:'Osječko-baranjska',
     posta:31300
@@ -25,6 +28,7 @@ export const lokacije=[
 
 {
     sifra: 4,
+    regija:'Baranja',
     mjesto:'Jagodnjak',
     zupanija:'Osječko-baranjska',
     posta:31324
@@ -33,6 +37,7 @@ export const lokacije=[
 
 {
     sifra: 5,
+    regija:'Baranja',
     mjesto:'Baranjsko petrovo selo',
     zupanija:'Osječko-baranjska',
     posta:31312
@@ -41,6 +46,7 @@ export const lokacije=[
 
 {
     sifra: 6,
+    regija:'Baranja',
     mjesto:'Petlovac',
     zupanija:'Osječko-baranjska',
     posta:31321
@@ -49,6 +55,7 @@ export const lokacije=[
 
 {
     sifra: 7,
+    regija:'Baranja',
     mjesto:'Lug',
     zupanija:'Osječko-baranjska',
     posta:31328
@@ -57,6 +64,7 @@ export const lokacije=[
 
 {
     sifra: 8,
+    regija:'Baranja',
     mjesto:'Kopačevo',
     zupanija:'Osječko-baranjska',
     posta:31327
@@ -65,6 +73,7 @@ export const lokacije=[
 
 {
     sifra: 9,
+    regija:'Baranja',
     mjesto:'Zmajevac',
     zupanija:'Osječko-baranjska',
     posta:31307
@@ -73,6 +82,7 @@ export const lokacije=[
 
 {
     sifra: 10,
+    regija:'Baranja',
     mjesto:'Batina',
     zupanija:'Osječko-baranjska',
     posta:31306
@@ -81,6 +91,7 @@ export const lokacije=[
 
 {
     sifra: 11,
+    regija:'Baranja',
     mjesto:'Duboševica',
     zupanija:'Osječko-baranjska',
     posta:31304
@@ -89,6 +100,7 @@ export const lokacije=[
 
 {
     sifra: 12,
+    regija:'Baranja',
     mjesto:'Popovac',
     zupanija:'Osječko-baranjska',
     posta:31303
@@ -97,6 +109,7 @@ export const lokacije=[
 
 {
     sifra: 13,
+    regija:'Baranja',
     mjesto:'Čeminac',
     zupanija:'Osječko-baranjska',
     posta:31325
@@ -105,6 +118,7 @@ export const lokacije=[
 
 {
     sifra: 14,
+    regija:'Baranja',
     mjesto:'Karanac',
     zupanija:'Osječko-baranjska',
     posta:31315
@@ -113,6 +127,7 @@ export const lokacije=[
 
 {
     sifra: 15,
+    regija:'Baranja',
     mjesto:'Suza',
     zupanija:'Osječko-baranjska',
     posta:31309
@@ -121,6 +136,7 @@ export const lokacije=[
 
 {
     sifra: 16,
+    regija:'Baranja',
     mjesto:'Draž',
     zupanija:'Osječko-baranjska',
     posta:31305
@@ -129,6 +145,7 @@ export const lokacije=[
 
 {
     sifra: 17,
+    regija:'Baranja',
     mjesto:'Gajić',
     zupanija:'Osječko-baranjska',
     posta:31305
@@ -137,11 +154,20 @@ export const lokacije=[
 
 {
     sifra: 18,
+    regija:'Baranja',
     mjesto:'Topolje',
     zupanija:'Osječko-baranjska',
     posta:31305
 
 },
+
+{
+    sifra: 18,
+    regija:'Slavonija',
+    mjesto: 'Nard',
+    zupanija:'Osječko-baranjska',
+    posta:31550,
+}
 
 
 ]
