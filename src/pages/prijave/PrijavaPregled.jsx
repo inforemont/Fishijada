@@ -142,7 +142,9 @@ function PrijaveIzbor({ godina }) {
                                     {prijava.email}
                                 </td>
                                 <td style={{ textAlign: 'center' }}>
-                                    {prijava.lokacija ?(lokacije.find((l) => l.sifra === prijava.lokacija)?.mjesto || '-') : '-'}
+                                    {prijava.lokacija === 111 || prijava.lokacija === '111'
+                                        ? 'Beli Manastir'
+                                        : (prijava.lokacija ? (lokacije.find((l) => l.sifra === prijava.lokacija)?.mjesto || '-') : '-')}
                                 </td>
 
                                 <td style={{ textAlign: 'center' }}>
