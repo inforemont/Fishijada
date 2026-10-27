@@ -1,12 +1,4 @@
 export const lokacije=[
-{
-    sifra: 1,
-    regija:'Baranja',
-    mjesto:'Beli Manastir',
-    zupanija:'Osječko-baranjska',
-    posta:31300
-
-},
 
 {
     sifra: 2,

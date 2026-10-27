@@ -76,7 +76,14 @@ export const fishijade=[
         cijena: 1850.00,
         datumPokretanja: '2027-09-04T19:00:00',
         održan: false,
-    }
+    },
 
+    {
+    sifra: 111,
+    regija:'Baranja',
+    mjesto:'Beli Manastir',
+    zupanija:'Osječko-baranjska',
+    posta:31300
 
+},
 ]

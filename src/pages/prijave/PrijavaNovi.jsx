@@ -8,15 +8,18 @@ import LokacijaService from "../../services/lokacije/LokacijaService";
 
 
 
+
 export default function PrijavaNovi() {
 
     const navigate = useNavigate()
     const[lokacije,setLokacije]=useState([])
-    const [odabranaLokacija, setOdabranaLokacija] = useState('');
+    const [odabranaLokacija, setOdabranaLokacija] = useState('')
+
+
 
     useEffect(()=>{
         LokacijaService.get().then((o)=>{
-            setLokacije(o.data);
+            setLokacije(o.data)
         })
     },[])
 

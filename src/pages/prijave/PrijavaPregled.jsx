@@ -83,6 +83,10 @@ function PrijaveIzbor({ godina }) {
                 className="btn btn-success w-100 my-3">
                 Dodavanje nove prijave
             </Link>
+            <Link to={RouteNames.PRIJAVE_PRVENSTVO_BARANJE}
+                className="btn btn-success w-100 my-3">
+                Prijavi se na na prvesntvo Baranje
+            </Link>
 
             <Form.Group className='mb-4'>
                 <Form.Label>Filtriraj po lokaciji:</Form.Label>
