@@ -1,33 +1,33 @@
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { RouteNames } from "../../constants";
 import { Button, Col, Form, Row } from "react-bootstrap";
-import PrijavaService from "../../services/prijave/PrijavaService";
+import LokacijaService from "../../services/lokacije/LokacijaService";
 import { useEffect, useState } from "react";
 
 
 
 
-export default function PrijavaPromjena() {
+export default function LokacijaPromjena() {
 
     const navigate = useNavigate()
     const params=useParams()
 
-    const [prijava,setPrijava]=useState({})
+    const [lokacija,setLokacija]=useState({})
 
-    async function ucitajPrijave(){
-        await PrijavaService.getBySifra(params.sifra).then((odgovor)=>{
-            setPrijava(odgovor.data)
+    async function ucitajLokacije(){
+        await LokacijaService.getBySifra(params.sifra).then((odgovor)=>{
+            setLokacija(odgovor.data)
         })
 
     }
 
     useEffect(()=>{
-        ucitajPrijave()
+        ucitajLokacije()
     },[])
 
-    async function promjeni(prijava){
-        await PrijavaService.promjeni(params.sifra, prijava).then(()=>{
-            navigate(RouteNames.PRIJAVE)
+    async function promjeni(lokacija){
+        await LokacijaService.promjeni(params.sifra, lokacija).then(()=>{
+            navigate(RouteNames.LOKACIJE)
         })
     }
 
@@ -35,12 +35,11 @@ export default function PrijavaPromjena() {
         e.preventDefault() 
         const podaci = new FormData(e.target)
         promjeni({
-            imePrezime: podaci.get('imePrezime'),
-            ekipa:podaci.get('ekipa'),
-            stol: parseInt(podaci.get('stol')),
-            email:podaci.get('email'),
-            kotizacijaPlacena: podaci.get('kotizacijaPlacena') === 'on',
-            prvenstvoHrvatske: podaci.get('prvenstvoHrvatske') === 'on',
+            regija: podaci.get('regija'),
+            mjesto:podaci.get('mjesto'),
+            posta: parseInt(podaci.get('posta')),
+            zupanija:podaci.get('zupanija'),
+
         })
     }
 
@@ -48,52 +47,39 @@ export default function PrijavaPromjena() {
     return (
         <>
             <h3 className="my-3">
-                Promijeni prijavu
+                Promijeni lokaciju
             </h3>
 
             <Form onSubmit={obradiSubmit}>
 
-                <Form.Group controlId="imePrezime">
-                    <Form.Label>IME I PREZIME</Form.Label>
-                    <Form.Control type="text" name="imePrezime" required 
-                    defaultValue={prijava.imePrezime}/>
+                <Form.Group controlId="regija">
+                    <Form.Label>REGIJA</Form.Label>
+                    <Form.Control type="text" name="regija" required 
+                    defaultValue={lokacija.regija}/>
                 </Form.Group>
 
-                <Form.Group controlId="ekipa">
-                    <Form.Label>EKIPA</Form.Label>
-                    <Form.Control type="text" name="ekipa" required
-                    defaultValue={prijava.ekipa} />
+                <Form.Group controlId="mjesto">
+                    <Form.Label>MJESTO</Form.Label>
+                    <Form.Control type="text" name="mjesto" required
+                    defaultValue={lokacija.mjesto} />
                 </Form.Group>
 
-                <Form.Group controlId="stol">
-                    <Form.Label>STOL</Form.Label>
-                    <Form.Control type="number" name="stol" required
-                    defaultValue={prijava.stol} />
+                <Form.Group controlId="posta">
+                    <Form.Label>POŠTA</Form.Label>
+                    <Form.Control type="number" name="posta" required
+                    defaultValue={lokacija.posta} />
                 </Form.Group>
 
-                <Form.Group controlId="email">
-                    <Form.Label>E-mail</Form.Label>
-                    <Form.Control type="email" name="email" required
-                    defaultValue={prijava.email} />
-                </Form.Group>
-
-                <Form.Group controlId="kotizacijaPlacena" className="mt-3">
-                    <Form.Check label="Kotizacija uplaćena" name="kotizacijaPlacena" 
-                    key={prijava.kotizacijaPlacena?'kotizacija-true':'kotizacija:false'}
-                    name="kotizacijaPlacena"
-                    defaultChecked={prijava.kotizacijaPlacena} />
-                </Form.Group>
-                 <Form.Group controlId="prvenstvoHrvatske" className="mt-3">
-                    <Form.Check label="Prvenstvo Hrvatske" name="prvenstvoHrvatske" 
-                    key={prijava.prvenstvoHrvatske?'prvenstvo-true':'prvenstvo:false'}
-                    name="prvenstvoHrvatske"
-                    defaultChecked={prijava.prvenstvoHrvatske}/>
+                <Form.Group controlId="zupanija">
+                    <Form.Label>ŽUPANIJA</Form.Label>
+                    <Form.Control type="text" name="zupanija" required
+                    defaultValue={lokacija.zupanija} />
                 </Form.Group>
 
 
                 <Row className="mt-4">
                     <Col>
-                        <Link to={RouteNames.PRIJAVE}
+                        <Link to={RouteNames.LOKACIJE}
                         className="btn btn-danger">
                             Odustani
                         </Link>

@@ -6,7 +6,7 @@ import Table from 'react-bootstrap/Table';
 import { NumericFormat } from 'react-number-format';
 import { RouteNames } from '../../constants';
 import { Button } from "react-bootstrap";
-import PrijavaService from '../../services/prijave/PrijavaService';
+
 
 export default function LokacijePregled() {
     return (
@@ -14,53 +14,41 @@ export default function LokacijePregled() {
             <h3 className='my-3'>Pregled lokacija</h3>
             <LokacijeIzbor />
         </div>
-    );
+    )
 }
 
 function LokacijeIzbor() {
-    const [lokacije, setLokacije] = useState([]);
-    const [prijave, setPrijave] = useState([]);
-    const navigate = useNavigate();
+    const [lokacije, setLokacije] = useState([])
+    const navigate = useNavigate()
 
-    async function ucitajPrijave(){
-        await PrijavaService.get().then((odgovor) => {
-            setPrijave(odgovor.data);
-        });
-    }
-
-    async function ucitajLokacije() {
+    async function ucitajLokacije(){
         await LokacijaService.get().then((odgovor) => {
-            let podaci = odgovor.data;
-            setLokacije(podaci);
-        });
+            setLokacije(odgovor.data)
+        })
     }
 
-    // Pozivamo dohvaćanje podataka jednom prilikom učitavanja komponente
+
     useEffect(() => {
-        ucitajPrijave();
-        ucitajLokacije();
-    }, []);
+
+        ucitajLokacije()
+    }, [])
 
     async function obrisi(sifra) {
         if(!confirm('sigurno obrisati?')){
-            return;
+            return
         }
 
-        await LokacijaService.obrisi(sifra);
-        await ucitajLokacije();
+        await LokacijaService.obrisi(sifra)
+        await ucitajLokacije()
     }
 
     function detalji(sifra) {
-        navigate(`/lokacije/detalji/${sifra}`);
-    }
-
-    function dohvatiPrijavu(sifraPrijave){
-        return prijave.find(s => s.sifra === sifraPrijave) || {};
+        navigate(`/lokacije/detalji/${sifra}`)
     }
 
     return (
         <>
-            <Link to={RouteNames.PRIJAVE_DODAJ}
+            <Link to={RouteNames.LOKACIJE_DODAJ}
             className="btn btn-success w-100 my-3">
                 Dodavanje nove lokacije
             </Link>

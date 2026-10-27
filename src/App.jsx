@@ -15,6 +15,8 @@ import PrijavaNovi from './pages/prijave/PrijavaNovi'
 import PrijavaPrvenstvoBaranje from './pages/prijave/PrijavaPrvenstvoBaranje'
 import PrijavaPromjena from './pages/prijave/PrijavaPromjena'
 import LokacijaPregled from './pages/lokacije/LokacijaPregled'
+import LokacijaNovi from './pages/lokacije/LokacijaNovi'
+import LokacijaPromjena from './pages/lokacije/LokacijaPromjena'
 
 
 function App() {
@@ -39,6 +41,8 @@ function App() {
              <Route path={RouteNames.PRIJAVE_PRVENSTVO_BARANJE} element={<PrijavaPrvenstvoBaranje />} />
 
             <Route path={RouteNames.LOKACIJE} element={<LokacijaPregled />} />
+            <Route path={RouteNames.LOKACIJE_DODAJ} element={<LokacijaNovi />} />
+            <Route path={RouteNames.LOKACIJE_PROMJENA} element={<LokacijaPromjena />} />
 
            
           </Routes>
