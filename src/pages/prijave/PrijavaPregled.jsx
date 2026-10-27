@@ -9,6 +9,7 @@ import { RouteNames } from '../../constants';
 import { Button } from "react-bootstrap";
 import LokacijaService from '../../services/lokacije/LokacijaService';
 import { Form } from "react-bootstrap"
+import { fishijade } from "../../services/FishijadaPodaci";
 
 export default function PrijavePregled() {
     const location = useLocation();
@@ -142,9 +143,11 @@ function PrijaveIzbor({ godina }) {
                                     {prijava.email}
                                 </td>
                                 <td style={{ textAlign: 'center' }}>
-                                    {prijava.lokacija === 111 || prijava.lokacija === '111'
-                                        ? 'Beli Manastir'
-                                        : (prijava.lokacija ? (lokacije.find((l) => l.sifra === prijava.lokacija)?.mjesto || '-') : '-')}
+                                    {prijava.lokacija ? (
+                                        lokacije.find((l) => l.sifra === prijava.lokacija)?.mjesto ||
+                                        fishijade.find((f) => f.sifra === prijava.lokacija)?.mjesto ||
+                                        '-'
+                                    ) : '-'}
                                 </td>
 
                                 <td style={{ textAlign: 'center' }}>
