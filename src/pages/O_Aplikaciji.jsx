@@ -5,7 +5,9 @@ export default function O_Aplikaciji ()
 
     return(
         <>
-        Ovdje dodje o Aplikaciji
+        Ovo je aplikacija koju je izradio Dragan Živković
+        Aplikacija prati sve Baranjske fišijade te omogućuje prijave na iste.
+        
         </>
     )
 }
