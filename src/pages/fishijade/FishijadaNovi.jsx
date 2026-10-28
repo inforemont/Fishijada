@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { RouteNames } from "../../constants";
-import { Button, Col, Form, Row } from "react-bootstrap";
+import { Button, Col, Form, Row,Container,Card} from "react-bootstrap";
 import FishijadaService from "../../services/FishijadaService";
 
 
@@ -29,11 +29,15 @@ export default function FishijadaNovi() {
 
     return (
         <>
-            <h3 className="my-3">
-                Dodavanje nove fišijade
-            </h3>
+
 
             <Form onSubmit={obradiSubmit}>
+
+                 <Container className="mt-3">
+                 <Card style={{padding:'1rem'}}>
+                    <Card.Title>Dodavanje nove fišijade</Card.Title>
+                </Card>
+                 </Container>
 
                 <Form.Group controlId="naziv">
                     <Form.Label>Naziv</Form.Label>
