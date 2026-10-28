@@ -172,7 +172,7 @@ export const lokacije=[
 },
 
 {
-    sifra: 18,
+    sifra: 19,
     regija:'Slavonija',
     mjesto: 'Nard',
     zupanija:'Osječko-baranjska',
