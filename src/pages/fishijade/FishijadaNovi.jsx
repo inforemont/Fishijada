@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { RouteNames } from "../../constants";
-import { Button, Col, Form, Row,Container,Card} from "react-bootstrap";
+import { Button, Col, Form, Row, Container, Card } from "react-bootstrap";
 import FishijadaService from "../../services/FishijadaService";
 
 
@@ -8,18 +8,18 @@ export default function FishijadaNovi() {
 
     const navigate = useNavigate()
 
-    async function dodaj(fishijada){
-        await FishijadaService.dodaj(fishijada).then(()=>{
+    async function dodaj(fishijada) {
+        await FishijadaService.dodaj(fishijada).then(() => {
             navigate(RouteNames.FISHIJADE)
         })
     }
 
-    function obradiSubmit(e){
-        e.preventDefault() 
+    function obradiSubmit(e) {
+        e.preventDefault()
         const podaci = new FormData(e.target)
         dodaj({
             naziv: podaci.get('naziv'),
-            mjestoOdrzavanja:podaci.get('mjestoOdrzavanja'),
+            mjestoOdrzavanja: podaci.get('mjestoOdrzavanja'),
             cijena: parseFloat(podaci.get('kotizacija')),
             datumPokretanja: new Date(podaci.get('datumPokretanja')).toISOString(),
             aktivan: podaci.get('aktivan') === 'on'
@@ -28,58 +28,73 @@ export default function FishijadaNovi() {
 
 
     return (
-        <>
 
 
-            <Form onSubmit={obradiSubmit}>
+        <Form onSubmit={obradiSubmit}>
 
-                 <Container className="mt-3">
-                 <Card style={{padding:'1rem'}}>
-                    <Card.Title>Dodavanje nove fišijade</Card.Title>
+            <Container className="mt-3">
+                <Card style={{ padding: '1rem' }}>
+                    <Card.Title className="mb-4">Dodavanje nove fišijade</Card.Title>
+
+                    <Row className="mb-3">
+                        <Col xs={12}>
+                            <Form.Group controlID="naziv">
+                                <Form.Label>Naziv</Form.Label>
+                                <Form.Control type="text" name="naziv" required />
+                            </Form.Group>
+                        </Col>
+                        </Row>
+                        <Row className="mb-3">
+                        <Col xs={6}>
+                            <Form.Group controlID="mjestoOdrzavanja">
+                                <Form.Label>Mjesto Održavanja</Form.Label>
+                                <Form.Control type="text" name="mjestoOdrzavanja" />
+                            </Form.Group>
+                        </Col>
+                        <Col xs={6}>
+                            <Form.Group controlID="kotizacija">
+                                <Form.Label>Kotizacija</Form.Label>
+                                <Form.Control type="number" style={{textAlign: 'right'}} name="kotizacija" step={1} />
+                            </Form.Group>
+                        </Col>
+                        </Row>
+                        <Row className="mb-4 align-items-center">
+                        <Col xs={6}>
+                            <Form.Group controlID="datumPokretanja" className="mb-0">
+                                <Form.Label>Datum pokretanja</Form.Label>
+                                <Form.Control type="date" name="datumPokretanja" />
+                            </Form.Group>
+                        </Col>
+                        <Col xs={6} className="d-flex align-items-center">
+                            <Form.Group controlId="aktivan" className="mb-0 mt-4 ">
+                                <Form.Check label="Aktivan" name="aktivan" />
+                            </Form.Group>
+                        </Col>
+                        </Row>
+
+                        <Row className="mt-4">
+                        <Col xs={6}>
+                            <Link to={RouteNames.FISHIJADE}
+                                className="btn btn-danger w-100">
+                                Odustani
+                            </Link>
+
+                        </Col>
+
+                        <Col xs={6}>
+                            <Button type="submit" variant="success" className="w-100">
+                                Dodaj
+                            </Button>
+                        </Col>
+
+
+
+                    </Row>
                 </Card>
-                 </Container>
 
-                <Form.Group controlId="naziv">
-                    <Form.Label>Naziv</Form.Label>
-                    <Form.Control type="text" name="naziv" required />
-                </Form.Group>
+            </Container>
 
-                <Form.Group controlId="mjestoOdrzavanja">
-                    <Form.Label>Mjesto održavanja</Form.Label>
-                    <Form.Control type="text" name="mjestoOdrzavanja" />
-                </Form.Group>
+        </Form>
 
-                <Form.Group controlId="kotizacija">
-                    <Form.Label>Kotizacija</Form.Label>
-                    <Form.Control type="number" name="kotizacija" step={1} />
-                </Form.Group>
-
-                <Form.Group controlId="datumPokretanja">
-                    <Form.Label>Datum pokretanja</Form.Label>
-                    <Form.Control type="date" name="datumPokretanja" />
-                </Form.Group>
-
-                <Form.Group controlId="aktivan" className="mt-3">
-                    <Form.Check label="Aktivan" name="aktivan" />
-                </Form.Group>
-
-
-                <Row className="mt-4">
-                    <Col>
-                        <Link to={RouteNames.FISHIJADE}
-                        className="btn btn-danger">
-                            Odustani
-                        </Link>
-                    </Col>
-                    <Col>
-                        <Button type="submit" variant="success">
-                            Dodaj
-                        </Button>
-                    </Col>
-                </Row>
-            </Form>
-
-
-        </>
     )
 }
