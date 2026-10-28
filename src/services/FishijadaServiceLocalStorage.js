@@ -15,7 +15,7 @@ function spremiUStorage(podaci){
 
 async function get(){   // get je blijed jer nema onaj export default
     const fishijade=dohvatSveIzStorage()
-    return{data:[fishijade]}
+    return{data:fishijade}
 }
 
 async function getBySifra(sifra){
@@ -27,7 +27,7 @@ async function getBySifra(sifra){
 
 
  async function dodaj(fishijada){
-    const fishijade=dohvatSveIzStorage
+    const fishijade=dohvatSveIzStorage()
     if(fishijade.length===0){
         fishijada.sifra=1
     }else{

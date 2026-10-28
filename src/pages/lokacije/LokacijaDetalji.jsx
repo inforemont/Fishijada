@@ -1,64 +1,60 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import PrijavaService from "../../services/prijave/PrijavaService";
+import LokacijaService from "../../services/lokacije/LokacijaService";
 import { Button, Table } from "react-bootstrap";
 import { RouteNames } from "../../constants";
 
-export default function PrijavaDetalji() {
+export default function LokacijaDetalji() {
     const { sifra } = useParams()
     const navigate = useNavigate()
-    const [prijava, setPrijava] = useState(null)
+    const [lokacija, setLokacija] = useState(null)
 
     useEffect(() => {
         ucitajDetalje()
-    }, [sifra]);
+    }, [sifra])
 
     async function ucitajDetalje() {
-        await PrijavaService.getBySifra(sifra).then((odgovor) => {
-            setPrijava(odgovor.data)
+        await LokacijaService.getBySifra(sifra).then((odgovor) => {
+            setLokacija(odgovor.data)
         })
     }
 
-    if (!prijava) {
+    if (!lokacija) {
         return <p className="mt-3">Učitavanje podataka...</p>;
     }
 
     return (
         <div>
-            <h3 className="my-3">Detalji prijave: {prijava.naziv}</h3>
+            <h3 className="my-3">Detalji lokacije: {lokacija.mjesto}</h3>
             
             <Table hover striped bordered className="mt-3">
                 <tbody>
                     <tr>
-                        <td><strong>Ime i Prezime:</strong></td>
-                        <td>{prijava.imePrezime}</td>
+                        <td><strong>Regija:</strong></td>
+                        <td>{lokacija.regija}</td>
                     </tr>
                     <tr>
-                        <td><strong>Ekipa:</strong></td>
-                        <td>{prijava.ekipa}</td>
+                        <td><strong>Mjesto:</strong></td>
+                        <td>{lokacija.mjesto}</td>
                     </tr>
                     <tr>
-                        <td><strong>Stol:</strong></td>
-                        <td>{prijava.stol} </td>
+                        <td><strong>Županija:</strong></td>
+                        <td>{lokacija.zupanija} </td>
                     </tr>
                     <tr>
-                        <td><strong>E-mail:</strong></td>
-                        <td>{prijava.email}</td>
+                        <td><strong>Pošta:</strong></td>
+                        <td>{lokacija.posta}</td>
                     </tr>
-                    <tr>
-                        <td><strong>Kotizacija uplaćena?:</strong></td>
-                        <td>{prijava.kotizacijaPlacena ? 'Aktivna' : 'Neaktivna'}</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Prvenstvo Hrvatske?:</strong></td>
-                        <td>{prijava.prvenstvoHrvatske ? 'Aktivna' : 'Neaktivna'}</td>
+                                        <tr>
+                        <td><strong>Datum održavanja:</strong></td>
+                        <td>{lokacija.datumOdrzavanja}</td>
                     </tr>
                 </tbody>
             </Table>
 
-            <Button variant="secondary" onClick={() => navigate(RouteNames.PRIJAVE)} className="mt-3">
+            <Button variant="secondary" onClick={() => navigate(RouteNames.LOKACIJE)} className="mt-3">
                 Natrag na pregled
             </Button>
         </div>
-    );
+    )
 }

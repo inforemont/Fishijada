@@ -25,7 +25,7 @@ export default function PrijavaDetalji() {
 
     return (
         <div>
-            <h3 className="my-3">Detalji prijave: {prijava.naziv}</h3>
+            <h3 className="my-3">Detalji prijave: {prijava.imePrezime} ({prijava.ekipa})</h3>
             
             <Table hover striped bordered className="mt-3">
                 <tbody>
@@ -47,11 +47,7 @@ export default function PrijavaDetalji() {
                     </tr>
                     <tr>
                         <td><strong>Kotizacija uplaćena?:</strong></td>
-                        <td>{prijava.kotizacijaPlacena ? 'Aktivna' : 'Neaktivna'}</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Prvenstvo Hrvatske?:</strong></td>
-                        <td>{prijava.prvenstvoHrvatske ? 'Aktivna' : 'Neaktivna'}</td>
+                        <td>{prijava.kotizacijaPlacena ? 'DA' : 'NE'}</td>
                     </tr>
                 </tbody>
             </Table>

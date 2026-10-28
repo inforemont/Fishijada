@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { RouteNames } from "../../constants";
 import { Button, Col, Form, Row } from "react-bootstrap";
 import PrijavaService from "../../services/prijave/PrijavaService";
+import {fishijade} from"../../services/FishijadaPodaci";
 
 
 
@@ -39,7 +40,7 @@ export default function PrijavaPrvenstvoBaranje() {
     return (
         <>
             <h3 className="my-3">
-                Dodavanje nove prijave
+                Prijava za Prvenstvo Baranje u Belom Manastiru 
             </h3>
 
             <Form onSubmit={obradiSubmit}>
@@ -68,6 +69,23 @@ export default function PrijavaPrvenstvoBaranje() {
                     <Form.Check label="Kotizacija uplaćena" name="kotizacijaPlacena" />
                 </Form.Group>
 
+
+                <Form.Group controlId="lokacija" className="mt-3">
+                    <Form.Label>LOKACIJA</Form.Label>
+                    <Form.Select 
+                        name="lokacija"
+                        required
+                        defaultValue={111}
+                       
+                    >
+                        {fishijade.filter(f=>f.sifra===111).map((l)=>(
+                        <option key={l.sifra} value={l.sifra}>
+                        {l.mjesto} ({l.regija})
+                        </option>
+
+                        ))}
+                    </Form.Select>
+                    </Form.Group>
 
 
 

@@ -14,9 +14,11 @@ PRIJAVE:'/prijave',
 PRIJAVE_DODAJ:'/prijave/dodaj',
 PRIJAVE_PROMJENA:'/prijave/:sifra',
 PRIJAVE_PRVENSTVO_BARANJE: '/prijave/prvenstvo-baranje',
+PRIJAVE_DETALJI:'/prijave/detalji/:sifra',
 LOKACIJE:'/lokacije',
 LOKACIJE_DODAJ:'/lokacije/dodaj',
 LOKACIJE_PROMJENA:'/lokacije/:sifra',
+LOKACIJE_DETALJI:'/lokacije/detalji/:sifra',
 
 
 

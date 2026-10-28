@@ -6,6 +6,7 @@ import Table from 'react-bootstrap/Table';
 import { NumericFormat } from 'react-number-format';
 import { RouteNames } from '../../constants';
 import { Button } from "react-bootstrap";
+import FormatDatuma from "../../components/FormatDatuma";
 
 
 export default function LokacijePregled() {
@@ -59,6 +60,7 @@ function LokacijeIzbor() {
                         <th>Mjesto</th>
                         <th>Županija</th>
                         <th>Poštanski ured</th>
+                        <th>Datum održavanja</th>
                         <th>Akcije</th>
                     </tr>
                 </thead>
@@ -78,6 +80,9 @@ function LokacijeIzbor() {
                                         displayType={'text'}
                                     />
                                 </td>
+                                <td style={{textAlign: 'center'}}>
+                                        <FormatDatuma datum={lokacija.datumOdrzavanja} prikazDatuma="Nije postavljeno" />
+                                        </td>
                                 <td>
                                     <Button onClick={()=>{navigate(`/lokacije/${lokacija.sifra}`)}}>
                                         Promjena

@@ -5,7 +5,8 @@ export const lokacije=[
     regija:'Baranja',
     mjesto:'Knezevi vinogradi',
     zupanija:'Osječko-baranjska',
-    posta:31309
+    posta:31309,
+    datumOdrzavanja:'2020-05-15T16:30:00',
 
 },
 
@@ -14,7 +15,8 @@ export const lokacije=[
     regija:'Baranja',
     mjesto:'Luč',
     zupanija:'Osječko-baranjska',
-    posta:31300
+    posta:31300,
+    datumOdrzavanja:'2020-05-15T16:30:00',
 
 },
 
@@ -23,7 +25,8 @@ export const lokacije=[
     regija:'Baranja',
     mjesto:'Jagodnjak',
     zupanija:'Osječko-baranjska',
-    posta:31324
+    posta:31324,
+    datumOdrzavanja:'2020-05-15T16:30:00',
 
 },
 
@@ -32,7 +35,8 @@ export const lokacije=[
     regija:'Baranja',
     mjesto:'Baranjsko petrovo selo',
     zupanija:'Osječko-baranjska',
-    posta:31312
+    posta:31312,
+    datumOdrzavanja:'2020-05-15T16:30:00',
 
 },
 
@@ -41,7 +45,8 @@ export const lokacije=[
     regija:'Baranja',
     mjesto:'Petlovac',
     zupanija:'Osječko-baranjska',
-    posta:31321
+    posta:31321,
+    datumOdrzavanja:'2020-05-15T16:30:00',
 
 },
 
@@ -50,7 +55,8 @@ export const lokacije=[
     regija:'Baranja',
     mjesto:'Lug',
     zupanija:'Osječko-baranjska',
-    posta:31328
+    posta:31328,
+    datumOdrzavanja:'2020-05-15T16:30:00',
 
 },
 
@@ -59,7 +65,9 @@ export const lokacije=[
     regija:'Baranja',
     mjesto:'Kopačevo',
     zupanija:'Osječko-baranjska',
-    posta:31327
+    posta:31327,
+    datumOdrzavanja:'2020-05-15T16:30:00',
+
 
 },
 
@@ -68,7 +76,8 @@ export const lokacije=[
     regija:'Baranja',
     mjesto:'Zmajevac',
     zupanija:'Osječko-baranjska',
-    posta:31307
+    posta:31307,
+    datumOdrzavanja:'2020-05-15T16:30:00',
 
 },
 
@@ -77,7 +86,8 @@ export const lokacije=[
     regija:'Baranja',
     mjesto:'Batina',
     zupanija:'Osječko-baranjska',
-    posta:31306
+    posta:31306,
+    datumOdrzavanja:'2020-05-15T16:30:00',
 
 },
 
@@ -86,7 +96,8 @@ export const lokacije=[
     regija:'Baranja',
     mjesto:'Duboševica',
     zupanija:'Osječko-baranjska',
-    posta:31304
+    posta:31304,
+    datumOdrzavanja:'2020-05-15T16:30:00',
 
 },
 
@@ -95,7 +106,8 @@ export const lokacije=[
     regija:'Baranja',
     mjesto:'Popovac',
     zupanija:'Osječko-baranjska',
-    posta:31303
+    posta:31303,
+    datumOdrzavanja:'2020-05-15T16:30:00',
 
 },
 
@@ -104,7 +116,8 @@ export const lokacije=[
     regija:'Baranja',
     mjesto:'Čeminac',
     zupanija:'Osječko-baranjska',
-    posta:31325
+    posta:31325,
+    datumOdrzavanja:'2020-05-15T16:30:00',
 
 },
 
@@ -113,7 +126,8 @@ export const lokacije=[
     regija:'Baranja',
     mjesto:'Karanac',
     zupanija:'Osječko-baranjska',
-    posta:31315
+    posta:31315,
+    datumOdrzavanja:'2020-05-15T16:30:00',
 
 },
 
@@ -122,7 +136,8 @@ export const lokacije=[
     regija:'Baranja',
     mjesto:'Suza',
     zupanija:'Osječko-baranjska',
-    posta:31309
+    posta:31309,
+    datumOdrzavanja:'2020-05-15T16:30:00',
 
 },
 
@@ -131,7 +146,8 @@ export const lokacije=[
     regija:'Baranja',
     mjesto:'Draž',
     zupanija:'Osječko-baranjska',
-    posta:31305
+    posta:31305,
+    datumOdrzavanja:'2020-05-15T16:30:00',
 
 },
 
@@ -140,7 +156,8 @@ export const lokacije=[
     regija:'Baranja',
     mjesto:'Gajić',
     zupanija:'Osječko-baranjska',
-    posta:31305
+    posta:31305,
+    datumOdrzavanja:'2020-05-15T16:30:00',
 
 },
 
@@ -149,7 +166,8 @@ export const lokacije=[
     regija:'Baranja',
     mjesto:'Topolje',
     zupanija:'Osječko-baranjska',
-    posta:31305
+    posta:31305,
+    datumOdrzavanja:'2020-05-15T16:30:00',
 
 },
 
@@ -159,6 +177,7 @@ export const lokacije=[
     mjesto: 'Nard',
     zupanija:'Osječko-baranjska',
     posta:31550,
+    datumOdrzavanja:'2020-05-15T16:30:00',
 }
 
 
