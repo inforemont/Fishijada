@@ -10,8 +10,8 @@ export default function Home(){
         <>
 
         <div>
-        <img src={fishSlika} alt="Fishijada" 
-        style={{width: '1200px', height:'auto',margin:'30px',padding:'2rem',border:'none'}}
+        <img src={fishSlika} alt="Fishijada" className="img-fluid"
+        
         />
 
         </div>

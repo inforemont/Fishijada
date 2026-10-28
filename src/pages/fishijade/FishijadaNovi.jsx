@@ -47,26 +47,29 @@ export default function FishijadaNovi() {
                         <Row className="mb-3">
                         <Col xs={6}>
                             <Form.Group controlID="mjestoOdrzavanja">
-                                <Form.Label>Mjesto Održavanja</Form.Label>
+                                <Form.Label>Mjesto</Form.Label>
                                 <Form.Control type="text" name="mjestoOdrzavanja" />
                             </Form.Group>
                         </Col>
                         <Col xs={6}>
                             <Form.Group controlID="kotizacija">
                                 <Form.Label>Kotizacija</Form.Label>
-                                <Form.Control type="number" style={{textAlign: 'right'}} name="kotizacija" step={1} />
+                                <Form.Control type="number" style={{textAlign: 'right'}} name="kotizacija" step={0.01} />
                             </Form.Group>
                         </Col>
                         </Row>
                         <Row className="mb-4 align-items-center">
                         <Col xs={6}>
-                            <Form.Group controlID="datumPokretanja" className="mb-0">
-                                <Form.Label>Datum pokretanja</Form.Label>
-                                <Form.Control type="date" name="datumPokretanja" />
+                            <Form.Group controlID="datumPokretanja" className="mb-1">
+                                <Form.Label>Datum</Form.Label>
+                                <Form.Control type="date"
+                                onClick={(e)=>e.target.showPicker()}
+                                onFocus={(e)=>e.target.showPicker()} 
+                                name="datumPokretanja" />
                             </Form.Group>
                         </Col>
-                        <Col xs={6} className="d-flex align-items-center">
-                            <Form.Group controlId="aktivan" className="mb-0 mt-4 ">
+                        <Col xs={6} style={{marginTop: '0.7rem'} }>
+                            <Form.Group controlId="aktivan" className="mb-1 mt-4 ">
                                 <Form.Check label="Aktivan" name="aktivan" />
                             </Form.Group>
                         </Col>
@@ -82,7 +85,7 @@ export default function FishijadaNovi() {
                         </Col>
 
                         <Col xs={6}>
-                            <Button type="submit" variant="success" className="w-100">
+                            <Button type="submit" variant="success" style={{textAlign: 'center'}} className="w-100">
                                 Dodaj
                             </Button>
                         </Col>

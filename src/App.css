@@ -2,10 +2,11 @@
   min-height: 500px;
   border: ;
 }
-.body{
+.body, .card{
   min-height: 30px;
   border: 1px solid gray;
-  background-color: rgb(255, 253, 253);
+  background-color: rgb(242, 249, 241);
+  opacity: 1;
 }
 
 .text-end{
