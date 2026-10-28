@@ -39,6 +39,7 @@ export default function LokacijaPromjena() {
             mjesto:podaci.get('mjesto'),
             posta: parseInt(podaci.get('posta')),
             zupanija:podaci.get('zupanija'),
+            datumOdrzavanja:podaci.get('datumOdrzavanja'),
 
         })
     }
@@ -74,6 +75,12 @@ export default function LokacijaPromjena() {
                     <Form.Label>ŽUPANIJA</Form.Label>
                     <Form.Control type="text" name="zupanija" required
                     defaultValue={lokacija.zupanija} />
+                </Form.Group>
+
+                <Form.Group controlId="datumOdrzavanja">
+                    <Form.Label>DATUM ODRŽAVANJA</Form.Label>
+                    <Form.Control type="date" name="datumOdrzavanja" required
+                    defaultValue={lokacija.datumOdrzavanja} />
                 </Form.Group>
 
 
