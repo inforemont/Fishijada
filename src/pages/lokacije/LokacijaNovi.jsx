@@ -18,6 +18,45 @@ export default function LokacijaNovi() {
     function obradiSubmit(e){
         e.preventDefault() 
         const podaci = new FormData(e.target)
+
+
+                if(!podaci.get('regija')|| podaci.get('regija').trim().length===0){
+            alert("Regija je obavezna i ne smije sadržavati samo razmake ")
+            return
+        }
+        if(podaci.get('regija').trim().length<3 || podaci.get('regija').trim().length>30){
+            alert("Regija mora sadržavati između 3 i 30 znakova")
+            return 0
+        }
+
+                if(!podaci.get('mjesto')|| podaci.get('mjesto').trim().length===0){
+            alert("Mjesto održavanja je obavezno i ne smije sadržavati samo razmake ")
+            return
+        }
+        if(podaci.get('mjesto').trim().length<3 || podaci.get('mjesto').trim().length>30){
+            alert("Mjesto održavanja mora sadržavati između 3 i 30 znakova")
+            return 0
+        }
+
+        if(!podaci.get('zupanija')|| podaci.get('zupanija').trim().length===0){
+            alert("Županija je obavezna i ne smije sadržavati samo razmake ")
+            return
+        }
+        if(podaci.get('zupanija').trim().length<3 || podaci.get('zupanija').trim().length>30){
+            alert("Županija mora sadržavati između 3 i 30 znakova")
+            return 0
+        }
+
+        if (isNaN(podaci.get('posta'))|| podaci.get('posta')<10000 || podaci.get('posta')>53297){
+            alert("Broj poštanskog ureda nije valjan")
+            return
+        }
+        if(!podaci.get('posta')|| podaci.get('posta')===""){
+            alert("Poštanski ured je obavezna stavka")
+            return 0
+        }
+
+       
         dodaj({
             regija: podaci.get('regija'),
             mjesto:podaci.get('mjesto'),

@@ -33,6 +33,49 @@ export default function PrijavaNovi() {
     function obradiSubmit(e){
         e.preventDefault() 
         const podaci = new FormData(e.target)
+
+        if(!podaci.get('imePrezime')|| podaci.get('imePrezime').trim().length===0){
+            alert("Ime i prezime je obavezno i ne smije sadržavati samo razmake ")
+            return
+        }
+        if(podaci.get('imePrezime').trim().length<6 || podaci.get('imePrezime').trim().length>30){
+            alert("Ime i Prezime mora sadržavati između 3 i 30 znakova")
+            return 0
+        }
+
+        if(!podaci.get('ekipa')|| podaci.get('ekipa').trim().length===0){
+            alert("Ekipa je obavezna i ne smije sadržavati samo razmake ")
+            return
+        }
+        if(podaci.get('ekipa').trim().length<3 || podaci.get('ekipa').trim().length>30){
+            alert("Ekipa mora sadržavati između 3 i 30 znakova")
+            return 0
+        }
+
+        if (isNaN(podaci.get('stol'))|| podaci.get('stol')<1 || podaci.get('posta')>500){
+            alert("Unesite ispravan broj stola")
+            return
+        }
+        if(!podaci.get('stol')|| podaci.get('stol')===""){
+            alert("Broj stola mora biti unešen")
+            return 0
+        }
+
+        if(!podaci.get('email')|| podaci.get('email')===""){
+            alert("Email je obavezna stavka")
+            return 0
+        }
+
+        if(!podaci.get('email')|| podaci.get('email').trim().length===0){
+            alert("Email je obavezan i ne smije sadržavati samo razmake ")
+            return
+        }
+        if(podaci.get('email').trim().length<6 || podaci.get('email').trim().length>30){
+            alert("Email mora sadržavati između 3 i 30 znakova")
+            return 0
+        }
+
+
         dodaj({
             imePrezime: podaci.get('imePrezime'),
             ekipa:podaci.get('ekipa'),

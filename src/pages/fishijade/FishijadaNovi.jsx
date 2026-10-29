@@ -17,6 +17,49 @@ export default function FishijadaNovi() {
     function obradiSubmit(e) {
         e.preventDefault()
         const podaci = new FormData(e.target)
+
+        if(!podaci.get('naziv')|| podaci.get('naziv').trim().length===0){
+            alert("Naziv je obavezan i ne smije sadržavati samo razmake ")
+            return
+        }
+        if(podaci.get('naziv').trim().length<3 || podaci.get('naziv').trim().length>30){
+            alert("Naziv mora sadržavati između 3 i 30 znakova")
+            return 0
+        }
+
+                if(!podaci.get('mjestoOdrzavanja')|| podaci.get('mjestoOdrzavanja').trim().length===0){
+            alert("Mjesto održavanja je obavezno i ne smije sadržavati samo razmake ")
+            return
+        }
+        if(podaci.get('mjestoOdrzavanja').trim().length<3 || podaci.get('mjestoOdrzavanja').trim().length>30){
+            alert("Mjesto održavanja mora sadržavati između 3 i 30 znakova")
+            return 0
+        }
+
+        if (isNaN(podaci.get('kotizacija'))|| podaci.get('kotizacija')<30 || podaci.get('kotizacija')>100){
+            alert("Kotizacija ne može biti manja od 30 eura niti veća od 100 eura")
+            return
+        }
+        if(!podaci.get('kotizacija')|| podaci.get('kotizacija')===""){
+            alert("Kotizacija je obavezna stavka")
+            return 0
+        }
+
+        if(!podaci.get(datumPokretanja)|| podaci.get('datumPokretanja')===""){
+            alert("Datum je obavezan")
+            return
+        }
+
+        const odabraniDatum=new Date (podaci.get('datumPokretanja'))
+        const danas=new Date()
+        danas.setHours(0,0,0,0)
+
+        if(odabraniDatum<danas){
+            alert("Datum ne može biti u prošlosti")
+            return
+        }
+
+
         dodaj({
             naziv: podaci.get('naziv'),
             mjestoOdrzavanja: podaci.get('mjestoOdrzavanja'),
