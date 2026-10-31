@@ -1,0 +1,11 @@
+    export const fishijade=[
+    
+    
+    {
+    sifra: 111,
+    regija:'Baranja',
+    mjesto:'Beli Manastir',
+    zupanija:'Osječko-baranjska',
+    posta:31300,
+
+},

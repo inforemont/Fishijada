@@ -7,6 +7,7 @@ import { NumericFormat } from 'react-number-format';
 import { RouteNames } from '../../constants';
 import { Button } from "react-bootstrap";
 import FormatDatuma from "../../components/FormatDatuma";
+import PrijavaService from "../../services/prijave/PrijavaService";
 
 
 export default function LokacijePregled() {
@@ -16,10 +17,12 @@ export default function LokacijePregled() {
             <LokacijeIzbor />
         </div>
     )
+
 }
 
 function LokacijeIzbor() {
     const [lokacije, setLokacije] = useState([])
+    const[prijave,setPrijave]=useState([])
     const navigate = useNavigate()
 
     async function ucitajLokacije(){
@@ -28,10 +31,18 @@ function LokacijeIzbor() {
         })
     }
 
+     async function ucitajPrijave(){
+        await PrijavaService.get().then((odgovor) => {
+            setPrijave(odgovor.data)
+        })
+    }
+
+
 
     useEffect(() => {
 
         ucitajLokacije()
+        ucitajPrijave()
     }, [])
 
     async function obrisi(sifra) {
@@ -45,6 +56,11 @@ function LokacijeIzbor() {
 
     function detalji(sifra) {
         navigate(`/lokacije/detalji/${sifra}`)
+    }
+
+    function dohvatiEkipuPrijave(sifraPrijave){
+        const prijava=prijave.find(s=>s.sifra===sifraPrijave)
+        return prijava.ekipe
     }
 
     return (
@@ -70,6 +86,7 @@ function LokacijeIzbor() {
                             <tr key={lokacija.sifra}>
                                 <td className='lead'>
                                     {lokacija.mjesto}
+                                    <span title="Broj ekipa"> ({lokacija.ekipe && Array.isArray(lokacija.ekipe) ? lokacija.ekipe.length : 0})</span>
                                 </td>
                                 <td className='text-end'>
                                     {lokacija.zupanija}

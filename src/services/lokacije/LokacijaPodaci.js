@@ -7,6 +7,7 @@ export const lokacije=[
     zupanija:'Osječko-baranjska',
     posta:31309,
     datumOdrzavanja:'2020-05-15T16:30:00',
+    ekipe:[],
 
 },
 
@@ -17,6 +18,7 @@ export const lokacije=[
     zupanija:'Osječko-baranjska',
     posta:31300,
     datumOdrzavanja:'2020-05-15T16:30:00',
+    ekipe:[],
 
 },
 
@@ -27,6 +29,7 @@ export const lokacije=[
     zupanija:'Osječko-baranjska',
     posta:31324,
     datumOdrzavanja:'2020-05-15T16:30:00',
+    ekipe:[],
 
 },
 
@@ -37,6 +40,7 @@ export const lokacije=[
     zupanija:'Osječko-baranjska',
     posta:31312,
     datumOdrzavanja:'2020-05-15T16:30:00',
+    ekipe:[],
 
 },
 
@@ -47,6 +51,7 @@ export const lokacije=[
     zupanija:'Osječko-baranjska',
     posta:31321,
     datumOdrzavanja:'2020-05-15T16:30:00',
+    ekipe:[],
 
 },
 
@@ -57,6 +62,7 @@ export const lokacije=[
     zupanija:'Osječko-baranjska',
     posta:31328,
     datumOdrzavanja:'2020-05-15T16:30:00',
+    ekipe:[],
 
 },
 
@@ -67,6 +73,7 @@ export const lokacije=[
     zupanija:'Osječko-baranjska',
     posta:31327,
     datumOdrzavanja:'2020-05-15T16:30:00',
+    ekipe:[],
 
 
 },
@@ -78,6 +85,7 @@ export const lokacije=[
     zupanija:'Osječko-baranjska',
     posta:31307,
     datumOdrzavanja:'2020-05-15T16:30:00',
+    ekipe:[],
 
 },
 
@@ -88,6 +96,7 @@ export const lokacije=[
     zupanija:'Osječko-baranjska',
     posta:31306,
     datumOdrzavanja:'2020-05-15T16:30:00',
+    ekipe:[],
 
 },
 
@@ -98,6 +107,7 @@ export const lokacije=[
     zupanija:'Osječko-baranjska',
     posta:31304,
     datumOdrzavanja:'2020-05-15T16:30:00',
+    ekipe:[],
 
 },
 
@@ -108,6 +118,7 @@ export const lokacije=[
     zupanija:'Osječko-baranjska',
     posta:31303,
     datumOdrzavanja:'2020-05-15T16:30:00',
+    ekipe:[],
 
 },
 
@@ -118,6 +129,7 @@ export const lokacije=[
     zupanija:'Osječko-baranjska',
     posta:31325,
     datumOdrzavanja:'2020-05-15T16:30:00',
+    ekipe:[],
 
 },
 
@@ -128,6 +140,7 @@ export const lokacije=[
     zupanija:'Osječko-baranjska',
     posta:31315,
     datumOdrzavanja:'2020-05-15T16:30:00',
+    ekipe:[],
 
 },
 
@@ -138,6 +151,7 @@ export const lokacije=[
     zupanija:'Osječko-baranjska',
     posta:31309,
     datumOdrzavanja:'2020-05-15T16:30:00',
+    ekipe:[],
 
 },
 
@@ -148,6 +162,7 @@ export const lokacije=[
     zupanija:'Osječko-baranjska',
     posta:31305,
     datumOdrzavanja:'2020-05-15T16:30:00',
+    ekipe:[],
 
 },
 
@@ -158,6 +173,7 @@ export const lokacije=[
     zupanija:'Osječko-baranjska',
     posta:31305,
     datumOdrzavanja:'2020-05-15T16:30:00',
+    ekipe:[],
 
 },
 
@@ -168,6 +184,7 @@ export const lokacije=[
     zupanija:'Osječko-baranjska',
     posta:31305,
     datumOdrzavanja:'2020-05-15T16:30:00',
+    ekipe:[],
 
 },
 
@@ -178,7 +195,17 @@ export const lokacije=[
     zupanija:'Osječko-baranjska',
     posta:31550,
     datumOdrzavanja:'2020-05-15T16:30:00',
-}
+    ekipe:[],
+},
+
+    {
+    sifra: 111,
+    regija:'Baranja',
+    mjesto:'Beli Manastir',
+    zupanija:'Osječko-baranjska',
+    posta:31300,
+
+},
 
 
 ]

@@ -1,17 +1,23 @@
-import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import FishijadaService from "../../services/FishijadaService";
-import { Button, Table } from "react-bootstrap";
-import { RouteNames } from "../../constants";
+import { useEffect, useState } from "react"
+import { useParams, useNavigate } from "react-router-dom"
+import FishijadaService from "../../services/FishijadaService"
+import { Button, Table,Form } from "react-bootstrap"
+import { RouteNames } from "../../constants"
+import LokacijaService from "../../services/lokacije/LokacijaService"
 
 export default function FishijadaDetalji() {
     const { sifra } = useParams()
     const navigate = useNavigate()
     const [fishijada, setFishijada] = useState(null)
+    const [sveLokacije, setSveLokacije]=useState([])
+    const[odabranaLokacija, setOdabranaLokacija]=useState('')
+
+
 
     useEffect(() => {
         ucitajDetalje()
-    }, [sifra]);
+        ucitajLokacije()
+        }, [sifra])
 
     async function ucitajDetalje() {
         await FishijadaService.getBySifra(sifra).then((odgovor) => {
@@ -19,8 +25,39 @@ export default function FishijadaDetalji() {
         })
     }
 
+     async function ucitajLokacije() {
+        await LokacijaService.get().then((odgovor) => {
+            setSveLokacije(odgovor.data)
+        })
+    }
+
+    async function dodajLokaciju(e) {
+        e.preventDefault()
+        if(!odabranaLokacija){
+            alert("Lokacija je obavezna")
+            return
+        }
+        const lokacijaId=parseInt(odabranaLokacija)
+
+        if(fishijada.lokacije.includes(lokacijaId)){
+            alert("Lokacija je vec dodana")
+            return
+        }
+    
+
+    const azuriraneLokacije=[...fishijada.lokacije,lokacijaId]
+
+    const izmjenjenaFishijada={...fishijada,lokacije:azuriraneLokacije}
+
+    await FishijadaService.promjeni(sifra,izmjenjenaFishijada).then(()=>{
+        setFishijada(izmjenjenaFishijada)
+        setOdabranaLokacija('')
+    })
+}
+
+
     if (!fishijada) {
-        return <p className="mt-3">Učitavanje podataka...</p>;
+        return <p className="mt-3">Učitavanje podataka...</p>
     }
 
     return (
@@ -51,6 +88,63 @@ export default function FishijadaDetalji() {
                     </tr>
                 </tbody>
             </Table>
+            <h3 className="mt-4">Lokacije koje sudjeluju</h3>
+            <Form onSubmit={dodajLokaciju}>
+
+                <Form.Group controlId="odabranaLokacija" className="mb-3">
+                    <Form.Label>Odaberi lokaciju</Form.Label>
+                    <Form.Select
+                    value={odabranaLokacija}
+                    onChange={(e)=>setOdabranaLokacija(e.target.value)}>
+                    <option value="">Izaberi lokaciju</option>
+                    {sveLokacije.map((l)=>(
+                        <option key={l.sifra} value={l.sifra}>
+                            {l.mjesto}
+                            </option>))
+
+                    }
+
+                    </Form.Select>
+
+                </Form.Group>
+
+                <Button type="submit" variant = "success">
+                    Dodaj lokaciju
+                </Button>
+
+
+            </Form>
+
+            <h4 className="mt-4">Dodane lokacije</h4>
+<Table hover striped bordered className="mt-3">
+    <thead>
+        <tr>
+            <th>Naziv lokacije</th>
+            <th>Akcija</th>
+        </tr>
+    </thead>
+    <tbody>
+        {fishijada.lokacije && fishijada.lokacije.map((lokacijaId) => {
+            const lokacija = sveLokacije.find((l) => l.sifra === lokacijaId)
+            return (
+                <tr key={lokacijaId}>
+                    <td>{lokacija ? lokacija.mjesto : 'Nepoznata lokacija'}</td>
+                    <td>
+                        <Button 
+                            variant="danger" 
+                            size="sm" 
+                            onClick={() => obrisiLokaciju(lokacijaId)}
+                        >
+                            Ukloni
+                        </Button>
+                    </td>
+                </tr>
+            );
+        })}
+    </tbody>
+</Table>
+
+
 
             <Button variant="secondary" onClick={() => navigate(RouteNames.FISHIJADE)} className="mt-3">
                 Natrag na pregled

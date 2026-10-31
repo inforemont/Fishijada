@@ -138,7 +138,7 @@ export default function PrijavaNovi() {
                         onChange={(e) => setOdabranaLokacija(e.target.value)}
                     >
                         <option value="">Odaberi lokaciju...</option>
-                        {lokacije && lokacije.map((l)=>(
+                        {lokacije.filter((l)=>l.sifra!==111).map((l)=>(
                             <option key={l.sifra} value={l.sifra}>
                             {l.mjesto}
                             </option>

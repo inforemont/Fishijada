@@ -6,6 +6,7 @@ export const fishijade=[
     cijena: 2199.99,
     datumPokretanja:'2019-09-07T19:00:00',
     održana: true, // ovaj zadnji zarez ne smeta ali ni ne mora da bude
+    lokacije:[]
 
 },
 
@@ -16,6 +17,7 @@ export const fishijade=[
     cijena: 1500,
     datumPokretanja:'2020-05-15T16:30:00',
     održana: false,
+    lokacije:[]
 
 },
 
@@ -26,6 +28,7 @@ export const fishijade=[
     cijena: 800,
     datumPokretanja: '2021-09-04T18:00:00',
     održana: true,
+    lokacije:[]
 
 },
 {
@@ -35,6 +38,7 @@ export const fishijade=[
         cijena: 2399.99,
         datumPokretanja: '2022-09-03T18:00:00',
         održana: true,
+        lokacije:[]
     },
     {
         sifra: 5,
@@ -43,6 +47,7 @@ export const fishijade=[
         cijena: 1350.00,
         datumPokretanja: '2023-09-02T17:00:00',
         održana: true,
+        lokacije:[]
     },
     {
         sifra: 6,
@@ -50,7 +55,8 @@ export const fishijade=[
         mjestoOdrzavanja: 'Beli Manastir Trg Slobode-Livada',
         cijena: 999.50,
         datumPokretanja: '2024-09-07T18:30:00',
-        održan: true,
+        održana: true,
+        lokacije:[]
     },
     {
         sifra: 7,
@@ -58,7 +64,8 @@ export const fishijade=[
         mjestoOdrzavanja: 'Beli Manastir Trg Slobode-Livada',
         cijena: 1850.00,
         datumPokretanja: '2025-09-06T19:00:00',
-        održan: true,
+        održana: true,
+        lokacije:[]
     },
 
        {
@@ -67,7 +74,8 @@ export const fishijade=[
         mjestoOdrzavanja: 'Beli Manastir Park Antuna Mihanovića',
         cijena: 1850.00,
         datumPokretanja: '2026-09-05T19:00:00',
-        održan: true,
+        održana: true,
+        lokacije:[]
     },
        {
         sifra: 9,
@@ -75,15 +83,9 @@ export const fishijade=[
         mjestoOdrzavanja: 'Beli Manastir Park Antuna Mihanovića',
         cijena: 1850.00,
         datumPokretanja: '2027-09-04T19:00:00',
-        održan: false,
+        održana: false,
+        lokacije:[]
     },
 
-    {
-    sifra: 111,
-    regija:'Baranja',
-    mjesto:'Beli Manastir',
-    zupanija:'Osječko-baranjska',
-    posta:31300
 
-},
 ]

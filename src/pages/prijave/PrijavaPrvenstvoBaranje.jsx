@@ -1,8 +1,9 @@
-import { Link, useNavigate } from "react-router-dom";
-import { RouteNames } from "../../constants";
-import { Button, Col, Form, Row } from "react-bootstrap";
-import PrijavaService from "../../services/prijave/PrijavaService";
-import {fishijade} from"../../services/FishijadaPodaci";
+import { Link, useNavigate } from "react-router-dom"
+import { RouteNames } from "../../constants"
+import { Button, Col, Form, Row } from "react-bootstrap"
+import PrijavaService from "../../services/prijave/PrijavaService"
+import LokacijaService from"../../services/lokacije/LokacijaService"
+import { useState,useEffect } from "react"
 
 
 
@@ -12,6 +13,14 @@ import {fishijade} from"../../services/FishijadaPodaci";
 export default function PrijavaPrvenstvoBaranje() {
 
     const navigate = useNavigate()
+    const[lokacije,setLokacije]=useState([])
+
+    useEffect(()=>{
+        LokacijaService.get().then((o)=>{
+            setLokacije(o.data)
+
+        })
+    }, [])
 
 
     async function dodaj(prijava){
@@ -78,12 +87,11 @@ export default function PrijavaPrvenstvoBaranje() {
                         defaultValue={111}
                        
                     >
-                        {fishijade.filter(f=>f.sifra===111).map((l)=>(
-                        <option key={l.sifra} value={l.sifra}>
-                        {l.mjesto} ({l.regija})
+                        <option value={111}>
+                            Beli Manastir (Baranja)
                         </option>
 
-                        ))}
+        
                     </Form.Select>
                     </Form.Group>
 
