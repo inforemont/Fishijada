@@ -81,7 +81,7 @@ function LokacijeIzbor() {
                     </tr>
                 </thead>
                 <tbody>
-                    {lokacije && lokacije.map((lokacija) => {                    
+                    {lokacije && lokacije.filter((lokacija)=>lokacija.sifra !==111).map((lokacija) => {                    
                         return (
                             <tr key={lokacija.sifra}>
                                 <td className='lead'>
