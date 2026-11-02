@@ -4,6 +4,7 @@ import FishijadaService from "../../services/FishijadaService"
 import { Button, Table,Form } from "react-bootstrap"
 import { RouteNames } from "../../constants"
 import LokacijaService from "../../services/lokacije/LokacijaService"
+import PrijavaService from "../../services/prijave/PrijavaService"
 
 export default function FishijadaDetalji() {
     const { sifra } = useParams()
@@ -11,12 +12,14 @@ export default function FishijadaDetalji() {
     const [fishijada, setFishijada] = useState(null)
     const [sveLokacije, setSveLokacije]=useState([])
     const[odabranaLokacija, setOdabranaLokacija]=useState('')
+    const [svePrijave,setSvePrijave]=useState([])
 
 
 
     useEffect(() => {
         ucitajDetalje()
         ucitajLokacije()
+        ucitajPrijave()
         }, [sifra])
 
     async function ucitajDetalje() {
@@ -53,6 +56,24 @@ export default function FishijadaDetalji() {
         setFishijada(izmjenjenaFishijada)
         setOdabranaLokacija('')
     })
+}
+
+async function obrisiLokaciju(lokacijaId) {
+        
+        const azuriraneLokacije = fishijada.lokacije.filter((id) => id !== lokacijaId)
+
+        const izmjenjenaFishijada = { ...fishijada, lokacije: azuriraneLokacije }
+
+        await FishijadaService.promjeni(sifra, izmjenjenaFishijada).then(() => {
+            setFishijada(izmjenjenaFishijada)
+        })
+    }
+
+async function ucitajPrijave() {
+    await PrijavaService.get().then((odgovor)=>{
+        setSvePrijave(odgovor.data)
+    })
+    
 }
 
 
@@ -97,12 +118,16 @@ export default function FishijadaDetalji() {
                     value={odabranaLokacija}
                     onChange={(e)=>setOdabranaLokacija(e.target.value)}>
                     <option value="">Izaberi lokaciju</option>
-                    {sveLokacije.map((l)=>(
-                        <option key={l.sifra} value={l.sifra}>
-                            {l.mjesto}
-                            </option>))
+                    {sveLokacije.map((l)=>{
+                        const brojPrijava=svePrijave.filter(
+                            p=>p.lokacija===l.sifra|| p.lokacijaSifra===l.sifra||p.lokacijaId===l.sifra).length
+                        return(
 
-                    }
+                        <option key={l.sifra} value={l.sifra}>
+                            {l.mjesto}({brojPrijava})
+                            </option>
+                        )
+                    })}
 
                     </Form.Select>
 

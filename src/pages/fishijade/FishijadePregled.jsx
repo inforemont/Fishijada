@@ -8,11 +8,12 @@ import { FcApproval, FcDisapprove } from 'react-icons/fc';
 import { NumericFormat } from 'react-number-format';
 import FormatDatuma from '../../components/FormatDatuma';
 import { RouteNames } from '../../constants';
-import { Button } from "react-bootstrap";
+import { Button,Form } from "react-bootstrap";
+import LokacijaService from '../../services/lokacije/LokacijaService';
 
 export default function FishijadePregled() {
-    const location = useLocation();
-    const godina = location.state?.godina;
+    const location = useLocation()
+    const godina = location.state?.godina
 
 
 
@@ -30,14 +31,21 @@ export default function FishijadePregled() {
     );
 }
 
+
 function FishijadeIzbor({ godina }) {
-    const [fishijade, setFishijade] = useState([]);
-    const navigate = useNavigate();
+    const [fishijade, setFishijade] = useState([])
+    const navigate = useNavigate()
+
+    const [odabranaFisijada, setOdabranaFisijada] = useState('')
+    const [sveLokacije, setSveLokacije] = useState([])
 
     useEffect(() => {
-        console.log('Došao na pregled fishijada');
-        ucitajFishijade();
-    }, [godina]);
+        console.log('Došao na pregled fishijada')
+        ucitajFishijade()
+        LokacijaService.get().then((odgovor) => {
+        setSveLokacije(odgovor.data)
+    })
+    }, [godina])
 
        async function obrisi(sifra) {
         if(!confirm('sigurno obrisati?')){
@@ -45,12 +53,12 @@ function FishijadeIzbor({ godina }) {
         }
 
        await FishijadaService.obrisi(sifra)
-       await  ucitajFishijade();
+       await  ucitajFishijade()
         
     }
 
     function detalji(sifra) {
-        navigate(`/fishijade/detalji/${sifra}`);
+        navigate(`/fishijade/detalji/${sifra}`)
     }
 
 
@@ -60,13 +68,17 @@ function FishijadeIzbor({ godina }) {
 
             if (godina) {
                 podaci = podaci.filter(f => {
-                    const godinaPokretanja = new Date(f.datumPokretanja).getFullYear();
-                    return godinaPokretanja === Number(godina);
+                    const godinaPokretanja = new Date(f.datumPokretanja).getFullYear()
+                    return godinaPokretanja === Number(godina)
                 });
             }
-            setFishijade(podaci);
+            setFishijade(podaci)
         });
     }
+
+    const filtriraneFishijade = odabranaFisijada 
+    ? fishijade.filter(f => f.sifra === Number(odabranaFisijada))
+    : fishijade
 
     return (
         <>
@@ -75,6 +87,25 @@ function FishijadeIzbor({ godina }) {
                 Dodavanje nove fišijade
                 </Link>
 
+                <Form.Group className='mb-4'>
+    <Form.Label>Odaberi fišijadu / godinu:</Form.Label>
+    <Form.Select
+        value={odabranaFisijada}
+        onChange={(e) => setOdabranaFisijada(e.target.value)}
+    >
+        <option value="">Sve fišijade</option>
+        {fishijade && fishijade.map((f) => {
+
+            const godina = new Date(f.datumPokretanja).getFullYear()
+            return (
+                <option key={f.sifra} value={f.sifra}>
+                    {f.naziv} ({godina})
+                </option>
+            );
+        })}
+    </Form.Select>
+</Form.Group>
+{!odabranaFisijada && (
             <Table hover striped bordered> 
                 <thead>
                     <tr>
@@ -87,7 +118,7 @@ function FishijadeIzbor({ godina }) {
                     </tr>
                 </thead>
                 <tbody>
-                    {fishijade && fishijade.map((fishijada) => {
+                    {filtriraneFishijade && filtriraneFishijade.map((fishijada) => {
                         const jeOdrzana = fishijada.održana ?? fishijada.održan ?? fishijada.odrzana;
 
                         return (
@@ -149,10 +180,61 @@ function FishijadeIzbor({ godina }) {
                     })}
                 </tbody>
             </Table>
+)}
+
+
+{odabranaFisijada && (
+    <div className="mt-4">
+        {(() => {
+            const odabrana = fishijade.find(f => f.sifra === Number(odabranaFisijada))
+            const godina = odabrana ? new Date(odabrana.datumPokretanja).getFullYear() : ('')
+
+            return (
+                <div>
+                    <h4>Prvenstvo Baranje – Godina: {godina} ({odabrana?.naziv})</h4>
+                    <p className="text-muted">Mjesto održavanja: {odabrana?.mjestoOdrzavanja}</p>
+
+                    <Table hover striped bordered className="mt-3">
+                        <thead>
+                            <tr>
+                                <th>Regionalno prvenstvo (Lokacija)</th>
+                                <th>Broj prijavljenih ekipa</th>
+                            </tr>
+                        </thead>
+<tbody>
+    {odabrana && odabrana.lokacije && odabrana.lokacije.length > 0 ? (
+        odabrana.lokacije.map((lokacijaId) => {
+            const lokacija = sveLokacije.find(l => l.sifra === lokacijaId)
+            
+
+            const brojPrijava = 0;
+
+            return (
+                <tr key={lokacijaId}>
+                    <td colSpan="2">
+                        {lokacija ? lokacija.mjesto : 'Nepoznata lokacija'} ({brojPrijava})
+                    </td>
+                </tr>
+            )
+        })
+    ) : (
+        <tr>
+            <td colSpan="2" className="text-center text-muted">
+                Nema zabilježenih lokacija za ovu godinu.
+            </td>
+        </tr>
+    )}
+</tbody>
+                    </Table>
+                </div>
+            );
+        })()}
+    </div>
+)}
 
             Ukupno &nbsp;
             <Badge pill bg="success">
-                {fishijade && fishijade.length}
+                {filtriraneFishijade && filtriraneFishijade.length}
             </Badge>
             &nbsp; fishijada
         </>
