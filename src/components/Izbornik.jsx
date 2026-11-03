@@ -87,7 +87,7 @@ export default function Izbornik() {
                             O Aplikaciji
                         </Nav.Link>
 
-                        <Nav.Link onClick={()=> to=(RouteNames.GENERIRANJE)}>Generiranje podataka</Nav.Link>
+                        <Nav.Link onClick={()=>navigate(RouteNames.GENERIRANJE)}>Generiranje podataka</Nav.Link>
 
                     </Nav>
                 </Navbar.Collapse>
