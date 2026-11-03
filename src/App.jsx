@@ -19,6 +19,8 @@ import LokacijaNovi from './pages/lokacije/LokacijaNovi'
 import LokacijaPromjena from './pages/lokacije/LokacijaPromjena'
 import PrijavaDetalji from './pages/prijave/PrijavaDetalji'
 import LokacijaDetalji from './pages/lokacije/LokacijaDetalji'
+import GeneriranjePodataka from './pages/GeneriranjePodataka'
+
 
 
 function App() {
@@ -47,6 +49,10 @@ function App() {
             <Route path={RouteNames.LOKACIJE_DODAJ} element={<LokacijaNovi />} />
             <Route path={RouteNames.LOKACIJE_PROMJENA} element={<LokacijaPromjena />} />
             <Route path={RouteNames.LOKACIJE_DETALJI} element={<LokacijaDetalji />} />
+
+             <Route path={RouteNames.GENERIRANJE} element={<GeneriranjePodataka />} />
+
+
 
 
            

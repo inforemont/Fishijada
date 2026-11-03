@@ -19,6 +19,7 @@ LOKACIJE:'/lokacije',
 LOKACIJE_DODAJ:'/lokacije/dodaj',
 LOKACIJE_PROMJENA:'/lokacije/:sifra',
 LOKACIJE_DETALJI:'/lokacije/detalji/:sifra',
+GENERIRANJE: '/generiranje',
 
 
 

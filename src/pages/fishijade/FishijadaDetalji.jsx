@@ -124,7 +124,7 @@ async function ucitajPrijave() {
                         return(
 
                         <option key={l.sifra} value={l.sifra}>
-                            {l.mjesto}({brojPrijava})
+                            {l.mjesto} ({brojPrijava})
                             </option>
                         )
                     })}
@@ -151,9 +151,13 @@ async function ucitajPrijave() {
     <tbody>
         {fishijada.lokacije && fishijada.lokacije.map((lokacijaId) => {
             const lokacija = sveLokacije.find((l) => l.sifra === lokacijaId)
+            const brojPrijava = svePrijave.filter(
+                 p => p.lokacija === lokacijaId || p.lokacijaSifra === lokacijaId || p.lokacijaId === lokacijaId
+                 ).length
             return (
                 <tr key={lokacijaId}>
-                    <td>{lokacija ? lokacija.mjesto : 'Nepoznata lokacija'}</td>
+                    <td>{lokacija ? lokacija.mjesto : 'Nepoznata lokacija'} ({brojPrijava})
+                    </td>
                     <td>
                         <Button 
                             variant="danger" 

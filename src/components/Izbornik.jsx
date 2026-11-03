@@ -3,7 +3,7 @@ import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 import { IME_APLIKACIJE, RouteNames } from '../constants';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 export default function Izbornik() {
 
@@ -86,6 +86,8 @@ export default function Izbornik() {
                         >
                             O Aplikaciji
                         </Nav.Link>
+
+                        <Nav.Link onClick={()=> to=(RouteNames.GENERIRANJE)}>Generiranje podataka</Nav.Link>
 
                     </Nav>
                 </Navbar.Collapse>
