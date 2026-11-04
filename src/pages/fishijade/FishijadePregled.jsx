@@ -11,6 +11,8 @@ import { RouteNames } from '../../constants';
 import { Button, Form } from "react-bootstrap";
 import LokacijaService from '../../services/lokacije/LokacijaService';
 import PrijavaService from '../../services/prijave/PrijavaService';
+import MiniKarta from '../../components/MiniKarta';
+import {Container, Card}from 'react-bootstrap'
 
 export default function FishijadePregled() {
     const location = useLocation()
@@ -19,7 +21,7 @@ export default function FishijadePregled() {
 
 
     return (
-        <div>
+        <Container>
             <h3 className='my-3'>Pregled svih fišijada u Belom Manastiru</h3>
 
             {godina ? (
@@ -28,8 +30,15 @@ export default function FishijadePregled() {
                 <p>Prikaz svih održanih fišijada:.</p>
             )}
             <FishijadeIzbor godina={godina} />
-        </div>
-    );
+
+        <Card className="p-4 shadow-sm my-4">
+                <h4>Lokacija održavanja</h4>
+                <p className="text-muted">Pogledajte točnu lokaciju natjecanja na karti:</p>
+                
+                <MiniKarta lat={45.771708} lng={18.594342} nazivMjesta="Prvenstvo Baranje" />
+            </Card>
+            </Container>
+    )
 }
 
 
