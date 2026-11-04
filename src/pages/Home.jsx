@@ -1,29 +1,30 @@
-import {IME_APLIKACIJE} from '../constants';
-import fishSlika from '../assets/fish.jpg';
-import {Container, Image} from 'react-bootstrap';
+import { IME_APLIKACIJE } from '../constants';
+import { Container } from 'react-bootstrap';
+import kotlic_loop from '../assets/kotlic_loop.webm';
 
-
-
-export default function Home(){
-
-
+export default function Home() {
     return (
         <Container className="text-center my-4">
-
-
-        <Image
-         src={fishSlika}
-         alt="Fishijada"
-         fluid
-         rounded
-         style={{maxHeight: '600px', objectFit: 'cover', width: '90%'}}
-        
-        />
-
-
-            <p className='lead m5 text-center'>
+            <div className="text-center my-4">
+                <video 
+                    autoPlay 
+                    loop 
+                    muted 
+                    playsInline 
+                    style={{ 
+                        width: "90%",       
+                        maxWidth: "1200px",  
+                        height: "auto",     
+                        borderRadius: "10px" 
+                    }}
+                >
+                    <source src={kotlic_loop} type="video/webm" />
+                    Vaš preglednik ne podržava video.
+                </video>
+            </div>
+            
+            <p className='lead m-5 text-center'>
                 Dobrodošli na {IME_APLIKACIJE}
-
             </p>
         </Container>
     )
