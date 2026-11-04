@@ -55,13 +55,18 @@ export default function GeneriranjePodataka() {
         const randomLokacija = lokacije.length > 0 ? lokacije[faker.number.int({ min: 0, max: lokacije.length - 1 })].sifra : null;
         
         const prijava = {
-            nazivEkipe: 'Ekipa ' + faker.word.noun() + ' ' + faker.number.int({ min: 1, max: 100 }),
-            imeVoditelja: faker.person.firstName() + ' ' + faker.person.lastName(),
-            kontakt: faker.phone.number(),
+            // Ovdje smo zamijenili faker.word.noun() sa sigurnom opcijom:
+            imePrezime: faker.person.firstName() + ' ' + faker.person.lastName(),
+            ekipa: 'Ekipa ' + faker.person.lastName() + ' ' + faker.number.int({ min: 1, max: 100 }),
+            stol: faker.number.int({ min: 1, max: 150 }),
+            email: faker.internet.email(),
+            kotizacijaPlacena: faker.datatype.boolean(),
+            prvenstvoHrvatske: false,
             lokacija: randomLokacija
         };
         await PrijavaService.dodaj(prijava);
     }
+
 };
     const generirajLokacije = async (broj) => {
     const naziviLokacija = [
