@@ -65,7 +65,19 @@ export default function FishijadaDetalji() {
         })
     }
 
-    async function obrisiLokaciju(lokacijaId) {
+   async function obrisiLokaciju(lokacijaId) {
+
+        const dodijeljenePrijave = fishijada.prijavePoLokacijama?.[lokacijaId] || []
+
+        if (dodijeljenePrijave.length > 0) {
+            alert("Nije moguće ukloniti lokaciju jer na njoj još uvijek postoje pridružene prijave (ekipe). Prvo uklonite sve prijave s ove lokacije.")
+            return 
+        }
+
+        if (!window.confirm("Jeste li sigurni da želite ukloniti ovu lokaciju?")) {
+            return
+        }
+
         const azuriraneLokacije = fishijada.lokacije.filter((id) => id !== lokacijaId)
         const novePrijavePoLokacijama = { ...fishijada.prijavePoLokacijama }
         delete novePrijavePoLokacijama[lokacijaId]
