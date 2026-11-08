@@ -74,6 +74,18 @@ export const prijave=[
     prvenstvoHrvatske: true,
 },
 
+{
+    sifra: 8,
+    imePrezime:'Jack The Ripper',
+    ekipa:'Od pupka do...',
+    stol:126,
+    lokacija: 2,
+    email: 'kizo987@gmail.com',
+    kotizacijaPlacena:true,
+    prvenstvoHrvatske: true,
+},
+
+
 
 
 

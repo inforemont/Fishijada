@@ -52,7 +52,7 @@ export default function PrijavaNovi() {
             return 0
         }
 
-        if (isNaN(podaci.get('stol'))|| podaci.get('stol')<1 || podaci.get('posta')>500){
+        if (isNaN(podaci.get('stol'))|| podaci.get('stol')<1 || podaci.get('stol')>500){
             alert("Unesite ispravan broj stola")
             return
         }

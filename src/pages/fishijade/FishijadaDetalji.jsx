@@ -5,6 +5,7 @@ import { Button, Table, Form } from "react-bootstrap"
 import { RouteNames } from "../../constants"
 import LokacijaService from "../../services/lokacije/LokacijaService"
 import PrijavaService from "../../services/prijave/PrijavaService"
+import FormatDatuma from "../../components/FormatDatuma"
 
 export default function FishijadaDetalji() {
     const { sifra } = useParams()
@@ -19,7 +20,10 @@ export default function FishijadaDetalji() {
         ucitajDetalje()
         ucitajLokacije()
         ucitajPrijave()
+        ucitajSveFishijade()
     }, [sifra])
+
+    const [sveFishijade, setSveFishijade] = useState([])
 
     async function ucitajDetalje() {
         await FishijadaService.getBySifra(sifra).then((odgovor) => {
@@ -45,6 +49,12 @@ export default function FishijadaDetalji() {
 
     async function dodajLokaciju(e) {
         e.preventDefault()
+
+        if (jeOdrzana) {
+            alert("Ova fišijada je već održana! Nije moguće dodavati nove lokacije na zaključane podatke.")
+            return
+        }
+
         if (!odabranaLokacija) {
             alert("Lokacija je obavezna")
             return
@@ -65,13 +75,17 @@ export default function FishijadaDetalji() {
         })
     }
 
-   async function obrisiLokaciju(lokacijaId) {
+    async function ucitajSveFishijade() {
+        FishijadaService.get().then((res) => setSveFishijade(res.data))
+    }
+
+    async function obrisiLokaciju(lokacijaId) {
 
         const dodijeljenePrijave = fishijada.prijavePoLokacijama?.[lokacijaId] || []
 
         if (dodijeljenePrijave.length > 0) {
             alert("Nije moguće ukloniti lokaciju jer na njoj još uvijek postoje pridružene prijave (ekipe). Prvo uklonite sve prijave s ove lokacije.")
-            return 
+            return
         }
 
         if (!window.confirm("Jeste li sigurni da želite ukloniti ovu lokaciju?")) {
@@ -82,8 +96,8 @@ export default function FishijadaDetalji() {
         const novePrijavePoLokacijama = { ...fishijada.prijavePoLokacijama }
         delete novePrijavePoLokacijama[lokacijaId]
 
-        const izmjenjenaFishijada = { 
-            ...fishijada, 
+        const izmjenjenaFishijada = {
+            ...fishijada,
             lokacije: azuriraneLokacije,
             prijavePoLokacijama: novePrijavePoLokacijama
         }
@@ -95,20 +109,26 @@ export default function FishijadaDetalji() {
 
     async function dodajPrijavuNaLokaciju(lokacijaId) {
         const prijavaId = odabranePrijave[lokacijaId]
+
+        if (jeOdrzana) {
+            alert("Ova fišijada je već održana! Nije moguće dodavati nove prijave.")
+            return
+        }
+
         if (!prijavaId) {
             alert("Molimo odaberite prijavu/ekipu")
             return
         }
 
         const trenutnePrijaveNaLokaciji = fishijada.prijavePoLokacijama?.[lokacijaId] || []
-        
+
         if (trenutnePrijaveNaLokaciji.includes(parseInt(prijavaId))) {
             alert("Ova prijava je već dodana na ovu lokaciju.")
             return
         }
 
         const azuriranePrijaveNaLokaciji = [...trenutnePrijaveNaLokaciji, parseInt(prijavaId)]
-        
+
         const izmjenjenaFishijada = {
             ...fishijada,
             prijavePoLokacijama: {
@@ -144,10 +164,16 @@ export default function FishijadaDetalji() {
         return <p className="mt-3">Učitavanje podataka...</p>
     }
 
+    const jeOdrzana = fishijada?.datumPokretanja
+        ? new Date(fishijada.datumPokretanja) < new Date()
+        : false
+
+
+
     return (
         <div>
             <h3 className="my-3">Detalji fišijade: {fishijada.naziv}</h3>
-            
+
             <Table hover striped bordered className="mt-3">
                 <tbody>
                     <tr>
@@ -168,12 +194,31 @@ export default function FishijadaDetalji() {
                     </tr>
                     <tr>
                         <td><strong>Status aktivnosti:</strong></td>
-                        <td>{fishijada.aktivan ? 'Aktivna' : 'Neaktivna'}</td>
+                        <td>{fishijada.aktivan ? 'U tijeku' : 'Održana'}</td>
                     </tr>
                 </tbody>
             </Table>
 
             <h3 className="mt-4">Lokacije koje sudjeluju</h3>
+
+
+
+            <Form.Group className="mb-4">
+                <Form.Label>Odaberi drugu fišijadu:</Form.Label>
+                <Form.Select
+                    value={sifra}
+                    onChange={(e) => navigate(`/fishijade/detalji/${e.target.value}`)}
+                >
+                    {sveFishijade.map((f) => {
+                        const godina = new Date(f.datumPokretanja).getFullYear();
+                        return (
+                            <option key={f.sifra} value={f.sifra}>
+                                {f.naziv} ({godina}.)
+                            </option>
+                        )
+                    })}
+                </Form.Select>
+            </Form.Group>
             <Form onSubmit={dodajLokaciju}>
                 <Form.Group controlId="odabranaLokacija" className="mb-3">
                     <Form.Label>Odaberi lokaciju</Form.Label>
@@ -182,9 +227,10 @@ export default function FishijadaDetalji() {
                         onChange={(e) => setOdabranaLokacija(e.target.value)}>
                         <option value="">Izaberi lokaciju</option>
                         {sveLokacije.map((l) => {
-                            const brojPrijava = svePrijave.filter(
-                                p => p.lokacija === l.sifra || p.lokacijaSifra === l.sifra || p.lokacijaId === l.sifra
-                            ).length
+
+                            const prijaveNaLokaciji = fishijada?.prijavePoLokacijama?.[l.sifra] || []
+                            const brojPrijava = prijaveNaLokaciji.length
+
                             return (
                                 <option key={l.sifra} value={l.sifra}>
                                     {l.mjesto} ({brojPrijava})
@@ -194,8 +240,10 @@ export default function FishijadaDetalji() {
                     </Form.Select>
                 </Form.Group>
 
-                <Button type="submit" variant="success">
-                    Dodaj lokaciju
+                <Button type="submit" variant=
+                    {jeOdrzana ? "secondary" : "success"}
+                >
+                    {jeOdrzana ? "Zaključano (Održano)" : "Dodaj lokaciju"}
                 </Button>
             </Form>
 
@@ -208,76 +256,98 @@ export default function FishijadaDetalji() {
                     </tr>
                 </thead>
                 <tbody>
-                    {fishijada.lokacije && fishijada.lokacije.map((lokacijaId) => {
-                        const lokacija = sveLokacije.find((l) => l.sifra === lokacijaId)
-                        const dodijeljenePrijaveIds = fishijada.prijavePoLokacijama?.[lokacijaId] || []
+                    {fishijada.lokacije && fishijada.lokacije.length > 0 ? (
+                        fishijada.lokacije.map((lokacijaId) => {
+                            const lokacija = sveLokacije.find((l) => Number(l.sifra) === Number(lokacijaId))
+                            const dodijeljenePrijaveIds = fishijada.prijavePoLokacijama?.[lokacijaId] || []
 
-                        return (
-                            <tr key={lokacijaId}>
-                                <td>
-                                    <h5>{lokacija ? lokacija.mjesto : 'Nepoznata lokacija'}</h5>
-                                    
-                                    <div className="d-flex gap-2 my-2">
-                                        <Form.Select
-                                            size="sm"
-                                            value={odabranePrijave[lokacijaId] || ''}
-                                            onChange={(e) => setOdabranePrijave({
-                                                ...odabranePrijave,
-                                                [lokacijaId]: e.target.value
-                                            })}
-                                        >
-                                            <option value="">Odaberi prijavu (ekipu)...</option>
-                                            {svePrijave.map((p) => (
-                                                <option key={p.sifra} value={p.sifra}>
-                                                    {p.imePrezime} ({p.ekipa})
-                                                </option>
-                                            ))}
-                                        </Form.Select>
-                                        <Button 
-                                            variant="success" 
-                                            size="sm"
-                                            onClick={() => dodajPrijavuNaLokaciju(lokacijaId)}
-                                        >
-                                            Dodaj prijavu
-                                        </Button>
-                                    </div>
+                            return (
+                                <tr key={lokacijaId}>
+                                    <td style={{ verticalAlign: 'top' }}>
+                                        <h5 className="mb-3">{lokacija ? lokacija.mjesto : `Lokacija ID: ${lokacijaId}`}</h5>
 
-                                    {dodijeljenePrijaveIds.length > 0 ? (
-                                        <ul className="mb-0 mt-2">
-                                            {dodijeljenePrijaveIds.map((pId) => {
-                                                const prijavaObjekt = svePrijave.find(p => p.sifra === pId)
-                                                return (
-                                                    <li key={pId} className="py-1">
-                                                        {prijavaObjekt ? `${prijavaObjekt.imePrezime} - ${prijavaObjekt.ekipa}` : 'Nepoznata prijava'}
-                                                        <Button 
-                                                            variant="danger" 
-                                                            size="sm" 
-                                                            className="ms-3 py-0 px-1"
-                                                            style={{ fontSize: '0.75rem' }}
-                                                            onClick={() => ukloniPrijavuS_Lokacije(lokacijaId, pId)}
-                                                        >
-                                                            Ukloni prijavu
-                                                        </Button>
-                                                    </li>
-                                                )
-                                            })}
-                                        </ul>
-                                    ) : (
-                                        <span className="text-muted small">Nema dodanih prijava na ovoj lokaciji.</span>
-                                    )}
-                                </td>
-                                <td style={{ verticalAlign: 'middle' }}>
-                                    <Button 
-                                        variant="danger" 
-                                        size="sm" 
-                                        onClick={() => obrisiLokaciju(lokacijaId)}
-                                    >
-                                        Ukloni lokaciju
-                                    </Button>
-                                </td>
-                            </tr>
-                        );
-                    })}
+                                        {dodijeljenePrijaveIds.length > 0 ? (
+                                            <ul className="mb-0">
+                                                {dodijeljenePrijaveIds.map((pId) => {
+                                                    const prijavaObjekt = svePrijave.find(p => Number(p.sifra) === Number(pId))
+                                                    return (
+                                                        <li key={pId} className="py-1 d-flex justify-content-between align-items-center">
+                                                            <span>
+                                                                {prijavaObjekt ? `${prijavaObjekt.imePrezime} (${prijavaObjekt.ekipa})` : 'Nepoznata prijava'}
+                                                            </span>
+
+                                                            {!jeOdrzana && (
+                                                                <Button
+                                                                    variant="danger"
+                                                                    size="sm"
+                                                                    className="py-0 px-1 ms-2"
+                                                                    style={{ fontSize: '0.75rem' }}
+                                                                    onClick={() => ukloniPrijavuS_Lokacije(lokacijaId, pId)}
+                                                                >
+                                                                    Ukloni
+                                                                </Button>
+                                                            )}
+                                                        </li>
+                                                    )
+                                                })}
+                                            </ul>
+                                        ) : (
+                                            <span className="text-muted small">Nema dodanih prijava na ovoj lokaciji.</span>
+                                        )}
+                                    </td>
+                                    <td className="align-middle text-center">
+                                        {!jeOdrzana && (
+                                            <div className="mb-2">
+                                                <div className="d-flex gap-2 justify-content-center">
+                                                    <Form.Select
+                                                        size="sm"
+                                                        style={{ maxWidth: '200px' }}
+                                                        value={odabranePrijave[lokacijaId] || ''}
+                                                        onChange={(e) => setOdabranePrijave({
+                                                            ...odabranePrijave,
+                                                            [lokacijaId]: e.target.value
+                                                        })}
+                                                    >
+                                                        <option value="">Odaberi prijavu...</option>
+                                                        {svePrijave.map((p) => (
+                                                            <option key={p.sifra} value={p.sifra}>
+                                                                {p.imePrezime} ({p.ekipa})
+                                                            </option>
+                                                        ))}
+                                                    </Form.Select>
+                                                    <Button
+                                                        variant="success"
+                                                        size="sm"
+                                                        onClick={() => dodajPrijavuNaLokaciju(lokacijaId)}
+                                                    >
+                                                        Dodaj
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {!jeOdrzana && (
+                                            <div className="d-flex justify-content-center">
+                                                <Button
+                                                    variant="danger"
+                                                    size="sm"
+                                                    onClick={() => obrisiLokaciju(lokacijaId)}
+                                                >
+                                                    Ukloni lokaciju
+                                                </Button>
+                                            </div>
+                                        )}
+                                    </td>
+                                </tr>
+                            )
+                        })
+                    ) : (
+                        <tr>
+                            <td colSpan="2" className="text-center text-muted">
+                                Nema dodanih lokacija za ovu fišijadu.
+                            </td>
+                        </tr>
+                    )}
                 </tbody>
             </Table>
 
@@ -285,5 +355,5 @@ export default function FishijadaDetalji() {
                 Natrag na pregled
             </Button>
         </div>
-    );
+    )
 }
