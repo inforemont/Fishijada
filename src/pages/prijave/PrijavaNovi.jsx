@@ -14,6 +14,8 @@ export default function PrijavaNovi() {
     const navigate = useNavigate()
     const[lokacije,setLokacije]=useState([])
     const [odabranaLokacija, setOdabranaLokacija] = useState('')
+    const [svePrijave, setSvePrijave] = useState([])
+    const [stol, setStol] = useState('')
 
 
 
@@ -21,12 +23,34 @@ export default function PrijavaNovi() {
         LokacijaService.get().then((o)=>{
             setLokacije(o.data)
         })
+         PrijavaService.get().then((o)=>{
+            setSvePrijave(o.data)
+        })
+
+
     },[])
 
     async function dodaj(prijava){
         await PrijavaService.dodaj(prijava).then(()=>{
             navigate(RouteNames.PRIJAVE)
         })
+    }
+
+    function dodijeliSlucajniStol(zauzetiStolovi) {
+        const sviStolovi = Array.from({ length: 500 }, (_, i) => i + 1)
+        const slobodniStolovi = sviStolovi.filter(s => !zauzetiStolovi.includes(s))
+        if (slobodniStolovi.length === 0) {
+            alert("Svi stolovi od 1 do 500 su popunjeni!")
+            return ''
+        }
+        const nasumicniIndeks = Math.floor(Math.random() * slobodniStolovi.length)
+        return slobodniStolovi[nasumicniIndeks]
+    }
+
+    const PostaviAutomatskiStol = () => {
+        const zauzetiStolovi = svePrijave.map(p => Number(p.stol)).filter(Boolean)
+        const dodijeljeniBroj = dodijeliSlucajniStol(zauzetiStolovi)
+        setStol(dodijeljeniBroj)
     }
 
 
@@ -87,8 +111,10 @@ export default function PrijavaNovi() {
         })
     }
 
-    const odabraniObjekt = lokacije.find(l => l.sifra == odabranaLokacija);
-    const jeBeliManastir = odabraniObjekt?.mjesto === 'Beli Manastir';
+    const odabraniObjekt = lokacije.find(l => l.sifra == odabranaLokacija)
+    const jeBeliManastir = odabraniObjekt?.mjesto === 'Beli Manastir'
+
+
 
 
     return (
@@ -108,10 +134,20 @@ export default function PrijavaNovi() {
                     <Form.Label>EKIPA</Form.Label>
                     <Form.Control type="text" name="ekipa" />
                 </Form.Group>
-
-                <Form.Group controlId="stol">
+                <Form.Group controlId="stol" className="mb-3">
                     <Form.Label>STOL</Form.Label>
-                    <Form.Control type="number" name="stol" />
+                    <div className="d-flex gap-2">
+                        <Form.Control 
+                            type="number" 
+                            name="stol" 
+                            value={stol}
+                            readOnly
+                            
+                        />
+                        <Button type="button" variant="outline-primary" onClick={PostaviAutomatskiStol}>
+                            🎲 Dodijeli stol
+                        </Button>
+                    </div>
                 </Form.Group>
 
                 <Form.Group controlId="email">
