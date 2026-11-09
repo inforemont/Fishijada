@@ -1,9 +1,11 @@
-import { Link, useNavigate } from "react-router-dom";
-import { RouteNames } from "../../constants";
-import { Button, Col, Form, FormLabel, Row } from "react-bootstrap";
-import PrijavaService from "../../services/prijave/PrijavaService";
-import { useState, useEffect } from "react";
-import LokacijaService from "../../services/lokacije/LokacijaService";
+import { Link, useNavigate } from "react-router-dom"
+import { RouteNames } from "../../constants"
+import { Button, Col, Form, FormLabel, Row } from "react-bootstrap"
+import PrijavaService from "../../services/prijave/PrijavaService"
+import { useState, useEffect } from "react"
+import LokacijaService from "../../services/lokacije/LokacijaService"
+import {jsPDF} from 'jspdf'
+import {robotoBase64} from '../../fonts/robotoFont'
 
 
 
@@ -16,6 +18,8 @@ export default function PrijavaNovi() {
     const [odabranaLokacija, setOdabranaLokacija] = useState('')
     const [svePrijave, setSvePrijave] = useState([])
     const [stol, setStol] = useState('')
+    const [poslanaPrijava, setPoslanaPrijava]=useState(null)
+
 
 
 
@@ -32,7 +36,7 @@ export default function PrijavaNovi() {
 
     async function dodaj(prijava){
         await PrijavaService.dodaj(prijava).then(()=>{
-            navigate(RouteNames.PRIJAVE)
+        setPoslanaPrijava(prijava)
         })
     }
 
@@ -114,6 +118,64 @@ export default function PrijavaNovi() {
     const odabraniObjekt = lokacije.find(l => l.sifra == odabranaLokacija)
     const jeBeliManastir = odabraniObjekt?.mjesto === 'Beli Manastir'
 
+    function postaviRobotoFont(doc) {
+        doc.addFileToVFS('Roboto-Regular.ttf', robotoBase64)
+        doc.addFont('Roboto-Regular.ttf', 'Roboto', 'normal')
+        doc.setFont('Roboto', 'normal')
+    }
+
+    function generirajPDF() {
+        const doc = new jsPDF()
+        postaviRobotoFont(doc)
+
+        const odabraniNazivLokacije = lokacije.find(l => l.sifra === poslanaPrijava?.lokacija)?.mjesto || 'Nepoznata lokacija'
+
+        doc.setFont("Roboto", "bold")
+        doc.setFontSize(14)
+        doc.text(`SLUŽBENA PRIJAVA - FIŠIJADA ${odabraniNazivLokacije.toUpperCase()}`, 20, 20)
+
+        doc.setFontSize(10)
+        doc.setFont("Roboto", "normal")
+        doc.text(`Datum prijave: ${new Date().toLocaleDateString('hr-HR')}`, 20, 32)
+
+        doc.setLineWidth(0.3)
+        doc.line(20, 38, 190, 38)
+
+        doc.setFont("Roboto", "bold")
+        doc.setFontSize(12)
+        doc.text("Podaci o sudioniku:", 20, 48)
+
+        doc.setFont("Roboto", "normal")
+        doc.setFontSize(11)
+        doc.text(`Ime i prezime: ${poslanaPrijava?.imePrezime || ''}`, 20, 56)
+        doc.text(`Naziv ekipe: ${poslanaPrijava?.ekipa || ''}`, 20, 64)
+        doc.text(`Dodijeljeni stol: ${poslanaPrijava?.stol || ''}`, 20, 72)
+        doc.text(`E-mail adresa: ${poslanaPrijava?.email || ''}`, 20, 80)
+        doc.text(`Odabrana lokacija: ${odabraniNazivLokacije}`, 20, 88)
+        doc.text(`Kotizacija uplaćena: ${poslanaPrijava?.kotizacijaPlacena ? 'DA' : 'NE'}`, 20, 96)
+
+        if (poslanaPrijava?.prvenstvoHrvatske) {
+            doc.text(`Sudjelovanje na Prvenstvu Hrvatske: DA`, 20, 104)
+        }
+
+        doc.line(20, 122, 190, 122)
+        doc.setFont("Roboto", "bold")
+        doc.text("Potpis voditelja ekipe: ___________________________", 20, 134)
+
+        return doc
+    }
+
+    function preuzmiPDF() {
+        const doc = generirajPDF()
+        doc.save(`Prijava_${poslanaPrijava?.ekipa?.replace(/\s+/g, '_') || 'ekipa'}.pdf`)
+    }
+
+    function ispisiPDF() {
+        const doc = generirajPDF()
+        doc.autoPrint()
+        window.open(doc.output('bloburl'), '_blank')
+    }
+
 
 
 
@@ -122,7 +184,7 @@ export default function PrijavaNovi() {
             <h3 className="my-3">
                 Dodavanje nove prijave
             </h3>
-
+        {!poslanaPrijava? (
             <Form onSubmit={obradiSubmit}>
 
                 <Form.Group controlId="imePrezime">
@@ -197,8 +259,27 @@ export default function PrijavaNovi() {
                     </Col>
                 </Row>
             </Form>
+        ):(
+
+            <div className="text-center p-4 border rounded bg-light my-4">
+                <h4 className="text-success mb-3">Prijava je uspješno spremljena!</h4>
+                <p>Možete preuzeti PDF obrazac ili ga direktno ispisati:</p>
+                
+                <div className="d-flex justify-content-center gap-3 mt-4">
+                    <Button variant="primary" onClick={preuzmiPDF}>
+                        Preuzmi PDF prijavu
+                    </Button>
+                    <Button variant="secondary" onClick={ispisiPDF}>
+                        Ispiši PDF
+                    </Button>
+                    <Button variant="success" onClick={() => navigate(RouteNames.PRIJAVE)}>
+                        Natrag na pregled prijava
+                    </Button>
+                </div>
+            </div>
+        )}
+    </>
+)
 
 
-        </>
-    )
 }

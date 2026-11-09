@@ -12,6 +12,7 @@
   "dependencies": {
     "@faker-js/faker": "^10.6.0",
     "bootstrap": "^5.3.8",
+    "jspdf": "^4.2.1",
     "leaflet": "^1.9.4",
     "react": "^19.2.8",
     "react-bootstrap": "^2.10.10",

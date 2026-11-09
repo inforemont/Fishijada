@@ -3,7 +3,7 @@ export const lokacije=[
 {
     sifra: 2,
     regija:'Baranja',
-    mjesto:'Knezevi vinogradi',
+    mjesto:'KNEŽEVI VINOGRADI',
     zupanija:'Osječko-baranjska',
     posta:31309,
     datumOdrzavanja:'2020-05-15T16:30:00',
@@ -14,7 +14,7 @@ export const lokacije=[
 {
     sifra: 3,
     regija:'Baranja',
-    mjesto:'Luč',
+    mjesto:'LUČ',
     zupanija:'Osječko-baranjska',
     posta:31300,
     datumOdrzavanja:'2020-05-15T16:30:00',
@@ -25,7 +25,7 @@ export const lokacije=[
 {
     sifra: 4,
     regija:'Baranja',
-    mjesto:'Jagodnjak',
+    mjesto:'JAGODNJAK',
     zupanija:'Osječko-baranjska',
     posta:31324,
     datumOdrzavanja:'2020-05-15T16:30:00',
@@ -36,7 +36,7 @@ export const lokacije=[
 {
     sifra: 5,
     regija:'Baranja',
-    mjesto:'Baranjsko petrovo selo',
+    mjesto:'BARANJSKO PETROVO SELO',
     zupanija:'Osječko-baranjska',
     posta:31312,
     datumOdrzavanja:'2020-05-15T16:30:00',
@@ -47,7 +47,7 @@ export const lokacije=[
 {
     sifra: 6,
     regija:'Baranja',
-    mjesto:'Petlovac',
+    mjesto:'PETLOVAC',
     zupanija:'Osječko-baranjska',
     posta:31321,
     datumOdrzavanja:'2020-05-15T16:30:00',
@@ -58,7 +58,7 @@ export const lokacije=[
 {
     sifra: 7,
     regija:'Baranja',
-    mjesto:'Lug',
+    mjesto:'LUG',
     zupanija:'Osječko-baranjska',
     posta:31328,
     datumOdrzavanja:'2020-05-15T16:30:00',
@@ -69,7 +69,7 @@ export const lokacije=[
 {
     sifra: 8,
     regija:'Baranja',
-    mjesto:'Kopačevo',
+    mjesto:'KOPAČEVO',
     zupanija:'Osječko-baranjska',
     posta:31327,
     datumOdrzavanja:'2020-05-15T16:30:00',
@@ -81,7 +81,7 @@ export const lokacije=[
 {
     sifra: 9,
     regija:'Baranja',
-    mjesto:'Zmajevac',
+    mjesto:'ZMAJEVAC',
     zupanija:'Osječko-baranjska',
     posta:31307,
     datumOdrzavanja:'2020-05-15T16:30:00',
@@ -92,7 +92,7 @@ export const lokacije=[
 {
     sifra: 10,
     regija:'Baranja',
-    mjesto:'Batina',
+    mjesto:'BATINA',
     zupanija:'Osječko-baranjska',
     posta:31306,
     datumOdrzavanja:'2020-05-15T16:30:00',
@@ -103,7 +103,7 @@ export const lokacije=[
 {
     sifra: 11,
     regija:'Baranja',
-    mjesto:'Duboševica',
+    mjesto:'DUBOŠEVICA',
     zupanija:'Osječko-baranjska',
     posta:31304,
     datumOdrzavanja:'2020-05-15T16:30:00',
@@ -114,7 +114,7 @@ export const lokacije=[
 {
     sifra: 12,
     regija:'Baranja',
-    mjesto:'Popovac',
+    mjesto:'POPOVAC',
     zupanija:'Osječko-baranjska',
     posta:31303,
     datumOdrzavanja:'2020-05-15T16:30:00',
@@ -125,7 +125,7 @@ export const lokacije=[
 {
     sifra: 13,
     regija:'Baranja',
-    mjesto:'Čeminac',
+    mjesto:'ČEMINAC',
     zupanija:'Osječko-baranjska',
     posta:31325,
     datumOdrzavanja:'2020-05-15T16:30:00',
@@ -136,7 +136,7 @@ export const lokacije=[
 {
     sifra: 14,
     regija:'Baranja',
-    mjesto:'Karanac',
+    mjesto:'KARANAC',
     zupanija:'Osječko-baranjska',
     posta:31315,
     datumOdrzavanja:'2020-05-15T16:30:00',
@@ -147,7 +147,7 @@ export const lokacije=[
 {
     sifra: 15,
     regija:'Baranja',
-    mjesto:'Suza',
+    mjesto:'SUZA',
     zupanija:'Osječko-baranjska',
     posta:31309,
     datumOdrzavanja:'2020-05-15T16:30:00',
@@ -158,7 +158,7 @@ export const lokacije=[
 {
     sifra: 16,
     regija:'Baranja',
-    mjesto:'Draž',
+    mjesto:'DRAŽ',
     zupanija:'Osječko-baranjska',
     posta:31305,
     datumOdrzavanja:'2020-05-15T16:30:00',
@@ -169,7 +169,7 @@ export const lokacije=[
 {
     sifra: 17,
     regija:'Baranja',
-    mjesto:'Gajić',
+    mjesto:'GAJIĆ',
     zupanija:'Osječko-baranjska',
     posta:31305,
     datumOdrzavanja:'2020-05-15T16:30:00',
@@ -180,7 +180,7 @@ export const lokacije=[
 {
     sifra: 18,
     regija:'Baranja',
-    mjesto:'Topolje',
+    mjesto:'TOPOLJE',
     zupanija:'Osječko-baranjska',
     posta:31305,
     datumOdrzavanja:'2020-05-15T16:30:00',
@@ -191,7 +191,7 @@ export const lokacije=[
 {
     sifra: 19,
     regija:'Slavonija',
-    mjesto: 'Nard',
+    mjesto: 'NARD',
     zupanija:'Osječko-baranjska',
     posta:31550,
     datumOdrzavanja:'2020-05-15T16:30:00',
@@ -201,7 +201,7 @@ export const lokacije=[
     {
     sifra: 111,
     regija:'Baranja',
-    mjesto:'Beli Manastir',
+    mjesto:'BELI MANASTIR',
     zupanija:'Osječko-baranjska',
     posta:31300,
 

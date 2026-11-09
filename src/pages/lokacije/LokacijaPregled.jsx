@@ -58,11 +58,6 @@ function LokacijeIzbor() {
         navigate(`/lokacije/detalji/${sifra}`)
     }
 
-    function dohvatiEkipuPrijave(sifraPrijave){
-        const prijava=prijave.find(s=>s.sifra===sifraPrijave)
-        return prijava.ekipe
-    }
-
     return (
         <>
             <Link to={RouteNames.LOKACIJE_DODAJ}
