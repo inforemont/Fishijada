@@ -22,16 +22,16 @@ export default function LokacijePregled() {
 
 function LokacijeIzbor() {
     const [lokacije, setLokacije] = useState([])
-    const[prijave,setPrijave]=useState([])
+    const [prijave, setPrijave] = useState([])
     const navigate = useNavigate()
 
-    async function ucitajLokacije(){
+    async function ucitajLokacije() {
         await LokacijaService.get().then((odgovor) => {
             setLokacije(odgovor.data)
         })
     }
 
-     async function ucitajPrijave(){
+    async function ucitajPrijave() {
         await PrijavaService.get().then((odgovor) => {
             setPrijave(odgovor.data)
         })
@@ -46,7 +46,7 @@ function LokacijeIzbor() {
     }, [])
 
     async function obrisi(sifra) {
-        if(!confirm('sigurno obrisati?')){
+        if (!confirm('sigurno obrisati?')) {
             return
         }
 
@@ -61,11 +61,11 @@ function LokacijeIzbor() {
     return (
         <>
             <Link to={RouteNames.LOKACIJE_DODAJ}
-            className="btn btn-success w-100 my-3">
+                className="btn btn-success w-100 my-3">
                 Dodavanje nove lokacije
             </Link>
 
-            <Table hover striped bordered> 
+            <Table hover striped bordered>
                 <thead>
                     <tr>
                         <th>Mjesto</th>
@@ -76,12 +76,12 @@ function LokacijeIzbor() {
                     </tr>
                 </thead>
                 <tbody>
-                    {lokacije && lokacije.filter((lokacija)=>lokacija.sifra !==111).map((lokacija) => {                    
+                    {lokacije && lokacije.filter((lokacija) => lokacija.sifra !== 111).map((lokacija) => {
                         return (
                             <tr key={lokacija.sifra}>
                                 <td className='lead'>
                                     {lokacija.mjesto}
-                                    <span title="Broj ekipa"> ({lokacija.ekipe && Array.isArray(lokacija.ekipe) ? lokacija.ekipe.length : 0})</span>
+                                    <span title="Broj ekipa"> ({prijave.filter(p => p.lokacija === lokacija.sifra).length})</span>
                                 </td>
                                 <td className='text-end'>
                                     {lokacija.zupanija}
@@ -92,19 +92,19 @@ function LokacijeIzbor() {
                                         displayType={'text'}
                                     />
                                 </td>
-                                <td style={{textAlign: 'center'}}>
-                                        <FormatDatuma datum={lokacija.datumOdrzavanja} prikazDatuma="Nije postavljeno" />
-                                        </td>
+                                <td style={{ textAlign: 'center' }}>
+                                    <FormatDatuma datum={lokacija.datumOdrzavanja} prikazDatuma="Nije postavljeno" />
+                                </td>
                                 <td>
-                                    <Button onClick={()=>{navigate(`/lokacije/${lokacija.sifra}`)}}>
+                                    <Button onClick={() => { navigate(`/lokacije/${lokacija.sifra}`) }}>
                                         Promjena
                                     </Button>
                                     &nbsp;&nbsp;&nbsp;
-                                    <Button variant="danger" onClick={()=>obrisi(lokacija.sifra)}>
+                                    <Button variant="danger" onClick={() => obrisi(lokacija.sifra)}>
                                         Obriši
-                                    </Button>   
+                                    </Button>
                                     &nbsp;&nbsp;&nbsp;
-                                    <Button variant="success" onClick={()=>detalji(lokacija.sifra)}>
+                                    <Button variant="success" onClick={() => detalji(lokacija.sifra)}>
                                         Detalji
                                     </Button>
                                 </td>

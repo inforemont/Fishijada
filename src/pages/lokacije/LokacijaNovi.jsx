@@ -6,20 +6,22 @@ import LokacijaService from "../../services/lokacije/LokacijaService";
 export default function LokacijaNovi() {
     const navigate = useNavigate()
 
-    async function dodaj(lokacija){
-        await LokacijaService.dodaj(lokacija).then(()=>{
+    async function dodaj(lokacija) {
+        await LokacijaService.dodaj(lokacija).then(() => {
             navigate(RouteNames.LOKACIJE)
         })
     }
 
-    function obradiSubmit(e){
-        e.preventDefault() 
+    function obradiSubmit(e) {
+        e.preventDefault()
         const podaci = new FormData(e.target)
         dodaj({
             regija: podaci.get('regija'),
             mjesto: podaci.get('mjesto'),
             zupanija: podaci.get('zupanija'),
+            datumOdrzavanja:podaci.get('datumOdrzavanja'),
             posta: parseFloat(podaci.get('posta')),
+
             ekipe: []
         })
     }
@@ -49,6 +51,11 @@ export default function LokacijaNovi() {
                 <Form.Group controlId="posta" className="mb-3">
                     <Form.Label>POŠTANSKI BROJ</Form.Label>
                     <Form.Control type="number" name="posta" required />
+                </Form.Group>
+
+                <Form.Group controlId="datumOdrzavanja">
+                    <Form.Label>DATUM ODRŽAVANJA</Form.Label>
+                    <Form.Control type="date" name="datumOdrzavanja" required></Form.Control>
                 </Form.Group>
 
                 <Row className="mt-4">

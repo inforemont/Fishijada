@@ -7,55 +7,52 @@ import LokacijaService from '../services/lokacije/LokacijaService';
 
 
 export default function GeneriranjePodataka() {
-    const [brojFishijada, setBrojFishijada] = useState(1);
-    const [brojPrijava, setBrojPrijava] = useState(10);
-    const [brojLokacija, setBrojLokacija] = useState(20);
+    const [brojFishijada, setBrojFishijada] = useState(10);
+    const [brojPrijava, setBrojPrijava] = useState(50);
+    const [brojLokacija, setBrojLokacija] = useState(15);
     const [poruka, setPoruka] = useState(null);
     const [loading, setLoading] = useState(false);
 
-    // Postavi faker na hrvatski jezik
     const faker = new Faker({
         locale: [hr]
     });
 
     const generirajFishijade = async (broj) => {
-    const rezultatLokacija = await LokacijaService.get();
-    const lokacije = rezultatLokacija.data;
+        const rezultatLokacija = await LokacijaService.get();
+        const lokacije = rezultatLokacija.data || [];
 
-    if (lokacije.length === 0) {
-        throw new Error('Nema dostupnih lokacija. Prvo generirajte lokacije.');
-    }
+        for (let i = 0; i < broj; i++) {
+            let randomLokacije = [];
+            if (lokacije.length > 0) {
+                
+                const brojZaOdabrati = faker.number.int({ min: 1, max: Math.min(5, lokacije.length) });
+                randomLokacije = faker.helpers.arrayElements(
+                    lokacije.map(l => l.sifra), 
+                    brojZaOdabrati
+                );
+            }
 
-    for (let i = 0; i < broj; i++) {
-        // Odaberi nekoliko nasumičnih lokacija za ovu fišijadu
-        const brojZaOdabrati = faker.number.int({ min: 2, max: Math.min(5, lokacije.length) });
-        const randomLokacije = faker.helpers.arrayElements(
-            lokacije.map(l => l.sifra), 
-            brojZaOdabrati
-        );
-
-        const fishijada = {
-            naziv: `Prvenstvo Baranje ${2020 + i}`,
-            mjestoOdrzavanja: 'Beli Manastir',
-            cijena: faker.number.float({ min: 10, max: 30, precision: 1 }),
-            datumPokretanja: new Date(2020 + i, 4, 15).toISOString(),
-            aktivan: i === 0,
-            lokacije: randomLokacije
-        };
-        
-        await FishijadaService.dodaj(fishijada);
-    }
-};
+            const fishijada = {
+                naziv: `Prvenstvo Baranje ${2020 + i}`,
+                mjestoOdrzavanja: 'Beli Manastir',
+                cijena: faker.number.float({ min: 10, max: 30, precision: 1 }),
+                datumPokretanja: new Date(2020 + i, 4, 15).toISOString(),
+                aktivan: i === 0,
+                lokacije: randomLokacije 
+            };
+            
+            await FishijadaService.dodaj(fishijada);
+        }
+    };
 
     const generirajPrijave = async (broj) => {
-    const rezultatLokacija = await LokacijaService.get();
+    const rezultatLokacija = await LokacijaService.get()
     const lokacije = rezultatLokacija.data;
 
     for (let i = 0; i < broj; i++) {
         const randomLokacija = lokacije.length > 0 ? lokacije[faker.number.int({ min: 0, max: lokacije.length - 1 })].sifra : null;
         
         const prijava = {
-            // Ovdje smo zamijenili faker.word.noun() sa sigurnom opcijom:
             imePrezime: faker.person.firstName() + ' ' + faker.person.lastName(),
             ekipa: 'Ekipa ' + faker.person.lastName() + ' ' + faker.number.int({ min: 1, max: 100 }),
             stol: faker.number.int({ min: 1, max: 150 }),
@@ -78,11 +75,11 @@ export default function GeneriranjePodataka() {
         await LokacijaService.dodaj({
             mjesto: naziviLokacija[i % naziviLokacija.length] + (i >= naziviLokacija.length ? ` ${Math.floor(i / naziviLokacija.length) + 1}` : ''),
             zupanija: 'Osječko-baranjska',
-            postanskiUred: faker.string.numeric(5),
+            posta: faker.string.numeric(5),
             datumOdrzavanja: faker.date.soon().toISOString().split('T')[0]
-        });
+        })
     }
-};
+}
 
     const handleGenerirajFishijade = async (e) => {
         e.preventDefault();

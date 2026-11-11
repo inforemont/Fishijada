@@ -38,7 +38,7 @@ export default function FishijadaNovi() {
                 </Form.Group>
 
                 <Form.Group controlId="mjestoOdrzavanja" className="mb-3">
-                    <Form.Label>MJESTO ODRŽAVANJA</Form.Label>
+                    <Form.Label>ADRESA:</Form.Label>
                     <Form.Control type="text" name="mjestoOdrzavanja" required />
                 </Form.Group>
 
@@ -48,7 +48,7 @@ export default function FishijadaNovi() {
                 </Form.Group>
 
                 <Form.Group controlId="datumPokretanja" className="mb-3">
-                    <Form.Label>DATUM POKRETANJA</Form.Label>
+                    <Form.Label>DATUM ODRŽAVANJA</Form.Label>
                     <Form.Control type="date" name="datumPokretanja" required />
                 </Form.Group>
 
