@@ -2,9 +2,10 @@ import { IME_APLIKACIJE } from '../constants'
 import { Container, Card, Carousel } from 'react-bootstrap'
 import pozadinaKartice from '../assets/baranja.jpg'
 
-import slika1 from '../assets/fishijada.jpg'
+import slika1 from '../assets/paprika.jpg'
 import slika2 from '../assets/pozadina_ribe.jpg'
 import slika3 from '../assets/baranja.jpg'
+import slika4 from '../assets/najveca.jpg'
 
 export default function Home() {
     return (
@@ -43,11 +44,11 @@ export default function Home() {
                                 <img
                                     className="d-block w-100 rounded shadow"
                                     src={slika1}
-                                    alt="Okusi Baranju!"
+                                    alt="Posjeti Baranju"
                                     style={{ height: "450px", objectFit: "cover" }}
                                 />
                                 <Carousel.Caption>
-                                    <h5 className="bg-dark bg-opacity-75 p-2 rounded">Okusi Baranju!</h5>
+                                    <h5 className="bg-dark bg-opacity-75 p-2 rounded">Posjeti Baranju!</h5>
                                 </Carousel.Caption>
                             </Carousel.Item>
 
@@ -72,6 +73,17 @@ export default function Home() {
                                 />
                                 <Carousel.Caption>
                                     <h5 className="bg-dark bg-opacity-75 p-2 rounded">Spoj prirode i okusa!</h5>
+                                </Carousel.Caption>
+                            </Carousel.Item>
+                             <Carousel.Item>
+                                <img
+                                    className="d-block w-100 rounded shadow"
+                                    src={slika4}
+                                    alt="Grad Fiša"
+                                    style={{ height: "450px", objectFit: "cover" }}
+                                />
+                                <Carousel.Caption>
+                                    <h5 className="bg-dark bg-opacity-75 p-2 rounded">Radosti fiša u Gradu fiša</h5>
                                 </Carousel.Caption>
                             </Carousel.Item>
                         </Carousel>

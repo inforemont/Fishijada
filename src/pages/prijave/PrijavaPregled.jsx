@@ -168,9 +168,6 @@ function PrijaveIzbor({ godina }) {
                                     </Button>
                                     &nbsp;&nbsp;&nbsp;
 
-                                    <Button variant="success" onClick={() => detalji(prijava.sifra)}>
-                                        Detalji
-                                    </Button>
                                 </td>
 
                             </tr>
