@@ -2,9 +2,9 @@ import { IME_APLIKACIJE } from '../constants'
 import { Container, Card, Carousel } from 'react-bootstrap'
 import pozadinaKartice from '../assets/baranja.jpg'
 
-import korak1 from '../assets/fish.jpg'
-import korak2 from '../assets/pozadina_ribe.jpg'
-import korak3 from '../assets/baranja.jpg'
+import slika1 from '../assets/fish.jpg'
+import slika2 from '../assets/pozadina_ribe.jpg'
+import slika3 from '../assets/baranja.jpg'
 
 export default function Home() {
     return (
@@ -42,7 +42,7 @@ export default function Home() {
                             <Carousel.Item>
                                 <img
                                     className="d-block w-100 rounded shadow"
-                                    src={korak1}
+                                    src={slika1}
                                     alt="Okusi Baranju!"
                                     style={{ height: "450px", objectFit: "cover" }}
                                 />
@@ -54,7 +54,7 @@ export default function Home() {
                             <Carousel.Item>
                                 <img
                                     className="d-block w-100 rounded shadow"
-                                    src={korak2}
+                                    src={slika2}
                                     alt="Uzbudi osjetila"
                                     style={{ height: "450px", objectFit: "cover" }}
                                 />
@@ -66,7 +66,7 @@ export default function Home() {
                             <Carousel.Item>
                                 <img
                                     className="d-block w-100 rounded shadow"
-                                    src={korak3}
+                                    src={slika3}
                                     alt="Spoj prirode i okusa"
                                     style={{ height: "450px", objectFit: "cover" }}
                                 />
