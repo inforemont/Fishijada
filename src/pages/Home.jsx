@@ -2,7 +2,7 @@ import { IME_APLIKACIJE } from '../constants'
 import { Container, Card, Carousel } from 'react-bootstrap'
 import pozadinaKartice from '../assets/baranja.jpg'
 
-import slika1 from '../assets/fish.jpg'
+import slika1 from '../assets/fishijada.jpg'
 import slika2 from '../assets/pozadina_ribe.jpg'
 import slika3 from '../assets/baranja.jpg'
 
