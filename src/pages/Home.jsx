@@ -1,7 +1,10 @@
 import { IME_APLIKACIJE } from '../constants'
-import { Container, Card } from 'react-bootstrap'
-import kotlic_loop from '../assets/kotlic_loop.webm'
+import { Container, Card, Carousel } from 'react-bootstrap'
 import pozadinaKartice from '../assets/baranja.jpg'
+
+import korak1 from '../assets/fish.jpg'
+import korak2 from '../assets/pozadina_ribe.jpg'
+import korak3 from '../assets/baranja.jpg'
 
 export default function Home() {
     return (
@@ -23,29 +26,55 @@ export default function Home() {
                     left: 0,
                     width: '100%',
                     height: '100%',
-                    backgroundColor: 'rgba(0, 0, 0, 0.35)',
+                    backgroundColor: 'rgba(0, 0, 0, 0.4)',
                     zIndex: 1
                 }}></div>
 
-        
                 <div style={{ position: 'relative', zIndex: 2 }}>
-                    <div className="text-center my-2">
-                        <video 
-                            autoPlay 
-                            loop 
-                            muted 
-                            playsInline 
-                            style={{ 
-                                width: "100%",       
-                                maxWidth: "1100px",  
-                                height: "auto",     
-                                borderRadius: "8px",
-                                boxShadow: "0 6px 20px rgba(0,0,0,0.5)"
-                            }}
+                    
+
+                    <div className="my-3 d-flex justify-content-center">
+                        <Carousel 
+                            fade 
+                            interval={3000} 
+                            style={{ width: "100%", maxWidth: "900px" }}
                         >
-                            <source src={kotlic_loop} type="video/webm" />
-                            Vaš preglednik ne podržava video.
-                        </video>
+                            <Carousel.Item>
+                                <img
+                                    className="d-block w-100 rounded shadow"
+                                    src={korak1}
+                                    alt="Okusi Baranju!"
+                                    style={{ height: "450px", objectFit: "cover" }}
+                                />
+                                <Carousel.Caption>
+                                    <h5 className="bg-dark bg-opacity-75 p-2 rounded">Okusi Baranju!</h5>
+                                </Carousel.Caption>
+                            </Carousel.Item>
+
+                            <Carousel.Item>
+                                <img
+                                    className="d-block w-100 rounded shadow"
+                                    src={korak2}
+                                    alt="Uzbudi osjetila"
+                                    style={{ height: "450px", objectFit: "cover" }}
+                                />
+                                <Carousel.Caption>
+                                    <h5 className="bg-dark bg-opacity-75 p-2 rounded">Uzbudi osjetila!</h5>
+                                </Carousel.Caption>
+                            </Carousel.Item>
+
+                            <Carousel.Item>
+                                <img
+                                    className="d-block w-100 rounded shadow"
+                                    src={korak3}
+                                    alt="Spoj prirode i okusa"
+                                    style={{ height: "450px", objectFit: "cover" }}
+                                />
+                                <Carousel.Caption>
+                                    <h5 className="bg-dark bg-opacity-75 p-2 rounded">Spoj prirode i okusa!</h5>
+                                </Carousel.Caption>
+                            </Carousel.Item>
+                        </Carousel>
                     </div>
                     
                     <h2 className="mt-4 font-weight-bold" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.9)', color: '#fff' }}>

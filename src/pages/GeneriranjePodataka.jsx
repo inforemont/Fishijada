@@ -17,19 +17,38 @@ export default function GeneriranjePodataka() {
         locale: [hr]
     });
 
-    const generirajFishijade = async (broj) => {
+   
+const generirajFishijade = async (broj) => {
         const rezultatLokacija = await LokacijaService.get();
         const lokacije = rezultatLokacija.data || [];
 
+        const rezultatPrijava = await PrijavaService.get();
+        const prijave = rezultatPrijava.data || [];
+
         for (let i = 0; i < broj; i++) {
-            let randomLokacije = [];
+            let randomLokacijeSifre = [];
+            let prijavePoLokacijama = {};
+
             if (lokacije.length > 0) {
+
+                const brojZaOdabrati = faker.number.int({ min: 1, max: Math.min(10, lokacije.length) });
+                const odabraneLokacije = faker.helpers.arrayElements(lokacije, brojZaOdabrati);
                 
-                const brojZaOdabrati = faker.number.int({ min: 1, max: Math.min(5, lokacije.length) });
-                randomLokacije = faker.helpers.arrayElements(
-                    lokacije.map(l => l.sifra), 
-                    brojZaOdabrati
-                );
+                randomLokacijeSifre = odabraneLokacije.map(l => l.sifra);
+
+                
+                if (prijave.length > 0) {
+                    odabraneLokacije.forEach(lokacija => {
+                        
+                        const brojPrijavaZaOvuLokaciju = faker.number.int({ min: 1, max: Math.min(50, prijave.length) });
+                        
+                       
+                        const odabranePrijaveZaLokaciju = faker.helpers.arrayElements(prijave, brojPrijavaZaOvuLokaciju);
+                        
+
+                        prijavePoLokacijama[lokacija.sifra] = odabranePrijaveZaLokaciju.map(p => p.sifra);
+                    });
+                }
             }
 
             const fishijada = {
@@ -38,33 +57,51 @@ export default function GeneriranjePodataka() {
                 cijena: faker.number.float({ min: 10, max: 30, precision: 1 }),
                 datumPokretanja: new Date(2020 + i, 4, 15).toISOString(),
                 aktivan: i === 0,
-                lokacije: randomLokacije 
+                lokacije: randomLokacijeSifre,
+                prijavePoLokacijama: prijavePoLokacijama
             };
             
             await FishijadaService.dodaj(fishijada);
         }
     };
+const generirajPrijave = async (broj) => {
+        let rezultatLokacija = await LokacijaService.get();
+        let lokacije = rezultatLokacija.data || [];
 
-    const generirajPrijave = async (broj) => {
-    const rezultatLokacija = await LokacijaService.get()
-    const lokacije = rezultatLokacija.data;
+        if (lokacije.length === 0) {
+            const naziviLokacija = ['Kneževi Vinogradi', 'Luč', 'Jagodnjak', 'Petlovac', 'Lug','Topolje','Branjina','Gajić','Duboševica','Bolman','Baranjsko Petrovo Selo','Suza','Zmajevac','Batina','Kopačevo','Grabovac'];
+            for (let i = 0; i < naziviLokacija.length; i++) {
+                await LokacijaService.dodaj({
+                    mjesto: naziviLokacija[i],
+                    zupanija: 'Osječko-baranjska',
+                    posta: 31300 + i,
+                    datumOdrzavanja: new Date().toISOString().split('T')[0],
+                    ekipe: []
+                });
+            }
+            rezultatLokacija = await LokacijaService.get();
+            lokacije = rezultatLokacija.data || [];
+        }
 
-    for (let i = 0; i < broj; i++) {
-        const randomLokacija = lokacije.length > 0 ? lokacije[faker.number.int({ min: 0, max: lokacije.length - 1 })].sifra : null;
-        
-        const prijava = {
-            imePrezime: faker.person.firstName() + ' ' + faker.person.lastName(),
-            ekipa: 'Ekipa ' + faker.person.lastName() + ' ' + faker.number.int({ min: 1, max: 100 }),
-            stol: faker.number.int({ min: 1, max: 150 }),
-            email: faker.internet.email(),
-            kotizacijaPlacena: faker.datatype.boolean(),
-            prvenstvoHrvatske: false,
-            lokacija: randomLokacija
-        };
-        await PrijavaService.dodaj(prijava);
-    }
+        for (const lokacija of lokacije) {
 
-};
+            const brojPrijavaZaOvuLokaciju = faker.number.int({ min: 1, max: Math.min(20, broj) });
+
+            for (let j = 0; j < brojPrijavaZaOvuLokaciju; j++) {
+                const prijava = {
+                    imePrezime: faker.person.firstName() + ' ' + faker.person.lastName(),
+                    ekipa: 'Ekipa ' + faker.person.lastName() + ' ' + faker.number.int({ min: 1, max: 100 }),
+                    stol: faker.number.int({ min: 1, max: 150 }),
+                    email: faker.internet.email(),
+                    kotizacijaPlacena: faker.datatype.boolean(),
+                    prvenstvoHrvatske: false,
+                    lokacija: lokacija.sifra 
+                };
+                
+                await PrijavaService.dodaj(prijava);
+            }
+        }
+    };
     const generirajLokacije = async (broj) => {
     const naziviLokacija = [
         'Kneževi Vinogradi', 'Luč', 'Jagodnjak', 'Baranjsko Petrovo Selo', 
