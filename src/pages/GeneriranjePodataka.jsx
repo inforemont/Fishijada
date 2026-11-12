@@ -6,9 +6,9 @@ import PrijavaService from '../services/prijave/PrijavaService';
 import LokacijaService from '../services/lokacije/LokacijaService';
 
 export default function GeneriranjePodataka() {
-    const [brojFishijada, setBrojFishijada] = useState(10);
-    const [brojPrijava, setBrojPrijava] = useState(50);
-    const [brojLokacija, setBrojLokacija] = useState(15);
+    const [brojFishijada, setBrojFishijada] = useState(8);
+    const [brojPrijava, setBrojPrijava] = useState(30);
+    const [brojLokacija, setBrojLokacija] = useState(10);
     const [poruka, setPoruka] = useState(null);
     const [loading, setLoading] = useState(false);
 

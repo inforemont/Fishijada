@@ -1,25 +1,29 @@
-import { Link, useNavigate } from 'react-router-dom';
-import { useEffect, useState } from "react";
-import LokacijaService from "../../services/lokacije/LokacijaService";
-import Badge from 'react-bootstrap/Badge';
-import Table from 'react-bootstrap/Table';
-import { NumericFormat } from 'react-number-format';
-import { RouteNames } from '../../constants';
-import { Button, Modal } from "react-bootstrap";
-import FormatDatuma from "../../components/FormatDatuma";
-import PrijavaService from "../../services/prijave/PrijavaService";
-import zadanaSlikaLokacije from "../../assets/slikelokacija/knezevivinogradi.jpg";
+import { Link, useNavigate } from 'react-router-dom'
+import { useEffect, useState } from "react"
+import LokacijaService from "../../services/lokacije/LokacijaService"
+import Badge from 'react-bootstrap/Badge'
+import Table from 'react-bootstrap/Table'
+import { NumericFormat } from 'react-number-format'
+import { RouteNames } from '../../constants'
+import { Button, Modal, Container } from "react-bootstrap"
+import FormatDatuma from "../../components/FormatDatuma"
+import PrijavaService from "../../services/prijave/PrijavaService"
+import zadanaSlikaLokacije from "../../assets/slikelokacija/knezevivinogradi.jpg"
+import useBreakpoint from "../../hooks/useBreakpoint"
 
 export default function LokacijePregled() {
     return (
-        <div>
-            <h3 className='my-3'>Pregled lokacija</h3>
+        <Container className="px-2 px-md-3">
+            <h3 className='my-3 fs-4 fs-md-3'>Pregled lokacija</h3>
             <LokacijeIzbor />
-        </div>
+        </Container>
     )
 }
 
 function LokacijeIzbor() {
+    const breakpoint = useBreakpoint()
+    const jeMobitel = breakpoint === 'xs' || breakpoint === 'sm'
+
     const [lokacije, setLokacije] = useState([])
     const [prijave, setPrijave] = useState([])
     const navigate = useNavigate()
@@ -35,12 +39,12 @@ function LokacijeIzbor() {
             .toLowerCase()
             .normalize("NFD")
             .replace(/[\u0300-\u036f]/g, "")
-            .replace(/\s+/g, "");
+            .replace(/\s+/g, "")
 
         try {
             return new URL(`../../assets/slikelokacija/${oiscenoIme}.jpg`, import.meta.url).href;
         } catch (error) {
-            return zadanaSlikaLokacije;
+            return zadanaSlikaLokacije
         }
     }
 
@@ -81,7 +85,7 @@ function LokacijeIzbor() {
                 Dodavanje nove lokacije
             </Link>
 
-            <Table hover striped bordered>
+            <Table hover striped bordered responsive>
                 <thead>
                     <tr>
                         <th>Mjesto</th>
@@ -133,21 +137,21 @@ function LokacijeIzbor() {
                                 <td style={{ textAlign: 'center' }}>
                                     <FormatDatuma datum={lokacija.datumOdrzavanja} prikazDatuma="Nije postavljeno" />
                                 </td>
-                                <td>
-                                    <Button size="sm" onClick={() => { navigate(`/lokacije/${lokacija.sifra}`) }}>
+                                <td className={jeMobitel ? "d-flex flex-column gap-1" : ""}>
+                                    <Button size="sm" className={jeMobitel ? "w-100" : ""} onClick={() => { navigate(`/lokacije/${lokacija.sifra}`) }}>
                                         Promjena
                                     </Button>
-                                    &nbsp;&nbsp;&nbsp;
-                                    <Button size="sm" variant="danger" onClick={() => obrisi(lokacija.sifra)}>
+                                    {!jeMobitel && <>&nbsp;&nbsp;&nbsp;</>}
+                                    <Button size="sm" variant="danger" className={jeMobitel ? "w-100" : ""} onClick={() => obrisi(lokacija.sifra)}>
                                         Obriši
                                     </Button>
-                                    &nbsp;&nbsp;&nbsp;
-                                    <Button size="sm" variant="success" onClick={() => detalji(lokacija.sifra)}>
+                                    {!jeMobitel && <>&nbsp;&nbsp;&nbsp;</>}
+                                    <Button size="sm" variant="success" className={jeMobitel ? "w-100" : ""} onClick={() => detalji(lokacija.sifra)}>
                                         Detalji
                                     </Button>
                                 </td>
                             </tr>
-                        );
+                        )
                     })}
                 </tbody>
             </Table>
@@ -177,5 +181,5 @@ function LokacijeIzbor() {
                 </Modal.Footer>
             </Modal>
         </>
-    );
+    )
 }

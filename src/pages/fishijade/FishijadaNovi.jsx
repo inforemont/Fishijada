@@ -1,9 +1,12 @@
-import { Link, useNavigate } from "react-router-dom";
-import { RouteNames } from "../../constants";
-import { Button, Col, Form, Row } from "react-bootstrap";
-import FishijadaService from "../../services/FishijadaService";
+import { Link, useNavigate } from "react-router-dom"
+import { RouteNames } from "../../constants"
+import { Button, Col, Form, Row, Container } from "react-bootstrap"
+import FishijadaService from "../../services/FishijadaService"
+import useBreakpoint from "../../hooks/useBreakpoint"
 
 export default function FishijadaNovi() {
+    const breakpoint = useBreakpoint()
+    const jeMobitel = breakpoint === 'xs' || breakpoint === 'sm'
     const navigate = useNavigate()
 
     async function dodaj(fishijada){
@@ -26,8 +29,8 @@ export default function FishijadaNovi() {
     }
 
     return (
-        <>
-            <h3 className="my-3">
+        <Container className="px-2 px-md-3">
+            <h3 className="my-3 fs-4 fs-md-3">
                 Dodavanje nove fišijade
             </h3>
 
@@ -56,19 +59,19 @@ export default function FishijadaNovi() {
                     <Form.Check label="Aktivan" name="aktivan" />
                 </Form.Group>
 
-                <Row className="mt-4">
-                    <Col>
-                        <Link to={RouteNames.FISHIJADE} className="btn btn-danger">
+                <Row className={`mt-4 ${jeMobitel ? 'flex-column gap-2' : ''}`}>
+                    <Col xs={12} md={6}>
+                        <Link to={RouteNames.FISHIJADE} className="btn btn-danger w-100">
                             Odustani
                         </Link>
                     </Col>
-                    <Col className="text-end">
-                        <Button type="submit" variant="success">
+                    <Col xs={12} md={6} className={jeMobitel ? '' : 'text-end'}>
+                        <Button type="submit" variant="success" className="w-100">
                             Dodaj
                         </Button>
                     </Col>
                 </Row>
             </Form>
-        </>
+        </Container>
     )
 }

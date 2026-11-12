@@ -1,13 +1,16 @@
 import { useEffect, useState, useRef } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import FishijadaService from "../../services/FishijadaService"
-import { Button, Table, Form, ListGroup, Row, Col } from "react-bootstrap"
+import { Button, Table, Form, ListGroup, Row, Col, Container } from "react-bootstrap"
 import { RouteNames } from "../../constants"
 import LokacijaService from "../../services/lokacije/LokacijaService"
 import PrijavaService from "../../services/prijave/PrijavaService"
 import FormatDatuma from "../../components/FormatDatuma"
+import useBreakpoint from "../../hooks/useBreakpoint"
 
 export default function FishijadaDetalji() {
+    const breakpoint = useBreakpoint()
+    const jeMobitel = breakpoint === 'xs' || breakpoint === 'sm'
     const { sifra } = useParams()
     const navigate = useNavigate()
     const [fishijada, setFishijada] = useState(null)
@@ -194,7 +197,7 @@ export default function FishijadaDetalji() {
     }
 
     if (!fishijada) {
-        return <p className="mt-3">Učitavanje podataka...</p>
+        return <Container className="mt-3"><p>Učitavanje podataka...</p></Container>
     }
 
     const jeOdrzana = fishijada?.datumPokretanja
@@ -206,35 +209,37 @@ export default function FishijadaDetalji() {
     )
 
     return (
-        <div>
-            <h3 className="my-3">Detalji fišijade: {fishijada.naziv}</h3>
+        <Container className="px-2 px-md-3">
+            <h3 className="my-3 fs-4 fs-md-3">Detalji fišijade: {fishijada.naziv}</h3>
 
-            <Table hover striped bordered className="mt-3">
-                <tbody>
-                    <tr>
-                        <td><strong>Naziv:</strong></td>
-                        <td>{fishijada.naziv}</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Mjesto održavanja:</strong></td>
-                        <td>{fishijada.mjestoOdrzavanja}</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Kotizacija:</strong></td>
-                        <td>{fishijada.cijena} €</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Datum pokretanja:</strong></td>
-                        <td>{fishijada.datumPokretanja}</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Status aktivnosti:</strong></td>
-                        <td>{!jeOdrzana ? 'U tijeku' : 'Održana'}</td>
-                    </tr>
-                </tbody>
-            </Table>
+            <div className="table-responsive">
+                <Table hover striped bordered className="mt-3 align-middle">
+                    <tbody>
+                        <tr>
+                            <td><strong>Naziv:</strong></td>
+                            <td>{fishijada.naziv}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Mjesto održavanja:</strong></td>
+                            <td>{fishijada.mjestoOdrzavanja}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Kotizacija:</strong></td>
+                            <td>{fishijada.cijena} €</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Datum pokretanja:</strong></td>
+                            <td>{fishijada.datumPokretanja}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Status aktivnosti:</strong></td>
+                            <td>{!jeOdrzana ? 'U tijeku' : 'Održana'}</td>
+                        </tr>
+                    </tbody>
+                </Table>
+            </div>
 
-            <h3 className="mt-4">Lokacije koje sudjeluju</h3>
+            <h3 className="mt-4 fs-4 fs-md-3">Lokacije koje sudjeluju</h3>
 
             <Form.Group className="mb-4">
                 <Form.Label>Odaberi drugu fišijadu:</Form.Label>
@@ -254,8 +259,8 @@ export default function FishijadaDetalji() {
             </Form.Group>
 
             <Form onSubmit={dodajLokaciju}>
-                <Row className="align-items-end mb-3">
-                    <Col md={4} className="position-relative" ref={lokacijaDropdownRef}>
+                <Row className={`align-items-end mb-3 ${jeMobitel ? 'flex-column gap-2' : ''}`}>
+                    <Col xs={12} md={4} className="position-relative" ref={lokacijaDropdownRef}>
                         <Form.Group controlId="odabranaLokacija">
                             <Form.Label>Odaberi lokaciju</Form.Label>
                             <Form.Control
@@ -296,7 +301,7 @@ export default function FishijadaDetalji() {
                             )}
                         </Form.Group>
                     </Col>
-                    <Col md={4}>
+                    <Col xs={12} md={4}>
                         <Button type="submit" variant={jeOdrzana ? "secondary" : "success"} className="w-100">
                             {jeOdrzana ? "Zaključano (Održano)" : "Dodaj"}
                         </Button>
@@ -305,142 +310,144 @@ export default function FishijadaDetalji() {
             </Form>
 
             <h4 className="mt-4">Dodane lokacije</h4>
-            <Table hover striped bordered className="mt-3">
-                <thead>
-                    <tr>
-                        <th>Naziv lokacije i prijave</th>
-                        <th>Akcija</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {fishijada.lokacije && fishijada.lokacije.length > 0 ? (
-                        fishijada.lokacije.map((lokacijaId) => {
-                            const lokacija = sveLokacije.find((l) => Number(l.sifra) === Number(lokacijaId))
-                            const dodijeljenePrijaveIds = fishijada.prijavePoLokacijama?.[lokacijaId] || []
-                            
-                            const trenutniInputPrijave = prijavaInputTexts[lokacijaId] || ''
-                            const prikazDropdownPrijave = prikaziPrijaveDropdowns[lokacijaId] || false
-                            const filtriranePrijave = svePrijave.filter(p => 
-                                `${p.imePrezime} ${p.ekipa}`.toLowerCase().includes(trenutniInputPrijave.toLowerCase())
-                            )
-
-                            return (
-                                <tr key={lokacijaId}>
-                                    <td style={{ verticalAlign: 'top' }}>
-                                        <h5 className="mb-3">{lokacija ? lokacija.mjesto : `Lokacija ID: ${lokacijaId}`}</h5>
-
-                                        {dodijeljenePrijaveIds.length > 0 ? (
-                                            <ul className="mb-0">
-                                                {dodijeljenePrijaveIds.map((pId) => {
-                                                    const prijavaObjekt = svePrijave.find(p => Number(p.sifra) === Number(pId))
-                                                    return (
-                                                        <li key={pId} className="py-1 d-flex justify-content-between align-items-center">
-                                                            <span>
-                                                                {prijavaObjekt ? `${prijavaObjekt.imePrezime} (${prijavaObjekt.ekipa})` : 'Nepoznata prijava'}
-                                                            </span>
-
-                                                            {!jeOdrzana && (
-                                                                <Button
-                                                                    variant="danger"
-                                                                    size="sm"
-                                                                    className="py-0 px-1 ms-2"
-                                                                    style={{ fontSize: '0.75rem' }}
-                                                                    onClick={() => ukloniPrijavuS_Lokacije(lokacijaId, pId)}
-                                                                >
-                                                                    Ukloni
-                                                                </Button>
-                                                            )}
-                                                        </li>
-                                                    )
-                                                })}
-                                            </ul>
-                                        ) : (
-                                            <span className="text-muted small">Nema dodanih prijava na ovoj lokaciji.</span>
-                                        )}
-                                    </td>
-                                    <td className="align-middle">
-                                        {!jeOdrzana && (
-                                            <div className="mb-2">
-                                                <div className="d-flex gap-2 justify-content-center align-items-center flex-wrap">
-                                                    <div 
-                                                        className="position-relative" 
-                                                        style={{ width: '200px' }}
-                                                        ref={el => prijavaDropdownRefs.current[lokacijaId] = el}
-                                                    >
-                                                        <Form.Control
-                                                            size="sm"
-                                                            type="text"
-                                                            placeholder="Pretraži prijavu..."
-                                                            value={trenutniInputPrijave}
-                                                            onFocus={() => setPrikaziPrijaveDropdowns({ ...prikaziPrijaveDropdowns, [lokacijaId]: true })}
-                                                            onChange={(e) => {
-                                                                setPrijavaInputTexts({ ...prijavaInputTexts, [lokacijaId]: e.target.value })
-                                                                setPrikaziPrijaveDropdowns({ ...prikaziPrijaveDropdowns, [lokacijaId]: true })
-                                                                setOdabranePrijave({ ...odabranePrijave, [lokacijaId]: '' })
-                                                            }}
-                                                        />
-
-                                                        {prikazDropdownPrijave && (
-                                                            <ListGroup className="position-absolute w-100 shadow text-start" style={{ zIndex: 1000, maxHeight: '180px', overflowY: 'auto' }}>
-                                                                {filtriranePrijave.length > 0 ? (
-                                                                    filtriranePrijave.map((p) => (
-                                                                        <ListGroup.Item
-                                                                            key={p.sifra}
-                                                                            action
-                                                                            size="sm"
-                                                                            onClick={() => {
-                                                                                setOdabranePrijave({ ...odabranePrijave, [lokacijaId]: p.sifra })
-                                                                                setPrijavaInputTexts({ ...prijavaInputTexts, [lokacijaId]: `${p.imePrezime} (${p.ekipa})` })
-                                                                                setPrikaziPrijaveDropdowns({ ...prikaziPrijaveDropdowns, [lokacijaId]: false })
-                                                                            }}
-                                                                        >
-                                                                            {p.imePrezime} ({p.ekipa})
-                                                                        </ListGroup.Item>
-                                                                    ))
-                                                                ) : (
-                                                                    <ListGroup.Item disabled size="sm">Nema pronađenih prijava</ListGroup.Item>
-                                                                )}
-                                                            </ListGroup>
-                                                        )}
-                                                    </div>
-
-                                                    <Button
-                                                        variant="success"
-                                                        size="sm"
-                                                        style={{ width: '80px' }}
-                                                        onClick={() => dodajPrijavuNaLokaciju(lokacijaId)}
-                                                    >
-                                                        Dodaj
-                                                    </Button>
-
-                                                    <Button
-                                                        variant="danger"
-                                                        size="sm"
-                                                        style={{ width: '110px' }}
-                                                        onClick={() => obrisiLokaciju(lokacijaId)}
-                                                    >
-                                                        Ukloni
-                                                    </Button>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </td>
-                                </tr>
-                            )
-                        })
-                    ) : (
+            <div className="table-responsive">
+                <Table hover striped bordered className="mt-3 align-middle">
+                    <thead>
                         <tr>
-                            <td colSpan="2" className="text-center text-muted">
-                                Nema dodanih lokacija za ovu fišijadu.
-                            </td>
+                            <th>Naziv lokacije i prijave</th>
+                            <th>Akcija</th>
                         </tr>
-                    )}
-                </tbody>
-            </Table>
+                    </thead>
+                    <tbody>
+                        {fishijada.lokacije && fishijada.lokacije.length > 0 ? (
+                            fishijada.lokacije.map((lokacijaId) => {
+                                const lokacija = sveLokacije.find((l) => Number(l.sifra) === Number(lokacijaId))
+                                const dodijeljenePrijaveIds = fishijada.prijavePoLokacijama?.[lokacijaId] || []
+                                
+                                const trenutniInputPrijave = prijavaInputTexts[lokacijaId] || ''
+                                const prikazDropdownPrijave = prikaziPrijaveDropdowns[lokacijaId] || false
+                                const filtriranePrijave = svePrijave.filter(p => 
+                                    `${p.imePrezime} ${p.ekipa}`.toLowerCase().includes(trenutniInputPrijave.toLowerCase())
+                                )
 
-            <Button variant="secondary" onClick={() => navigate(RouteNames.FISHIJADE)} className="mt-3">
+                                return (
+                                    <tr key={lokacijaId}>
+                                        <td style={{ verticalAlign: 'top' }}>
+                                            <h5 className="mb-3">{lokacija ? lokacija.mjesto : `Lokacija ID: ${lokacijaId}`}</h5>
+
+                                            {dodijeljenePrijaveIds.length > 0 ? (
+                                                <ul className="mb-0">
+                                                    {dodijeljenePrijaveIds.map((pId) => {
+                                                        const prijavaObjekt = svePrijave.find(p => Number(p.sifra) === Number(pId))
+                                                        return (
+                                                            <li key={pId} className="py-1 d-flex justify-content-between align-items-center">
+                                                                <span>
+                                                                    {prijavaObjekt ? `${prijavaObjekt.imePrezime} (${prijavaObjekt.ekipa})` : 'Nepoznata prijava'}
+                                                                </span>
+
+                                                                {!jeOdrzana && (
+                                                                    <Button
+                                                                        variant="danger"
+                                                                        size="sm"
+                                                                        className="py-0 px-1 ms-2"
+                                                                        style={{ fontSize: '0.75rem' }}
+                                                                        onClick={() => ukloniPrijavuS_Lokacije(lokacijaId, pId)}
+                                                                    >
+                                                                        Ukloni
+                                                                    </Button>
+                                                                )}
+                                                            </li>
+                                                        )
+                                                    })}
+                                                </ul>
+                                            ) : (
+                                                <span className="text-muted small">Nema dodanih prijava na ovoj lokaciji.</span>
+                                            )}
+                                        </td>
+                                        <td className="align-middle">
+                                            {!jeOdrzana && (
+                                                <div className="mb-2">
+                                                    <div className={jeMobitel ? "d-flex flex-column gap-2" : "d-flex gap-2 justify-content-center align-items-center flex-wrap"}>
+                                                        <div 
+                                                            className="position-relative" 
+                                                            style={{ width: jeMobitel ? '100%' : '200px' }}
+                                                            ref={el => prijavaDropdownRefs.current[lokacijaId] = el}
+                                                        >
+                                                            <Form.Control
+                                                                size="sm"
+                                                                type="text"
+                                                                placeholder="Pretraži prijavu..."
+                                                                value={trenutniInputPrijave}
+                                                                onFocus={() => setPrikaziPrijaveDropdowns({ ...prikaziPrijaveDropdowns, [lokacijaId]: true })}
+                                                                onChange={(e) => {
+                                                                    setPrijavaInputTexts({ ...prijavaInputTexts, [lokacijaId]: e.target.value })
+                                                                    setPrikaziPrijaveDropdowns({ ...prikaziPrijaveDropdowns, [lokacijaId]: true })
+                                                                    setOdabranePrijave({ ...odabranePrijave, [lokacijaId]: '' })
+                                                                }}
+                                                            />
+
+                                                            {prikazDropdownPrijave && (
+                                                                <ListGroup className="position-absolute w-100 shadow text-start" style={{ zIndex: 1000, maxHeight: '180px', overflowY: 'auto' }}>
+                                                                    {filtriranePrijave.length > 0 ? (
+                                                                        filtriranePrijave.map((p) => (
+                                                                            <ListGroup.Item
+                                                                                key={p.sifra}
+                                                                                action
+                                                                                size="sm"
+                                                                                onClick={() => {
+                                                                                    setOdabranePrijave({ ...odabranePrijave, [lokacijaId]: p.sifra })
+                                                                                    setPrijavaInputTexts({ ...prijavaInputTexts, [lokacijaId]: `${p.imePrezime} (${p.ekipa})` })
+                                                                                    setPrikaziPrijaveDropdowns({ ...prikaziPrijaveDropdowns, [lokacijaId]: false })
+                                                                                }}
+                                                                            >
+                                                                                {p.imePrezime} ({p.ekipa})
+                                                                            </ListGroup.Item>
+                                                                        ))
+                                                                    ) : (
+                                                                        <ListGroup.Item disabled size="sm">Nema pronađenih prijava</ListGroup.Item>
+                                                                    )}
+                                                                </ListGroup>
+                                                            )}
+                                                        </div>
+
+                                                        <Button
+                                                            variant="success"
+                                                            size="sm"
+                                                            style={{ width: jeMobitel ? '100%' : '80px' }}
+                                                            onClick={() => dodajPrijavuNaLokaciju(lokacijaId)}
+                                                        >
+                                                            Dodaj
+                                                        </Button>
+
+                                                        <Button
+                                                            variant="danger"
+                                                            size="sm"
+                                                            style={{ width: jeMobitel ? '100%' : '110px' }}
+                                                            onClick={() => obrisiLokaciju(lokacijaId)}
+                                                        >
+                                                            Ukloni
+                                                        </Button>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </td>
+                                    </tr>
+                                )
+                            })
+                        ) : (
+                            <tr>
+                                <td colSpan="2" className="text-center text-muted">
+                                    Nema dodanih lokacija za ovu fišijadu.
+                                </td>
+                            </tr>
+                        )}
+                    </tbody>
+                </Table>
+            </div>
+
+            <Button variant="secondary" onClick={() => navigate(RouteNames.FISHIJADE)} className="mt-3 mb-4">
                 Natrag na pregled
             </Button>
-        </div>
+        </Container>
     )
 }
