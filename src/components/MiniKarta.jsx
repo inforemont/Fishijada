@@ -1,36 +1,53 @@
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
-import 'leaflet/dist/leaflet.css'
-import L from 'leaflet'
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
+import { useEffect } from 'react'
 
-import markerIcon from 'leaflet/dist/images/marker-icon.png'
-import markerShadow from 'leaflet/dist/images/marker-shadow.png'
 
-let DefaultIcon = L.icon({
-    iconUrl: markerIcon,
-    shadowUrl: markerShadow,
-    iconAnchor: [12, 41]
-});
-L.Marker.prototype.options.icon = DefaultIcon;
+function LeafletScrollHandler() {
+    const map = useMap()
 
-export default function MiniKarta({ lat = 45.7602, lng = 18.6042, nazivMjesta = "Prvenstvo Baranje" }) {
+    useEffect(() => {
+        if (!map) return
+
+
+        const handleMapClick = () => {
+            map.scrollWheelZoom.enable();
+        }
+
+        const handleDocumentClick = (e) => {
+            if (!map.getContainer().contains(e.target)) {
+                map.scrollWheelZoom.disable()
+            }
+        }
+
+        const container = map.getContainer();
+        container.addEventListener('click', handleMapClick)
+        document.addEventListener('click', handleDocumentClick)
+
+        return () => {
+            container.removeEventListener('click', handleMapClick)
+            document.removeEventListener('click', handleDocumentClick)
+        }
+    }, [map])
+
+    return null
+}
+
+export default function MiniKarta({ lat, lng, nazivMjesta }) {
     return (
-        <div style={{ height: "350px", width: "100%", borderRadius: "10px", overflow: "hidden", marginTop: "20px" }}>
-            <MapContainer 
-                center={[lat, lng]} 
-                zoom={13} 
-                scrollWheelZoom={false} 
-                style={{ height: "100%", width: "100%" }}
-            >
-                <TileLayer
-                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                />
-                <Marker position={[lat, lng]}>
-                    <Popup>
-                        {nazivMjesta}
-                    </Popup>
-                </Marker>
-            </MapContainer>
-        </div>
-    );
+        <MapContainer
+            center={[lat, lng]}
+            zoom={12}
+            scrollWheelZoom={false}
+            style={{ height: "350px", width: "100%", borderRadius: "8px" }}
+        >
+            <TileLayer
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                attribution='&copy; OpenStreetMap contributors'
+            />
+            <Marker position={[lat, lng]}>
+                <Popup>{nazivMjesta}</Popup>
+            </Marker>
+            <LeafletScrollHandler />
+        </MapContainer>
+    )
 }
