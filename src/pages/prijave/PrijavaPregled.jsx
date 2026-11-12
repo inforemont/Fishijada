@@ -6,7 +6,7 @@ import Table from 'react-bootstrap/Table'
 import { FcApproval, FcDisapprove } from 'react-icons/fc'
 import { NumericFormat } from 'react-number-format'
 import { RouteNames } from '../../constants'
-import { Button, Container } from "react-bootstrap"
+import { Button, Container, Pagination } from "react-bootstrap"
 import LokacijaService from '../../services/lokacije/LokacijaService'
 import { Form } from "react-bootstrap"
 import { fishijade } from "../../services/FishijadaPodaci"
@@ -38,10 +38,18 @@ function PrijaveIzbor({ godina }) {
     const [lokacije, setLokacije] = useState([])
     const [odabranaLokacija, setOdabranaLokacija] = useState('')
 
+    const [trenutnaStranica, setTrenutnaStranica] = useState(1)
+    const poStranici = 10
+
     const filtriranePrijave = prijave.filter((prijava) => {
         if (odabranaLokacija === '') return true
         return prijava.lokacija == odabranaLokacija
     })
+
+    const zadnjiIndeks = trenutnaStranica * poStranici
+    const prviIndeks = zadnjiIndeks - poStranici
+    const trenutnePrijave = filtriranePrijave.slice(prviIndeks, zadnjiIndeks)
+    const ukupnoStranica = Math.ceil(filtriranePrijave.length / poStranici)
 
     useEffect(() => {
         ucitajPrijave();
@@ -57,10 +65,6 @@ function PrijaveIzbor({ godina }) {
 
         await PrijavaService.obrisi(sifra)
         await ucitajPrijave()
-    }
-
-    function detalji(sifra) {
-        navigate(`/prijave/detalji/${sifra}`)
     }
 
     async function ucitajPrijave() {
@@ -85,7 +89,10 @@ function PrijaveIzbor({ godina }) {
                 <Form.Label>Filtriraj po lokaciji:</Form.Label>
                 <Form.Select
                     value={odabranaLokacija}
-                    onChange={(e) => setOdabranaLokacija(e.target.value)}
+                    onChange={(e) => {
+                        setOdabranaLokacija(e.target.value)
+                        setTrenutnaStranica(1) 
+                    }}
                 >
                     <option value="">Sve lokacije</option>
                     {lokacije && lokacije.map((l) => (
@@ -110,7 +117,7 @@ function PrijaveIzbor({ godina }) {
                         </tr>
                     </thead>
                     <tbody>
-                        {prijave && filtriranePrijave.map((prijava) => {
+                        {prijave && trenutnePrijave.map((prijava) => {
                             const jePlaceno = prijava.kotizacijaPlacena;
 
                             return (
@@ -148,11 +155,14 @@ function PrijaveIzbor({ godina }) {
 
                                     <td>
                                         <div className={jeMobitel ? "d-flex flex-column gap-2" : "d-flex justify-content-center gap-2"}>
-                                            <Button size="sm" onClick={() => { navigate(`/prijave/${prijava.sifra}`) }}>
+                                            <Button variant='success' size="sm" onClick={() => { navigate(`/prijave/${prijava.sifra}`) }}>
                                                 Promjena
                                             </Button>
                                             <Button variant="danger" size="sm" onClick={() => obrisi(prijava.sifra)}>
                                                 Obriši
+                                            </Button>
+                                            <Button variant="primary" size="sm" onClick={() => { navigate(`/prijave/detalji/${prijava.sifra}`) }}>
+                                                Galerija
                                             </Button>
                                         </div>
                                     </td>
@@ -162,6 +172,40 @@ function PrijaveIzbor({ godina }) {
                     </tbody>
                 </Table>
             </div>
+
+            {ukupnoStranica > 1 && (
+                <div className="d-flex justify-content-center my-4">
+                    <Pagination>
+                        <Pagination.First 
+                            disabled={trenutnaStranica === 1} 
+                            onClick={() => setTrenutnaStranica(1)} 
+                        />
+                        <Pagination.Prev 
+                            disabled={trenutnaStranica === 1} 
+                            onClick={() => setTrenutnaStranica((prev) => Math.max(prev - 1, 1))} 
+                        />
+                        
+                        {[...Array(ukupnoStranica).keys()].map((broj) => (
+                            <Pagination.Item
+                                key={broj + 1}
+                                active={broj + 1 === trenutnaStranica}
+                                onClick={() => setTrenutnaStranica(broj + 1)}
+                            >
+                                {broj + 1}
+                            </Pagination.Item>
+                        ))}
+
+                        <Pagination.Next 
+                            disabled={trenutnaStranica === ukupnoStranica} 
+                            onClick={() => setTrenutnaStranica((prev) => Math.min(prev + 1, ukupnoStranica))} 
+                        />
+                        <Pagination.Last 
+                            disabled={trenutnaStranica === ukupnoStranica} 
+                            onClick={() => setTrenutnaStranica(ukupnoStranica)} 
+                        />
+                    </Pagination>
+                </div>
+            )}
 
             <div className="mt-3 mb-4">
                 Ukupno &nbsp;
