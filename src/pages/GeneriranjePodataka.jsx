@@ -5,7 +5,6 @@ import FishijadaService from '../services/FishijadaService';
 import PrijavaService from '../services/prijave/PrijavaService';
 import LokacijaService from '../services/lokacije/LokacijaService';
 
-
 export default function GeneriranjePodataka() {
     const [brojFishijada, setBrojFishijada] = useState(10);
     const [brojPrijava, setBrojPrijava] = useState(50);
@@ -17,8 +16,7 @@ export default function GeneriranjePodataka() {
         locale: [hr]
     });
 
-   
-const generirajFishijade = async (broj) => {
+    const generirajFishijade = async (broj) => {
         const rezultatLokacija = await LokacijaService.get();
         const lokacije = rezultatLokacija.data || [];
 
@@ -30,22 +28,15 @@ const generirajFishijade = async (broj) => {
             let prijavePoLokacijama = {};
 
             if (lokacije.length > 0) {
-
                 const brojZaOdabrati = faker.number.int({ min: 1, max: Math.min(10, lokacije.length) });
                 const odabraneLokacije = faker.helpers.arrayElements(lokacije, brojZaOdabrati);
                 
                 randomLokacijeSifre = odabraneLokacije.map(l => l.sifra);
 
-                
                 if (prijave.length > 0) {
                     odabraneLokacije.forEach(lokacija => {
-                        
                         const brojPrijavaZaOvuLokaciju = faker.number.int({ min: 1, max: Math.min(50, prijave.length) });
-                        
-                       
                         const odabranePrijaveZaLokaciju = faker.helpers.arrayElements(prijave, brojPrijavaZaOvuLokaciju);
-                        
-
                         prijavePoLokacijama[lokacija.sifra] = odabranePrijaveZaLokaciju.map(p => p.sifra);
                     });
                 }
@@ -64,27 +55,12 @@ const generirajFishijade = async (broj) => {
             await FishijadaService.dodaj(fishijada);
         }
     };
-const generirajPrijave = async (broj) => {
+
+    const generirajPrijave = async (broj) => {
         let rezultatLokacija = await LokacijaService.get();
         let lokacije = rezultatLokacija.data || [];
 
-        if (lokacije.length === 0) {
-            const naziviLokacija = ['Kneževi Vinogradi', 'Luč', 'Jagodnjak', 'Petlovac', 'Lug','Topolje','Branjina','Gajić','Duboševica','Bolman','Baranjsko Petrovo Selo','Suza','Zmajevac','Batina','Kopačevo','Grabovac'];
-            for (let i = 0; i < naziviLokacija.length; i++) {
-                await LokacijaService.dodaj({
-                    mjesto: naziviLokacija[i],
-                    zupanija: 'Osječko-baranjska',
-                    posta: 31300 + i,
-                    datumOdrzavanja: new Date().toISOString().split('T')[0],
-                    ekipe: []
-                });
-            }
-            rezultatLokacija = await LokacijaService.get();
-            lokacije = rezultatLokacija.data || [];
-        }
-
         for (const lokacija of lokacije) {
-
             const brojPrijavaZaOvuLokaciju = faker.number.int({ min: 1, max: Math.min(20, broj) });
 
             for (let j = 0; j < brojPrijavaZaOvuLokaciju; j++) {
@@ -102,21 +78,22 @@ const generirajPrijave = async (broj) => {
             }
         }
     };
-    const generirajLokacije = async (broj) => {
-    const naziviLokacija = [
-        'Kneževi Vinogradi', 'Luč', 'Jagodnjak', 'Baranjsko Petrovo Selo', 
-        'Petlovac', 'Lug', 'Kopačevo', 'Zmajevac', 'Batina', 'Darda'
-    ];
 
-    for (let i = 0; i < broj; i++) {
-        await LokacijaService.dodaj({
-            mjesto: naziviLokacija[i % naziviLokacija.length] + (i >= naziviLokacija.length ? ` ${Math.floor(i / naziviLokacija.length) + 1}` : ''),
-            zupanija: 'Osječko-baranjska',
-            posta: faker.string.numeric(5),
-            datumOdrzavanja: faker.date.soon().toISOString().split('T')[0]
-        })
-    }
-}
+    const generirajLokacije = async (broj) => {
+        const naziviLokacija = [
+            'Kneževi Vinogradi', 'Luč', 'Jagodnjak', 'Baranjsko Petrovo Selo', 
+            'Petlovac', 'Lug', 'Kopačevo', 'Zmajevac', 'Batina', 'Darda'
+        ];
+
+        for (let i = 0; i < broj; i++) {
+            await LokacijaService.dodaj({
+                mjesto: naziviLokacija[i % naziviLokacija.length] + (i >= naziviLokacija.length ? ` ${Math.floor(i / naziviLokacija.length) + 1}` : ''),
+                zupanija: 'Osječko-baranjska',
+                posta: faker.string.numeric(5),
+                datumOdrzavanja: faker.date.soon().toISOString().split('T')[0]
+            });
+        }
+    };
 
     const handleGenerirajFishijade = async (e) => {
         e.preventDefault();
@@ -124,6 +101,26 @@ const generirajPrijave = async (broj) => {
         setPoruka(null);
 
         try {
+            const provjeraLokacija = await LokacijaService.get();
+            if (!provjeraLokacija.data || provjeraLokacija.data.length === 0) {
+                setPoruka({
+                    tip: 'warning',
+                    tekst: 'Prvo morate generirati lokacije prije generiranja fišijada!'
+                });
+                setLoading(false);
+                return;
+            }
+
+            const provjeraPrijava = await PrijavaService.get();
+            if (!provjeraPrijava.data || provjeraPrijava.data.length === 0) {
+                setPoruka({
+                    tip: 'warning',
+                    tekst: 'Prvo morate generirati prijave prije generiranja fišijada!'
+                });
+                setLoading(false);
+                return;
+            }
+
             await generirajFishijade(brojFishijada);
 
             setPoruka({
@@ -146,7 +143,16 @@ const generirajPrijave = async (broj) => {
         setPoruka(null);
 
         try {
-            
+            const provjeraLokacija = await LokacijaService.get();
+            if (!provjeraLokacija.data || provjeraLokacija.data.length === 0) {
+                setPoruka({
+                    tip: 'warning',
+                    tekst: 'Prvo morate generirati lokacije prije generiranja prijava!'
+                });
+                setLoading(false);
+                return;
+            }
+
             await generirajPrijave(brojPrijava);
 
             setPoruka({
@@ -370,8 +376,7 @@ const generirajPrijave = async (broj) => {
             </Row>
 
             <Alert variant="warning" className="mt-3">
-                <strong>Upozorenje:</strong> Ove akcije će dodati nove podatke u postojeće. 
-                Ako želite početi ispočetka, prvo obrišite postojeće podatke.
+                <strong>Upozorenje:</strong> Obavezno slijedite redoslijed: prvo lokacije, pa prijave, pa fišijade.
             </Alert>
 
             <hr className="my-4" />

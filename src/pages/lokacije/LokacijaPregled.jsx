@@ -5,10 +5,10 @@ import Badge from 'react-bootstrap/Badge';
 import Table from 'react-bootstrap/Table';
 import { NumericFormat } from 'react-number-format';
 import { RouteNames } from '../../constants';
-import { Button } from "react-bootstrap";
+import { Button, Modal } from "react-bootstrap";
 import FormatDatuma from "../../components/FormatDatuma";
 import PrijavaService from "../../services/prijave/PrijavaService";
-
+import zadanaSlikaLokacije from "../../assets/slikelokacija/knezevivinogradi.jpg";
 
 export default function LokacijePregled() {
     return (
@@ -17,13 +17,32 @@ export default function LokacijePregled() {
             <LokacijeIzbor />
         </div>
     )
-
 }
 
 function LokacijeIzbor() {
     const [lokacije, setLokacije] = useState([])
     const [prijave, setPrijave] = useState([])
     const navigate = useNavigate()
+
+    const [prikaziModal, setPrikaziModal] = useState(false)
+    const [trenutnaSlika, setTrenutnaSlika] = useState('')
+    const [trenutniNaziv, setTrenutniNaziv] = useState('')
+
+    function dohvatiSlikuLokacije(mjesto) {
+        if (!mjesto) return zadanaSlikaLokacije;
+        
+        const oiscenoIme = mjesto
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/\s+/g, "");
+
+        try {
+            return new URL(`../../assets/slikelokacija/${oiscenoIme}.jpg`, import.meta.url).href;
+        } catch (error) {
+            return zadanaSlikaLokacije;
+        }
+    }
 
     async function ucitajLokacije() {
         await LokacijaService.get().then((odgovor) => {
@@ -37,10 +56,7 @@ function LokacijeIzbor() {
         })
     }
 
-
-
     useEffect(() => {
-
         ucitajLokacije()
         ucitajPrijave()
     }, [])
@@ -77,9 +93,31 @@ function LokacijeIzbor() {
                 </thead>
                 <tbody>
                     {lokacije && lokacije.filter((lokacija) => lokacija.sifra !== 111).map((lokacija) => {
+                        const slikaZaPrikaz = lokacija.slika || dohvatiSlikuLokacije(lokacija.mjesto);
+
                         return (
                             <tr key={lokacija.sifra}>
                                 <td className='lead'>
+                                    <img 
+                                        src={slikaZaPrikaz} 
+                                        alt={lokacija.mjesto}
+                                        style={{ 
+                                            width: '35px', 
+                                            height: '25px', 
+                                            objectFit: 'cover', 
+                                            borderRadius: '4px', 
+                                            cursor: 'pointer',
+                                            border: '1px solid #ced4da',
+                                            marginRight: '10px',
+                                            verticalAlign: 'middle'
+                                        }}
+                                        title="Klikni za uvećanje slike"
+                                        onClick={() => {
+                                            setTrenutnaSlika(slikaZaPrikaz)
+                                            setTrenutniNaziv(lokacija.mjesto)
+                                            setPrikaziModal(true)
+                                        }}
+                                    />
                                     {lokacija.mjesto}
                                     <span title="Broj ekipa"> ({prijave.filter(p => p.lokacija === lokacija.sifra).length})</span>
                                 </td>
@@ -96,15 +134,15 @@ function LokacijeIzbor() {
                                     <FormatDatuma datum={lokacija.datumOdrzavanja} prikazDatuma="Nije postavljeno" />
                                 </td>
                                 <td>
-                                    <Button onClick={() => { navigate(`/lokacije/${lokacija.sifra}`) }}>
+                                    <Button size="sm" onClick={() => { navigate(`/lokacije/${lokacija.sifra}`) }}>
                                         Promjena
                                     </Button>
                                     &nbsp;&nbsp;&nbsp;
-                                    <Button variant="danger" onClick={() => obrisi(lokacija.sifra)}>
+                                    <Button size="sm" variant="danger" onClick={() => obrisi(lokacija.sifra)}>
                                         Obriši
                                     </Button>
                                     &nbsp;&nbsp;&nbsp;
-                                    <Button variant="success" onClick={() => detalji(lokacija.sifra)}>
+                                    <Button size="sm" variant="success" onClick={() => detalji(lokacija.sifra)}>
                                         Detalji
                                     </Button>
                                 </td>
@@ -119,6 +157,25 @@ function LokacijeIzbor() {
                 {lokacije && lokacije.length}
             </Badge>
             &nbsp;
+
+            <Modal show={prikaziModal} onHide={() => setPrikaziModal(false)} centered size="lg">
+                <Modal.Header closeButton>
+                    <Modal.Title>Lokacija: {trenutniNaziv}</Modal.Title>
+                </Modal.Header>
+                <Modal.Body className="text-center">
+                    <img 
+                        src={trenutnaSlika} 
+                        alt="Zumirana lokacija" 
+                        className="img-fluid rounded shadow" 
+                        style={{ maxHeight: '70vh', objectFit: 'contain' }}
+                    />
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setPrikaziModal(false)}>
+                        Zatvori
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </>
     );
 }
