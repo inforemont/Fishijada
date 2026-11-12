@@ -12,7 +12,7 @@ import { Button, Form } from "react-bootstrap";
 import LokacijaService from '../../services/lokacije/LokacijaService';
 import PrijavaService from '../../services/prijave/PrijavaService';
 import MiniKarta from '../../components/MiniKarta';
-import {Container, Card}from 'react-bootstrap'
+import { Container, Card } from 'react-bootstrap'
 
 export default function FishijadePregled() {
     const location = useLocation()
@@ -31,13 +31,13 @@ export default function FishijadePregled() {
             )}
             <FishijadeIzbor godina={godina} />
 
-        <Card className="p-4 shadow-sm my-4">
+            <Card className="p-4 shadow-sm my-4">
                 <h4>Lokacija održavanja</h4>
                 <p className="text-muted">Pogledajte točnu lokaciju natjecanja na karti:</p>
-                
+
                 <MiniKarta lat={45.771708} lng={18.594342} nazivMjesta="Prvenstvo Baranje" />
             </Card>
-            </Container>
+        </Container>
     )
 }
 
@@ -57,12 +57,10 @@ function FishijadeIzbor({ godina }) {
             setSveLokacije(odgovor.data)
         })
 
-            PrijavaService.get().then((odgovor) => {
+        PrijavaService.get().then((odgovor) => {
             setSvePrijave(odgovor.data)
         })
     }, [godina])
-
-
 
     async function obrisi(sifra) {
         if (!confirm('sigurno obrisati?')) {
@@ -71,13 +69,11 @@ function FishijadeIzbor({ godina }) {
 
         await FishijadaService.obrisi(sifra)
         await ucitajFishijade()
-
     }
 
     function detalji(sifra) {
         navigate(`/fishijade/detalji/${sifra}`)
     }
-
 
     async function ucitajFishijade() {
         await FishijadaService.get().then((odgovor) => {
@@ -112,11 +108,10 @@ function FishijadeIzbor({ godina }) {
                 >
                     <option value="">Sve fišijade</option>
                     {fishijade && fishijade.map((f) => {
-
-                        const godina = new Date(f.datumPokretanja).getFullYear()
+                        const godinaF = new Date(f.datumPokretanja).getFullYear()
                         return (
                             <option key={f.sifra} value={f.sifra}>
-                                {f.naziv} ({godina})
+                                {f.naziv} ({godinaF})
                             </option>
                         );
                     })}
@@ -136,13 +131,12 @@ function FishijadeIzbor({ godina }) {
                     </thead>
                     <tbody>
                         {filtriraneFishijade && filtriraneFishijade.map((fishijada) => {
-                            const jeOdrzana = fishijada.održana ?? fishijada.održan ?? fishijada.odrzana;
+                            const jeOdrzana = fishijada?.datumPokretanja
+                                ? new Date(fishijada.datumPokretanja) < new Date()
+                                : false;
 
                             return (
-                                <tr
-                                    key={fishijada.sifra}
-
-                                >
+                                <tr key={fishijada.sifra}>
                                     <td className='lead'>
                                         {fishijada.naziv}
                                     </td>
@@ -164,19 +158,15 @@ function FishijadeIzbor({ godina }) {
                                         <FormatDatuma datum={fishijada.datumPokretanja} prikazDatuma="Nije postavljeno" />
                                     </td>
 
-                                    <td>
-                                        <GrValidate
-                                            size={25}
-                                            color={jeOdrzana ? 'green' : 'red'}
-                                            title={jeOdrzana ? 'Održana' : 'Nije održana'}
-                                        />
-                                        &nbsp;
+                                    <td style={{ textAlign: 'center' }}>
                                         {jeOdrzana ? (
-                                            <FcApproval />
+                                            <span style={{ fontSize: '1.3rem' }} title="Održana">✅</span>
                                         ) : (
-                                            <FcDisapprove />
+                                            <span style={{ fontSize: '1.3rem' }} title="Nije održana">❌</span>
                                         )}
                                     </td>
+
+
                                     <td>
                                         <Button onClick={() => { navigate(`/fishijade/${fishijada.sifra}`) }}>
                                             Promjena
@@ -186,12 +176,10 @@ function FishijadeIzbor({ godina }) {
                                             Obriši
                                         </Button>
                                         &nbsp;&nbsp;&nbsp;
-
                                         <Button variant="success" onClick={() => detalji(fishijada.sifra)}>
                                             Detalji
                                         </Button>
                                     </td>
-
                                 </tr>
                             );
                         })}
@@ -199,16 +187,15 @@ function FishijadeIzbor({ godina }) {
                 </Table>
             )}
 
-
             {odabranaFisijada && (
                 <div className="mt-4">
                     {(() => {
                         const odabrana = fishijade.find(f => f.sifra === Number(odabranaFisijada))
-                        const godina = odabrana ? new Date(odabrana.datumPokretanja).getFullYear() : ('')
+                        const godinaF = odabrana ? new Date(odabrana.datumPokretanja).getFullYear() : ('')
 
                         return (
                             <div>
-                                <h4>Prvenstvo Baranje – Godina: {godina} ({odabrana?.naziv})</h4>
+                                <h4>Prvenstvo Baranje – Godina: {godinaF} ({odabrana?.naziv})</h4>
                                 <p className="text-muted">Mjesto održavanja: {odabrana?.mjestoOdrzavanja}</p>
 
                                 <Table hover striped bordered className="mt-3">
@@ -222,8 +209,6 @@ function FishijadeIzbor({ godina }) {
                                         {odabrana && odabrana.lokacije && odabrana.lokacije.length > 0 ? (
                                             odabrana.lokacije.map((lokacijaId) => {
                                                 const lokacija = sveLokacije.find(l => l.sifra === lokacijaId)
-
-
                                                 const brojPrijava = svePrijave.filter(
                                                     p => p.lokacija === lokacijaId || p.lokacijaSifra === lokacijaId || p.lokacijaId === lokacijaId
                                                 ).length
