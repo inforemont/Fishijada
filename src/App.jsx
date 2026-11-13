@@ -20,6 +20,9 @@ import LokacijaPromjena from './pages/lokacije/LokacijaPromjena'
 import PrijavaDetalji from './pages/prijave/PrijavaDetalji'
 import LokacijaDetalji from './pages/lokacije/LokacijaDetalji'
 import GeneriranjePodataka from './pages/GeneriranjePodataka'
+import Login from './pages/login/Login'
+import ZaboravljenaLozinka from './pages/login/ZaboravljenaLozinka'
+import ProfilUredivanje from './pages/login/ProfilUredjivanje'
 
 
 
@@ -34,15 +37,15 @@ function App() {
           <Routes>
             <Route path={RouteNames.HOME} element={<Home />} />
             <Route path={RouteNames.FISHIJADE} element={<FishijadePregled />} />
-            <Route path={RouteNames.O_APLIKACIJI} element={<O_Aplikaciji/>} />
-            <Route path={RouteNames.FISHIJADE_DODAJ} element={<FishijadaNovi/>} />
-            <Route path={RouteNames.FISHIJADE_PROMJENA} element={<FishijadaPromjena/>} />
-            <Route path={RouteNames.FISHIJADE_DETALJI} element={<FishijadaDetalji/>} />
+            <Route path={RouteNames.O_APLIKACIJI} element={<O_Aplikaciji />} />
+            <Route path={RouteNames.FISHIJADE_DODAJ} element={<FishijadaNovi />} />
+            <Route path={RouteNames.FISHIJADE_PROMJENA} element={<FishijadaPromjena />} />
+            <Route path={RouteNames.FISHIJADE_DETALJI} element={<FishijadaDetalji />} />
 
             <Route path={RouteNames.PRIJAVE} element={<PrijavaPregled />} />
             <Route path={RouteNames.PRIJAVE_DODAJ} element={<PrijavaNovi />} />
             <Route path={RouteNames.PRIJAVE_PROMJENA} element={<PrijavaPromjena />} />
-             <Route path={RouteNames.PRIJAVE_PRVENSTVO_BARANJE} element={<PrijavaPrvenstvoBaranje />} />
+            <Route path={RouteNames.PRIJAVE_PRVENSTVO_BARANJE} element={<PrijavaPrvenstvoBaranje />} />
             <Route path={RouteNames.PRIJAVE_DETALJI} element={<PrijavaDetalji />} />
 
             <Route path={RouteNames.LOKACIJE} element={<LokacijaPregled />} />
@@ -50,12 +53,16 @@ function App() {
             <Route path={RouteNames.LOKACIJE_PROMJENA} element={<LokacijaPromjena />} />
             <Route path={RouteNames.LOKACIJE_DETALJI} element={<LokacijaDetalji />} />
 
-             <Route path={RouteNames.GENERIRANJE} element={<GeneriranjePodataka />} />
+            <Route path={RouteNames.GENERIRANJE} element={<GeneriranjePodataka />} />
+            <Route path={RouteNames.LOGIN} element={<Login />} />
+
+            <Route path={RouteNames.ZABORAVLJENA_LOZINKA} element={<ZaboravljenaLozinka />} />
+            <Route path={RouteNames.PROFIL} element={<ProfilUredivanje />} />
 
 
 
 
-           
+
           </Routes>
 
 

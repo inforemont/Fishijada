@@ -117,13 +117,13 @@ export default function Home() {
                                 </div>
                                 <span className="text-uppercase text-primary fw-bold small">Lokalne Fišijade</span>
                                 <h3 className="fw-bold mb-2 text-white fs-4">Prijave u tijeku</h3>
-                                <p className="text-muted small mb-3">Otvorene prijave ekipa i upravljanje kotizacijama za lokalne fišijade.</p>
+                                <p className="text-muted small mb-3">Otvorene prijave ekipa na lokalne fišijade.</p>
                             </Card.Body>
                             <div className="pt-2">
                                 <Button
                                     variant="success"
                                     className="w-100 fw-bold d-flex align-items-center justify-content-center gap-2 py-2 rounded-pill shadow-sm btn-hover-zoom"
-                                    onClick={() => navigate(RouteNames.PRIJAVA_NOVI)}
+                                    onClick={() => navigate(RouteNames.PRIJAVE_DODAJ)}
                                 >
                                     Prijavi se <span>&rarr;</span>
                                 </Button>
@@ -148,7 +148,7 @@ export default function Home() {
                                 <Button
                                     variant="outline-light"
                                     className="w-100 fw-bold py-2 rounded-pill shadow-sm btn-hover-zoom"
-                                    onClick={() => navigate(RouteNames.FISHIJADA_PREGLED)}
+                                    onClick={() => navigate(RouteNames.FISHIJADE)}
                                 >
                                     Vidi više
                                 </Button>
