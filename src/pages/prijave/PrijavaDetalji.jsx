@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import PrijavaService from "../../services/prijave/PrijavaService"
-import { Button, Table, Container, Row, Col, Card, Pagination } from "react-bootstrap"
+import { Button, Table, Container, Row, Col, Card, Pagination, Form, Modal } from "react-bootstrap"
 import { RouteNames } from "../../constants"
 import useBreakpoint from "../../hooks/useBreakpoint"
 
@@ -14,9 +14,11 @@ export default function PrijavaDetalji() {
     const [prijava, setPrijava] = useState(null)
     const [slike, setSlike] = useState([])
 
-    // Stanja za straničenje galerije (12 slika po stranici -> 3 u redu x 4 reda)
     const [trenutnaStranica, setTrenutnaStranica] = useState(1)
-    const poStranici = 12
+    const [brojPoStranici, setBrojPoStranici] = useState(12)
+
+    const [prikaziModal, setPrikaziModal] = useState(false)
+    const [aktivnaSlika, setAktivnaSlika] = useState(null)
 
     useEffect(() => {
         ucitajDetalje()
@@ -26,19 +28,33 @@ export default function PrijavaDetalji() {
         await PrijavaService.getBySifra(sifra).then((odgovor) => {
             const data = odgovor.data
             setPrijava(data)
-            // Ovdje dohvaćaš stvarne slike sa servera (ili ako testiraš, prebaci na `data.slike || []`)
             setSlike(data.slike || [])
         })
     }
 
-    // Izračun za straničenje slika
-    const zadnjiIndeks = trenutnaStranica * poStranici
-    const prviIndeks = zadnjiIndeks - poStranici
+    const promjeniBrojPoStranici = (e) => {
+        setBrojPoStranici(Number(e.target.value))
+        setTrenutnaStranica(1)
+    }
+
+    const zadnjiIndeks = trenutnaStranica * brojPoStranici
+    const prviIndeks = zadnjiIndeks - brojPoStranici
     const trenutneSlike = slike.slice(prviIndeks, zadnjiIndeks)
-    const ukupnoStranica = Math.ceil(slike.length / poStranici)
+    const ukupnoStranica = Math.ceil(slike.length / brojPoStranici)
+
+    const otvoriZumiranje = (slika) => {
+        setAktivnaSlika(slika.url || slika)
+        setPrikaziModal(true)
+    }
 
     if (!prijava) {
         return <Container className="mt-3"><p>Učitavanje podataka...</p></Container>;
+    }
+
+    const dohvatiSirinuStupca = () => {
+        if (brojPoStranici === 3) return 12
+        if (brojPoStranici === 6) return 6
+        return 4;
     }
 
     return (
@@ -72,32 +88,74 @@ export default function PrijavaDetalji() {
                 </Table>
             </div>
 
-            <h4 className="mt-4 mb-3 fs-5">Galerija fotografija (Ukupno: {slike.length} / 36)</h4>
+            <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mt-4 mb-3 gap-3">
+                <h4 className="fs-5 mb-0">Galerija fotografija (Ukupno: {slike.length})</h4>
+                
+                {slike.length > 0 && (
+                    <div className="d-flex align-items-center gap-2">
+                        <Form.Label className="mb-0 text-nowrap fs-6">Prikaži po:</Form.Label>
+                        <Form.Select 
+                            value={brojPoStranici} 
+                            onChange={promjeniBrojPoStranici}
+                            style={{ width: '100px' }}
+                        >
+                            <option value={3}>3</option>
+                            <option value={6}>6</option>
+                            <option value={12}>12</option>
+                        </Form.Select>
+                    </div>
+                )}
+            </div>
 
             {slike.length === 0 ? (
                 <p className="text-muted">Nema spremljenih fotografija za ovu prijavu.</p>
             ) : (
                 <>
-                    {/* Grid slika: md={4} znači 3 stupca u redu (3 x 4 reda = 12 slika) */}
                     <Row className="g-4 my-2">
-                        {trenutneSlike.map((slika, index) => (
-                            <Col xs={12} md={4} key={slika.id || index}>
-                                <Card className="h-100 shadow-sm">
-                                    <Card.Img 
-                                        variant="top" 
-                                        src={slika.url || slika} 
-                                        alt={`Slika ${index + 1}`}
-                                        style={{ height: '220px', objectFit: 'cover' }}
-                                    />
-                                    <Card.Body className="text-center p-2">
-                                        <Card.Title className="fs-6 mb-0 text-muted">Slika {prviIndeks + index + 1}</Card.Title>
-                                    </Card.Body>
-                                </Card>
-                            </Col>
-                        ))}
+                        {trenutneSlike.map((slika, index) => {
+                            const imageUrl = slika.url || slika;
+                            return (
+                                <Col xs={12} md={dohvatiSirinuStupca()} key={slika.id || index}>
+                                    <Card className="h-100 shadow-sm border-0 rounded-3 overflow-hidden">
+                                        <div 
+                                            style={{ 
+                                                height: brojPoStranici === 3 ? '400px' : '230px', 
+                                                backgroundColor: '#f8f9fa', 
+                                                cursor: 'pointer',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                overflow: 'hidden'
+                                            }}
+                                            onClick={() => otvoriZumiranje(slika)}
+                                            title="Klikni za uvećanje"
+                                        >
+                                            <Card.Img 
+                                                variant="top" 
+                                                src={imageUrl} 
+                                                alt={`Slika ${prviIndeks + index + 1}`}
+                                                style={{ 
+                                                    maxHeight: '100%', 
+                                                    maxWidth: '100%', 
+                                                    objectFit: 'contain',
+                                                    transition: 'transform 0.2s ease-in-out'
+                                                }}
+                                                onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.03)'}
+                                                onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                                            />
+                                        </div>
+                                        <Card.Body className="text-center p-2 bg-light">
+                                            <Card.Title className="fs-6 mb-0 text-secondary">
+                                                Slika {prviIndeks + index + 1}
+                                            </Card.Title>
+                                            <small className="text-muted" style={{ fontSize: '0.75rem' }}>Pritisni za zoom</small>
+                                        </Card.Body>
+                                    </Card>
+                                </Col>
+                            )
+                        })}
                     </Row>
 
-                    {/* Prikaz navigacije stranica (Pagination) */}
                     {ukupnoStranica > 1 && (
                         <div className="d-flex justify-content-center my-4">
                             <Pagination>
@@ -133,6 +191,22 @@ export default function PrijavaDetalji() {
                     )}
                 </>
             )}
+
+            <Modal show={prikaziModal} onHide={() => setPrikaziModal(false)} size="lg" centered>
+                <Modal.Header closeButton className="border-0 pb-0">
+                    <Modal.Title className="fs-6 text-muted">Pregled fotografije</Modal.Title>
+                </Modal.Header>
+                <Modal.Body className="text-center p-3">
+                    {aktivnaSlika && (
+                        <img 
+                            src={aktivnaSlika} 
+                            alt="Uvećana slika" 
+                            className="img-fluid rounded shadow-sm"
+                            style={{ maxHeight: '80vh', objectFit: 'contain' }}
+                        />
+                    )}
+                </Modal.Body>
+            </Modal>
 
             <Button 
                 variant="secondary" 

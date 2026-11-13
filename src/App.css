@@ -169,3 +169,69 @@ body::before {
   position: relative;
   z-index: 1;
 }
+
+@keyframes slideInFromTop {
+  0% {
+    opacity: 0;
+    transform: translateY(-50px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-bulletin {
+  animation: slideInFromTop 0.6s ease-out forwards;
+  opacity: 0; 
+}
+
+.delay-1 { animation-delay: 0.2s; }
+.delay-2 { animation-delay: 0.4s; }
+.delay-3 { animation-delay: 0.6s; }
+
+@keyframes jumpAndTilt {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+    box-shadow: 0 0 8px rgba(245, 158, 11, 0.3);
+  }
+  20% {
+    transform: translateY(-6px) rotate(-2deg);
+    box-shadow: 0 8px 18px rgba(245, 158, 11, 0.6);
+  }
+  40% {
+    transform: translateY(0) rotate(2deg);
+  }
+  60% {
+    transform: translateY(-3px) rotate(-1deg);
+  }
+  80% {
+    transform: translateY(0) rotate(0deg);
+  }
+}
+
+@keyframes spinStar {
+  0% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(180deg) scale(1.2); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+
+.animate-jubilee {
+  display: inline-block;
+  width: 100%;
+  animation: jumpAndTilt 3s infinite ease-in-out;
+}
+
+.spin-icon {
+  display: inline-block;
+  animation: spinStar 4s infinite linear;
+}
+
+.btn-hover-zoom {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+}
+
+.btn-hover-zoom:hover {
+  transform: scale(1.05);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+}
