@@ -1,9 +1,11 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import PrijavaService from "../../services/prijave/PrijavaService"
 import { Button, Table, Container, Row, Col, Card, Pagination, Form, Modal } from "react-bootstrap"
 import { RouteNames } from "../../constants"
 import useBreakpoint from "../../hooks/useBreakpoint"
+import Cropper from "react-cropper"
+import "cropperjs/dist/cropper.css"
 
 export default function PrijavaDetalji() {
     const breakpoint = useBreakpoint()
@@ -19,6 +21,11 @@ export default function PrijavaDetalji() {
 
     const [prikaziModal, setPrikaziModal] = useState(false)
     const [aktivnaSlika, setAktivnaSlika] = useState(null)
+
+    const [prikaziCropModal, setPrikaziCropModal] = useState(false)
+    const [aktivnaSlikaZaCrop, setAktivnaSlikaZaCrop] = useState(null)
+    const [aktivniIndexSlike, setAktivniIndexSlike] = useState(null)
+    const cropperRef = useRef(null)
 
     useEffect(() => {
         ucitajDetalje()
@@ -45,6 +52,32 @@ export default function PrijavaDetalji() {
     const otvoriZumiranje = (slika) => {
         setAktivnaSlika(slika.url || slika)
         setPrikaziModal(true)
+    }
+
+    const otvoriCrop = (slika, indexNaStranici) => {
+        const url = slika.url || slika;
+        setAktivnaSlikaZaCrop(url);
+        const stvarniIndex = prviIndeks + indexNaStranici;
+        setAktivniIndexSlike(stvarniIndex);
+        setPrikaziCropModal(true);
+    }
+
+    const spremiIzrezanuSliku = () => {
+        const cropper = cropperRef.current?.cropper;
+        if (cropper) {
+            const croppedCanvas = cropper.getCroppedCanvas();
+            const croppedImageUrl = croppedCanvas.toDataURL();
+
+            const noveSlike = [...slike];
+            if (typeof noveSlike[aktivniIndexSlike] === 'object' && noveSlike[aktivniIndexSlike] !== null) {
+                noveSlike[aktivniIndexSlike] = { ...noveSlike[aktivniIndexSlike], url: croppedImageUrl };
+            } else {
+                noveSlike[aktivniIndexSlike] = croppedImageUrl;
+            }
+
+            setSlike(noveSlike);
+            setPrikaziCropModal(false);
+        }
     }
 
     if (!prijava) {
@@ -144,11 +177,25 @@ export default function PrijavaDetalji() {
                                                 onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
                                             />
                                         </div>
-                                        <Card.Body className="text-center p-2 bg-light">
-                                            <Card.Title className="fs-6 mb-0 text-secondary">
-                                                Slika {prviIndeks + index + 1}
-                                            </Card.Title>
-                                            <small className="text-muted" style={{ fontSize: '0.75rem' }}>Pritisni za zoom</small>
+                                        <Card.Body className="text-center p-2 bg-light d-flex flex-column justify-content-between">
+                                            <div>
+                                                <Card.Title className="fs-6 mb-0 text-secondary">
+                                                    Slika {prviIndeks + index + 1}
+                                                </Card.Title>
+                                                <small className="text-muted" style={{ fontSize: '0.75rem' }}>Pritisni za zoom</small>
+                                            </div>
+                                            
+                                            <Button 
+                                                variant="outline-primary" 
+                                                size="sm" 
+                                                className="mt-2 rounded-pill fw-semibold"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    otvoriCrop(slika, index);
+                                                }}
+                                            >
+                                                ✂️ Izreži (Crop)
+                                            </Button>
                                         </Card.Body>
                                     </Card>
                                 </Col>
@@ -206,6 +253,40 @@ export default function PrijavaDetalji() {
                         />
                     )}
                 </Modal.Body>
+            </Modal>
+
+            <Modal show={prikaziCropModal} onHide={() => setPrikaziCropModal(false)} size="xl" centered>
+                <Modal.Header closeButton>
+                    <Modal.Title className="fs-5">Obrezivanje fotografije (Crop)</Modal.Title>
+                </Modal.Header>
+                <Modal.Body style={{ minHeight: '400px' }}>
+                    {aktivnaSlikaZaCrop && (
+                        <div style={{ width: '100%', maxHeight: '60vh', overflow: 'hidden' }}>
+                            <Cropper
+                                ref={cropperRef}
+                                src={aktivnaSlikaZaCrop}
+                                style={{ height: 450, width: '100%' }}
+                                aspectRatio={NaN}
+                                guides={true}
+                                viewMode={1}
+                                dragMode="crop"
+                                scalable={true}
+                                zoomable={true}
+                                background={true}
+                                responsive={true}
+                                autoCropArea={0.8}
+                            />
+                        </div>
+                    )}
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setPrikaziCropModal(false)}>
+                        Odustani
+                    </Button>
+                    <Button variant="success" onClick={spremiIzrezanuSliku}>
+                        Spremi izrezano
+                    </Button>
+                </Modal.Footer>
             </Modal>
 
             <Button 
