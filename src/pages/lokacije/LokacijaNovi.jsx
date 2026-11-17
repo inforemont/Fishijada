@@ -1,13 +1,73 @@
-import { Link, useNavigate } from "react-router-dom";
-import { RouteNames } from "../../constants";
-import { Button, Col, Form, Row, Container } from "react-bootstrap";
-import LokacijaService from "../../services/lokacije/LokacijaService";
+import { useState } from "react"
+import { Link, useNavigate } from "react-router-dom"
+import { RouteNames } from "../../constants"
+import { Button, Col, Form, Row, Container } from "react-bootstrap"
+import LokacijaService from "../../services/lokacije/LokacijaService"
 import useBreakpoint from "../../hooks/useBreakpoint"
 
 export default function LokacijaNovi() {
     const breakpoint = useBreakpoint()
     const jeMobitel = breakpoint === 'xs' || breakpoint === 'sm'
     const navigate = useNavigate()
+
+    const [form, setForm] = useState({
+        regija: '',
+        mjesto: '',
+        zupanija: '',
+        posta: '',
+        datumOdrzavanja: ''
+    })
+
+    const [errors, setErrors] = useState({})
+    const [touched, setTouched] = useState({})
+
+    const validateForm = (currentForm) => {
+        const newErrors = {}
+
+        const regijaTrim = currentForm.regija.trim()
+        if (regijaTrim.length > 0 && (regijaTrim.length < 3 || regijaTrim.length > 30)) {
+            newErrors.regija = "Regija mora imati između 3 i 30 znakova."
+        }
+
+        const mjestoTrim = currentForm.mjesto.trim()
+        if (mjestoTrim.length > 0 && (mjestoTrim.length < 2 || mjestoTrim.length > 40)) {
+            newErrors.mjesto = "Mjesto mora imati između 2 i 40 znakova."
+        }
+
+        const zupanijaTrim = currentForm.zupanija.trim()
+        if (zupanijaTrim.length > 0 && (zupanijaTrim.length < 3 || zupanijaTrim.length > 40)) {
+            newErrors.zupanija = "Županija mora imati između 3 i 40 znakova."
+        }
+
+        if (currentForm.posta !== '') {
+            const postaNum = Number(currentForm.posta)
+            if (isNaN(postaNum) || postaNum < 10000 || postaNum > 99999) {
+                newErrors.posta = "Poštanski broj mora imati 5 znamenki."
+            }
+        }
+
+        if (currentForm.datumOdrzavanja !== '' && isNaN(Date.parse(currentForm.datumOdrzavanja))) {
+            newErrors.datumOdrzavanja = "Nevaljan format datuma."
+        }
+
+        return newErrors
+    }
+
+    const handleChange = (e) => {
+        const { name, value } = e.target
+        const updatedForm = { ...form, [name]: value }
+        
+        setForm(updatedForm)
+        setTouched(prev => ({ ...prev, [name]: true }))
+
+        const liveErrors = validateForm(updatedForm)
+        setErrors(liveErrors)
+    }
+
+    const handleBlur = (e) => {
+        const { name } = e.target
+        setTouched(prev => ({ ...prev, [name]: true }))
+    }
 
     async function dodaj(lokacija) {
         await LokacijaService.dodaj(lokacija).then(() => {
@@ -17,16 +77,47 @@ export default function LokacijaNovi() {
 
     function obradiSubmit(e) {
         e.preventDefault()
-        const podaci = new FormData(e.target)
-        dodaj({
-            regija: podaci.get('regija'),
-            mjesto: podaci.get('mjesto'),
-            zupanija: podaci.get('zupanija'),
-            datumOdrzavanja:podaci.get('datumOdrzavanja'),
-            posta: parseFloat(podaci.get('posta')),
 
+        setTouched({
+            regija: true,
+            mjesto: true,
+            zupanija: true,
+            posta: true,
+            datumOdrzavanja: true
+        })
+
+        const allErrors = validateForm(form)
+
+        if (!form.regija.trim()) allErrors.regija = "Regija je obavezna."
+        if (!form.mjesto.trim()) allErrors.mjesto = "Mjesto je obavezno."
+        if (!form.zupanija.trim()) allErrors.zupanija = "Županija je obavezna."
+        if (!form.posta) allErrors.posta = "Poštanski broj je obavezan."
+        if (!form.datumOdrzavanja) allErrors.datumOdrzavanja = "Datum održavanja je obavezan."
+
+        setErrors(allErrors)
+
+        if (Object.keys(allErrors).length > 0) {
+            return
+        }
+
+        dodaj({
+            regija: form.regija.trim(),
+            mjesto: form.mjesto.trim(),
+            zupanija: form.zupanija.trim(),
+            posta: parseFloat(form.posta),
+            datumOdrzavanja: form.datumOdrzavanja,
             ekipe: []
         })
+    }
+
+    const otvoriKalendar = (e) => {
+        try {
+            if (e.target.showPicker) {
+                e.target.showPicker()
+            }
+        } catch (error) {
+
+        }
     }
 
     return (
@@ -35,30 +126,97 @@ export default function LokacijaNovi() {
                 Dodavanje nove lokacije
             </h3>
 
-            <Form onSubmit={obradiSubmit}>
+            <Form onSubmit={obradiSubmit} noValidate>
+
                 <Form.Group controlId="regija" className="mb-3">
                     <Form.Label>REGIJA</Form.Label>
-                    <Form.Control type="text" name="regija" required />
+                    <Form.Control 
+                        type="text" 
+                        name="regija" 
+                        value={form.regija}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        isInvalid={touched.regija && !!errors.regija}
+                        isValid={touched.regija && !errors.regija && form.regija.trim().length > 0}
+                    />
+                    {touched.regija && errors.regija && (
+                        <div className="text-danger fw-semibold small mt-1">
+                            {errors.regija}
+                        </div>
+                    )}
                 </Form.Group>
 
                 <Form.Group controlId="mjesto" className="mb-3">
                     <Form.Label>MJESTO</Form.Label>
-                    <Form.Control type="text" name="mjesto" required />
+                    <Form.Control 
+                        type="text" 
+                        name="mjesto" 
+                        value={form.mjesto}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        isInvalid={touched.mjesto && !!errors.mjesto}
+                        isValid={touched.mjesto && !errors.mjesto && form.mjesto.trim().length > 0}
+                    />
+                    {touched.mjesto && errors.mjesto && (
+                        <div className="text-danger fw-semibold small mt-1">
+                            {errors.mjesto}
+                        </div>
+                    )}
                 </Form.Group>
 
                 <Form.Group controlId="zupanija" className="mb-3">
                     <Form.Label>ŽUPANIJA</Form.Label>
-                    <Form.Control type="text" name="zupanija" required />
+                    <Form.Control 
+                        type="text" 
+                        name="zupanija" 
+                        value={form.zupanija}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        isInvalid={touched.zupanija && !!errors.zupanija}
+                        isValid={touched.zupanija && !errors.zupanija && form.zupanija.trim().length > 0}
+                    />
+                    {touched.zupanija && errors.zupanija && (
+                        <div className="text-danger fw-semibold small mt-1">
+                            {errors.zupanija}
+                        </div>
+                    )}
                 </Form.Group>
 
                 <Form.Group controlId="posta" className="mb-3">
                     <Form.Label>POŠTANSKI BROJ</Form.Label>
-                    <Form.Control type="number" name="posta" required />
+                    <Form.Control 
+                        type="number" 
+                        name="posta" 
+                        value={form.posta}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        isInvalid={touched.posta && !!errors.posta}
+                        isValid={touched.posta && !errors.posta && form.posta !== ''}
+                    />
+                    {touched.posta && errors.posta && (
+                        <div className="text-danger fw-semibold small mt-1">
+                            {errors.posta}
+                        </div>
+                    )}
                 </Form.Group>
 
                 <Form.Group controlId="datumOdrzavanja" className="mb-3">
                     <Form.Label>DATUM ODRŽAVANJA</Form.Label>
-                    <Form.Control type="date" name="datumOdrzavanja" required></Form.Control>
+                    <Form.Control 
+                        type="date" 
+                        name="datumOdrzavanja" 
+                        value={form.datumOdrzavanja}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        onClick={otvoriKalendar}
+                        isInvalid={touched.datumOdrzavanja && !!errors.datumOdrzavanja}
+                        isValid={touched.datumOdrzavanja && !errors.datumOdrzavanja && form.datumOdrzavanja !== ''}
+                    />
+                    {touched.datumOdrzavanja && errors.datumOdrzavanja && (
+                        <div className="text-danger fw-semibold small mt-1">
+                            {errors.datumOdrzavanja}
+                        </div>
+                    )}
                 </Form.Group>
 
                 <Row className={`mt-4 ${jeMobitel ? 'flex-column gap-2' : ''}`}>
