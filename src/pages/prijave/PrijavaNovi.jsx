@@ -14,15 +14,26 @@ export default function PrijavaNovi() {
     const navigate = useNavigate()
 
     const [lokacije, setLokacije] = useState([])
-    const [odabranaLokacija, setOdabranaLokacija] = useState('')
     const [svePrijave, setSvePrijave] = useState([])
-    const [stol, setStol] = useState('')
     const [poslanaPrijava, setPoslanaPrijava] = useState(null)
 
     const [odabraneSlikeBase64, setOdabraneSlikeBase64] = useState([])
     const [greskaSlike, setGreskaSlike] = useState('')
     const [statusUploada, setStatusUploada] = useState('')
     const [isSubmitting, setIsSubmitting] = useState(false)
+
+    const [form, setForm] = useState({
+        imePrezime: '',
+        ekipa: '',
+        stol: '',
+        email: '',
+        kotizacijaPlacena: false,
+        prvenstvoHrvatske: false,
+        lokacija: ''
+    })
+
+    const [errors, setErrors] = useState({})
+    const [touched, setTouched] = useState({})
 
     useEffect(() => {
         LokacijaService.get().then((o) => {
@@ -80,64 +91,111 @@ export default function PrijavaNovi() {
     const PostaviAutomatskiStol = () => {
         const zauzetiStolovi = svePrijave.map(p => Number(p.stol)).filter(Boolean)
         const dodijeljeniBroj = dodijeliSlucajniStol(zauzetiStolovi)
-        setStol(dodijeljeniBroj)
+        
+        setForm(prev => ({ ...prev, stol: dodijeljeniBroj }))
+        setTouched(prev => ({ ...prev, stol: true }))
+        
+        const newErrors = validateForm({ ...form, stol: dodijeljeniBroj })
+        setErrors(newErrors)
+    }
+
+    const validateForm = (currentForm) => {
+        const newErrors = {}
+
+        const imeTrim = currentForm.imePrezime.trim()
+        if (imeTrim.length > 0 && imeTrim.length < 3) {
+            newErrors.imePrezime = "Ime i prezime mora imati najmanje 3 znaka."
+        }
+
+        const ekipaTrim = currentForm.ekipa.trim()
+        if (ekipaTrim.length > 0 && ekipaTrim.length < 2) {
+            newErrors.ekipa = "Naziv ekipe mora imati najmanje 2 znaka."
+        }
+
+        if (currentForm.stol !== '' && (Number(currentForm.stol) < 1 || Number(currentForm.stol) > 500)) {
+            newErrors.stol = "Broj stola mora biti između 1 i 500."
+        }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        if (currentForm.email.trim().length > 0 && !emailRegex.test(currentForm.email)) {
+            newErrors.email = "Unesite valjanu e-mail adresu."
+        }
+
+        if (currentForm.lokacija === '') {
+            newErrors.lokacija = "Odabir lokacije je obavezan."
+        }
+
+        return newErrors
+    }
+
+    const handleChange = (e) => {
+        const { name, value, type, checked } = e.target
+        const val = type === 'checkbox' ? checked : value
+
+        const updatedForm = { ...form, [name]: val }
+        setForm(updatedForm)
+
+        setTouched(prev => ({ ...prev, [name]: true }))
+
+        const liveErrors = validateForm(updatedForm)
+        setErrors(liveErrors)
+    }
+
+    const handleBlur = (e) => {
+        const { name } = e.target
+        setTouched(prev => ({ ...prev, [name]: true }))
     }
 
     async function obradiSubmit(e) {
         e.preventDefault()
         if (isSubmitting) return
+
+        setTouched({
+            imePrezime: true,
+            ekipa: true,
+            stol: true,
+            email: true,
+            lokacija: true
+        })
+
+        const allErrors = validateForm(form)
+
+        if (!form.imePrezime.trim()) allErrors.imePrezime = "Ime i prezime je obavezno."
+        if (!form.ekipa.trim()) allErrors.ekipa = "Naziv ekipe je obavezan."
+        if (!form.stol) allErrors.stol = "Broj stola mora biti unesen."
+        if (!form.email.trim()) allErrors.email = "E-mail je obavezna stavka."
+        if (!form.lokacija) allErrors.lokacija = "Odabir lokacije je obavezan."
+
+        setErrors(allErrors)
+
+        if (Object.keys(allErrors).length > 0) {
+            return
+        }
+
         setIsSubmitting(true)
-
-        const podaci = new FormData(e.target)
-
-        if (!podaci.get('imePrezime') || podaci.get('imePrezime').trim().length === 0) {
-            alert("Ime i prezime je obavezno i ne smije sadržavati samo razmake")
-            setIsSubmitting(false)
-            return
-        }
-        if (!podaci.get('ekipa') || podaci.get('ekipa').trim().length === 0) {
-            alert("Ekipa je obavezna i ne smije sadržavati samo razmake")
-            setIsSubmitting(false)
-            return
-        }
-        if (!podaci.get('stol')) {
-            alert("Broj stola mora biti unesen")
-            setIsSubmitting(false)
-            return
-        }
-        if (!podaci.get('email')) {
-            alert("Email je obavezna stavka")
-            setIsSubmitting(false)
-            return
-        }
 
         const novaPrijava = {
             sifra: Date.now(),
-            imePrezime: podaci.get('imePrezime'),
-            ekipa: podaci.get('ekipa'),
-            stol: parseFloat(podaci.get('stol')),
-            email: podaci.get('email'),
-            kotizacijaPlacena: podaci.get('kotizacijaPlacena') === 'on',
-            prvenstvoHrvatske: podaci.get('prvenstvoHrvatske') === 'on',
-            lokacija: parseInt(podaci.get('lokacija')),
+            imePrezime: form.imePrezime.trim(),
+            ekipa: form.ekipa.trim(),
+            stol: parseFloat(form.stol),
+            email: form.email.trim(),
+            kotizacijaPlacena: form.kotizacijaPlacena,
+            prvenstvoHrvatske: form.prvenstvoHrvatske,
+            lokacija: parseInt(form.lokacija),
             slike: odabraneSlikeBase64
         }
 
         let uspjesnoNaServeru = false;
 
-        // 1. Pokušaj spremanja na server
         try {
             await PrijavaService.dodaj(novaPrijava)
             uspjesnoNaServeru = true;
         } catch (err) {
             console.log("Server nije dostupan, spremamo u localStorage.")
         }
-
-        // 2. Ako server NIJE uspio, spremamo isključivo jednom u localStorage
         if (!uspjesnoNaServeru) {
             const trenutnePrijave = JSON.parse(localStorage.getItem('prijave')) || []
-            
-            // Provjera da li već postoji zapis s istom šifrom da spriječimo duplikat
             const vecPostoji = trenutnePrijave.some(p => p.sifra === novaPrijava.sifra)
             
             if (!vecPostoji) {
@@ -147,9 +205,10 @@ export default function PrijavaNovi() {
         }
 
         setPoslanaPrijava(novaPrijava)
+        setIsSubmitting(false)
     }
 
-    const odabraniObjekt = lokacije.find(l => l.sifra == odabranaLokacija)
+    const odabraniObjekt = lokacije.find(l => l.sifra == form.lokacija)
     const jeBeliManastir = odabraniObjekt?.mjesto === 'Beli Manastir'
 
     function postaviRobotoFont(doc) {
@@ -162,7 +221,7 @@ export default function PrijavaNovi() {
         const doc = new jsPDF()
         postaviRobotoFont(doc)
 
-        const odabraniNazivLokacije = lokacije.find(l => l.sifra === odabranaLokacija)?.mjesto || 'Nepoznata lokacija'
+        const odabraniNazivLokacije = lokacije.find(l => l.sifra == form.lokacija)?.mjesto || 'Nepoznata lokacija'
 
         doc.setFont("Roboto", "bold")
         doc.setFontSize(14)
@@ -216,15 +275,41 @@ export default function PrijavaNovi() {
                 Dodavanje nove prijave
             </h3>
             {!poslanaPrijava ? (
-                <Form onSubmit={obradiSubmit}>
+                <Form onSubmit={obradiSubmit} noValidate>
                     <Form.Group controlId="imePrezime" className="mb-3">
                         <Form.Label>IME I PREZIME</Form.Label>
-                        <Form.Control type="text" name="imePrezime" required />
+                        <Form.Control 
+                            type="text" 
+                            name="imePrezime" 
+                            value={form.imePrezime}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            isInvalid={touched.imePrezime && !!errors.imePrezime}
+                            isValid={touched.imePrezime && !errors.imePrezime && form.imePrezime.trim().length > 0}
+                        />
+                        {touched.imePrezime && errors.imePrezime && (
+                            <div className="text-danger fw-semibold small mt-1">
+                                {errors.imePrezime}
+                            </div>
+                        )}
                     </Form.Group>
 
                     <Form.Group controlId="ekipa" className="mb-3">
                         <Form.Label>EKIPA</Form.Label>
-                        <Form.Control type="text" name="ekipa" required />
+                        <Form.Control 
+                            type="text" 
+                            name="ekipa" 
+                            value={form.ekipa}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            isInvalid={touched.ekipa && !!errors.ekipa}
+                            isValid={touched.ekipa && !errors.ekipa && form.ekipa.trim().length > 0}
+                        />
+                        {touched.ekipa && errors.ekipa && (
+                            <div className="text-danger fw-semibold small mt-1">
+                                {errors.ekipa}
+                            </div>
+                        )}
                     </Form.Group>
 
                     <Form.Group controlId="stol" className="mb-3">
@@ -233,18 +318,39 @@ export default function PrijavaNovi() {
                             <Form.Control
                                 type="number"
                                 name="stol"
-                                value={stol}
+                                value={form.stol}
+                                onChange={handleChange}
+                                onBlur={handleBlur}
+                                isInvalid={touched.stol && !!errors.stol}
+                                isValid={touched.stol && !errors.stol && form.stol !== ''}
                                 readOnly
                             />
                             <Button type="button" variant="outline-primary" onClick={PostaviAutomatskiStol}>
                                 🎲 Dodijeli stol
                             </Button>
                         </div>
+                        {touched.stol && errors.stol && (
+                            <div className="text-danger fw-semibold small mt-1">
+                                {errors.stol}
+                            </div>
+                        )}
                     </Form.Group>
-
                     <Form.Group controlId="email" className="mb-3">
                         <Form.Label>E-mail</Form.Label>
-                        <Form.Control type="email" name="email" required />
+                        <Form.Control 
+                            type="email" 
+                            name="email" 
+                            value={form.email}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            isInvalid={touched.email && !!errors.email}
+                            isValid={touched.email && !errors.email && form.email.trim().length > 0}
+                        />
+                        {touched.email && errors.email && (
+                            <div className="text-danger fw-semibold small mt-1">
+                                {errors.email}
+                            </div>
+                        )}
                     </Form.Group>
 
                     <Form.Group controlId="slike" className="mb-3">
@@ -263,12 +369,22 @@ export default function PrijavaNovi() {
                     </Form.Group>
 
                     <Form.Group controlId="kotizacijaPlacena" className="mt-3">
-                        <Form.Check label="Kotizacija uplaćena" name="kotizacijaPlacena" />
+                        <Form.Check 
+                            label="Kotizacija uplaćena" 
+                            name="kotizacijaPlacena" 
+                            checked={form.kotizacijaPlacena}
+                            onChange={handleChange}
+                        />
                     </Form.Group>
 
                     {jeBeliManastir && (
                         <Form.Group controlId="prvenstvoHrvatske" className="mt-3">
-                            <Form.Check label="Prvenstvo Hrvatske" name="prvenstvoHrvatske" />
+                            <Form.Check 
+                                label="Prvenstvo Hrvatske" 
+                                name="prvenstvoHrvatske" 
+                                checked={form.prvenstvoHrvatske}
+                                onChange={handleChange}
+                            />
                         </Form.Group>
                     )}
 
@@ -276,9 +392,11 @@ export default function PrijavaNovi() {
                         <FormLabel>LOKACIJA</FormLabel>
                         <Form.Select
                             name="lokacija"
-                            required
-                            value={odabranaLokacija}
-                            onChange={(e) => setOdabranaLokacija(e.target.value)}
+                            value={form.lokacija}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            isInvalid={touched.lokacija && !!errors.lokacija}
+                            isValid={touched.lokacija && !errors.lokacija && form.lokacija !== ''}
                         >
                             <option value="">Odaberi lokaciju...</option>
                             {lokacije.filter((l) => l.sifra !== 111).map((l) => (
@@ -287,6 +405,11 @@ export default function PrijavaNovi() {
                                 </option>
                             ))}
                         </Form.Select>
+                        {touched.lokacija && errors.lokacija && (
+                            <div className="text-danger fw-semibold small mt-1">
+                                {errors.lokacija}
+                            </div>
+                        )}
                     </Form.Group>
 
                     <Row className={`mt-4 ${jeMobitel ? 'flex-column gap-2' : ''}`}>
@@ -312,7 +435,7 @@ export default function PrijavaNovi() {
                             Preuzmi PDF prijavu
                         </Button>
                         <Button variant="secondary" onClick={ispisiPDF}>
-                            Ispiši PDF
+                            Ipiši PDF
                         </Button>
                         <Button variant="success" onClick={() => navigate(RouteNames.PRIJAVE)}>
                             Natrag na pregled prijava
