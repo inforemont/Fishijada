@@ -21,7 +21,10 @@ LOKACIJE_DETALJI:'/lokacije/detalji/:sifra',
 GENERIRANJE: '/generiranje',
 LOGIN: '/login',
 ZABORAVLJENA_LOZINKA:'/zaboravljenalozinka',
-PROFIL:'/profil'
+PROFIL:'/profil',
+REGISTRACIJA: '/registracija',
+KORISNICI: '/korisnici',
+
 
 
 

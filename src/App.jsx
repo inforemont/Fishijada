@@ -21,13 +21,12 @@ import PrijavaDetalji from './pages/prijave/PrijavaDetalji'
 import LokacijaDetalji from './pages/lokacije/LokacijaDetalji'
 import GeneriranjePodataka from './pages/GeneriranjePodataka'
 import Login from './pages/login/Login'
+import Registracija from './pages/login/Registracija' // Dodano
+import KorisniciPregled from './pages/login/KorisniciPregled' // Dodano za admine
 import ZaboravljenaLozinka from './pages/login/ZaboravljenaLozinka'
 import ProfilUredivanje from './pages/login/ProfilUredjivanje'
 
-
-
 function App() {
-
   return (
     <>
       <Container className='body'>
@@ -54,17 +53,15 @@ function App() {
             <Route path={RouteNames.LOKACIJE_DETALJI} element={<LokacijaDetalji />} />
 
             <Route path={RouteNames.GENERIRANJE} element={<GeneriranjePodataka />} />
+            
+            {/* Auth rute */}
             <Route path={RouteNames.LOGIN} element={<Login />} />
-
+            <Route path={RouteNames.REGISTRACIJA} element={<Registracija />} />
+            <Route path={RouteNames.KORISNICI} element={<KorisniciPregled />} />
             <Route path={RouteNames.ZABORAVLJENA_LOZINKA} element={<ZaboravljenaLozinka />} />
             <Route path={RouteNames.PROFIL} element={<ProfilUredivanje />} />
 
-
-
-
-
           </Routes>
-
 
         </Container>
         <Container>
@@ -72,11 +69,6 @@ function App() {
           &copy; {IME_APLIKACIJE}
         </Container>
       </Container>
-
-
-
-
-
     </>
   )
 }

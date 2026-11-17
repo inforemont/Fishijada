@@ -2,6 +2,7 @@ import { useState } from "react"
 import { Container, Card, Form, Button, Alert } from "react-bootstrap"
 import { useNavigate } from "react-router-dom"
 import { RouteNames } from "../../constants"
+import AuthService from "../../services/logiranje/AuthService"
 
 export default function Login() {
     const navigate = useNavigate()
@@ -9,24 +10,32 @@ export default function Login() {
     const [lozinka, setLozinka] = useState("")
     const [greska, setGreska] = useState("")
 
-    const obradiPrijavu = (e) => {
+    const obradiPrijavu = async (e) => {
         e.preventDefault()
+        setGreska("")
 
         if (!email || !lozinka) {
             setGreska("Molimo unesite e-mail i lozinku.")
             return
         }
 
-        const korisnik = {
-            ime: email.split("@")[0], 
-            email: email,
-            uloga: "Admin"
+        try {
+            // Pozivamo AuthService za prijavu (koji provjerava hashiranu lozinku na backendu)
+            const korisnik = await AuthService.prijava({ email, lozinka })
+            
+            if (korisnik) {
+                window.dispatchEvent(new Event("authPromjena"))
+                
+                // Provjera je li administrator ili običan korisnik
+                if (korisnik.uloga === "Admin") {
+                    navigate(RouteNames.HOME) // Ili admin Dashboard
+                } else {
+                    navigate(RouteNames.HOME)
+                }
+            }
+        } catch (err) {
+            setGreska("Neispravan e-mail ili lozinka.")
         }
-
-        localStorage.setItem("prijavljeniKorisnik", JSON.stringify(korisnik))
-
-        window.dispatchEvent(new Event("authPromjena"))
-        navigate(RouteNames.HOME)
     }
 
     return (
