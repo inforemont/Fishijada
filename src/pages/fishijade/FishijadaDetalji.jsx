@@ -101,8 +101,19 @@ export default function FishijadaDetalji() {
             return
         }
 
+        const prijaveZaOvuLokaciju = svePrijave
+            .filter(p => Number(p.lokacijaId || p.lokacija) === lokacijaId)
+            .map(p => Number(p.sifra))
+
         const azuriraneLokacije = [...fishijada.lokacije, lokacijaId]
-        const izmjenjenaFishijada = { ...fishijada, lokacije: azuriraneLokacije }
+        const izmjenjenaFishijada = { 
+            ...fishijada, 
+            lokacije: azuriraneLokacije,
+            prijavePoLokacijama: {
+                ...fishijada.prijavePoLokacijama,
+                [lokacijaId]: prijaveZaOvuLokaciju
+            }
+        }
 
         await FishijadaService.promjeni(sifra, izmjenjenaFishijada).then(() => {
             setFishijada(izmjenjenaFishijada)
@@ -279,7 +290,7 @@ export default function FishijadaDetalji() {
                                 <ListGroup className="position-absolute w-100 shadow" style={{ zIndex: 1000, maxHeight: '200px', overflowY: 'auto' }}>
                                     {filtriraneLokacije.length > 0 ? (
                                         filtriraneLokacije.map((l) => {
-                                            const brojPrijava = (fishijada?.prijavePoLokacijama?.[l.sifra] || []).length
+                                            const brojPrijava = svePrijave.filter(p => Number(p.lokacijaId || p.lokacija) === Number(l.sifra)).length
                                             return (
                                                 <ListGroup.Item
                                                     key={l.sifra}

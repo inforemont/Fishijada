@@ -86,11 +86,6 @@ export default function FishijadaPromjena() {
                     defaultValue={fishijada.datumPokretanja} />
                 </Form.Group>
 
-                <Form.Group controlId="aktivan" className="mb-3">
-                    <Form.Check label="Aktivan" name="aktivan"
-                    checked={aktivan}
-                    onChange={(e)=>{setAktivan(e.target.checked)}} />
-                </Form.Group>
 
                 <Row className={`mt-4 ${jeMobitel ? 'flex-column gap-2' : ''}`}>
                     <Col xs={12} md={2}>

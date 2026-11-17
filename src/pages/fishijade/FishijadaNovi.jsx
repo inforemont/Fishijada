@@ -28,6 +28,15 @@ export default function FishijadaNovi() {
         })
     }
 
+    const otvoriKalendar = (e) => {
+        try {
+            if (e.target.showPicker) {
+                e.target.showPicker();
+            }
+        } catch (error) {
+        }
+    }
+
     return (
         <Container className="px-2 px-md-3">
             <h3 className="my-3 fs-4 fs-md-3">
@@ -52,12 +61,13 @@ export default function FishijadaNovi() {
 
                 <Form.Group controlId="datumPokretanja" className="mb-3">
                     <Form.Label>DATUM ODRŽAVANJA</Form.Label>
-                    <Form.Control type="date" name="datumPokretanja" required />
+                    <Form.Control 
+                        type="date" 
+                        name="datumPokretanja" 
+                        required 
+                    />
                 </Form.Group>
 
-                <Form.Group controlId="aktivan" className="mb-3">
-                    <Form.Check label="Aktivan" name="aktivan" />
-                </Form.Group>
 
                 <Row className={`mt-4 ${jeMobitel ? 'flex-column gap-2' : ''}`}>
                     <Col xs={12} md={6}>
