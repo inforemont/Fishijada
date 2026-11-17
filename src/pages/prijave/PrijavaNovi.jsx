@@ -8,6 +8,9 @@ import { jsPDF } from 'jspdf'
 import { robotoBase64 } from '../../fonts/robotoFont'
 import useBreakpoint from "../../hooks/useBreakpoint"
 
+import pandaHappy from "../../assets/pandahappy.gif"
+import pandaMad from "../../assets/pandamad.gif"
+
 export default function PrijavaNovi() {
     const breakpoint = useBreakpoint()
     const jeMobitel = breakpoint === 'xs' || breakpoint === 'sm'
@@ -92,10 +95,11 @@ export default function PrijavaNovi() {
         const zauzetiStolovi = svePrijave.map(p => Number(p.stol)).filter(Boolean)
         const dodijeljeniBroj = dodijeliSlucajniStol(zauzetiStolovi)
         
-        setForm(prev => ({ ...prev, stol: dodijeljeniBroj }))
+        const updatedForm = { ...form, stol: dodijeljeniBroj }
+        setForm(updatedForm)
         setTouched(prev => ({ ...prev, stol: true }))
         
-        const newErrors = validateForm({ ...form, stol: dodijeljeniBroj })
+        const newErrors = validateForm(updatedForm)
         setErrors(newErrors)
     }
 
@@ -269,15 +273,69 @@ export default function PrijavaNovi() {
         window.open(doc.output('bloburl'), '_blank')
     }
 
+    const imaGresaka = Object.keys(touched).some(key => errors[key])
+
     return (
-        <Container className="px-2 px-md-3">
-            <h3 className="my-3 fs-4 fs-md-3">
-                Dodavanje nove prijave
-            </h3>
+        <Container className="px-2 px-md-3 py-3">
+            <style>
+                {`
+                    @keyframes skakanjeVratolomije {
+                        0% { transform: translateY(0px) rotate(0deg); }
+                        25% { transform: translateY(-8px) rotate(-2deg); }
+                        50% { transform: translateY(0px) rotate(0deg); }
+                        75% { transform: translateY(-4px) rotate(2deg); }
+                        100% { transform: translateY(0px) rotate(0deg); }
+                    }
+                    .skacuci-naslov {
+                        display: inline-block;
+                        animation: skakanjeVratolomije 2.5s infinite ease-in-out;
+                    }
+                `}
+            </style>
+
+            <div className="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h3 className="fw-bold text-dark m-0 fs-2 skacuci-naslov">
+                        Dodavanje nove prijave
+                    </h3>
+                </div>
+
+                <div className="text-center bg-white p-2 rounded-4 shadow-sm border">
+                    {imaGresaka ? (
+                        <div>
+                            <img 
+                                src={pandaMad} 
+                                alt="Panda razbija sve" 
+                                style={{ width: "190px", height: "140px", objectFit: "cover", borderRadius: "8px" }}
+                                className="shadow-sm border border-danger"
+                            />
+                            <div className="text-danger fw-bold mt-1" style={{ fontSize: "11px" }}>Panda razbija sve! 🐼💥</div>
+                        </div>
+                    ) : (
+                        <div>
+                            <img 
+                                src={pandaHappy} 
+                                alt="Sretna panda" 
+                                style={{ width: "190px", height: "140px", objectFit: "cover", borderRadius: "8px" }}
+                                className="shadow-sm border border-success"
+                            />
+                            <div className="text-success fw-bold mt-1" style={{ fontSize: "11px" }}>Sve je super! 🐼😊</div>
+                        </div>
+                    )}
+                </div>
+            </div>
+
+
+            {imaGresaka && (
+                <Alert variant="danger" className="py-2 text-center fw-bold shadow-sm mb-4">
+                    ⚠️ Pažnja! Podaci nisu u redu, panda je upravo bacila sve sa stola! Ispravite greške ispod.
+                </Alert>
+            )}
+
             {!poslanaPrijava ? (
                 <Form onSubmit={obradiSubmit} noValidate>
                     <Form.Group controlId="imePrezime" className="mb-3">
-                        <Form.Label>IME I PREZIME</Form.Label>
+                        <Form.Label className="fw-semibold">IME I PREZIME</Form.Label>
                         <Form.Control 
                             type="text" 
                             name="imePrezime" 
@@ -295,7 +353,7 @@ export default function PrijavaNovi() {
                     </Form.Group>
 
                     <Form.Group controlId="ekipa" className="mb-3">
-                        <Form.Label>EKIPA</Form.Label>
+                        <Form.Label className="fw-semibold">EKIPA</Form.Label>
                         <Form.Control 
                             type="text" 
                             name="ekipa" 
@@ -313,7 +371,7 @@ export default function PrijavaNovi() {
                     </Form.Group>
 
                     <Form.Group controlId="stol" className="mb-3">
-                        <Form.Label>STOL</Form.Label>
+                        <Form.Label className="fw-semibold">STOL</Form.Label>
                         <div className="d-flex gap-2">
                             <Form.Control
                                 type="number"
@@ -336,7 +394,7 @@ export default function PrijavaNovi() {
                         )}
                     </Form.Group>
                     <Form.Group controlId="email" className="mb-3">
-                        <Form.Label>E-mail</Form.Label>
+                        <Form.Label className="fw-semibold">E-mail</Form.Label>
                         <Form.Control 
                             type="email" 
                             name="email" 
@@ -354,7 +412,7 @@ export default function PrijavaNovi() {
                     </Form.Group>
 
                     <Form.Group controlId="slike" className="mb-3">
-                        <Form.Label>GALERIJA FOTOGRAFIJA (Max. 36 slika, do 5MB po slici)</Form.Label>
+                        <Form.Label className="fw-semibold">GALERIJA FOTOGRAFIJA (Max. 36 slika, do 5MB po slici)</Form.Label>
                         <Form.Control
                             type="file"
                             multiple
@@ -389,7 +447,7 @@ export default function PrijavaNovi() {
                     )}
 
                     <Form.Group controlId="lokacija" className="mt-3 mb-3">
-                        <FormLabel>LOKACIJA</FormLabel>
+                        <FormLabel className="fw-semibold">LOKACIJA</FormLabel>
                         <Form.Select
                             name="lokacija"
                             value={form.lokacija}
@@ -414,12 +472,12 @@ export default function PrijavaNovi() {
 
                     <Row className={`mt-4 ${jeMobitel ? 'flex-column gap-2' : ''}`}>
                         <Col xs={12} md={6}>
-                            <Link to={RouteNames.PRIJAVE} className="btn btn-danger w-100">
+                            <Link to={RouteNames.PRIJAVE} className="btn btn-danger w-100 py-2 fw-semibold">
                                 Odustani
                             </Link>
                         </Col>
                         <Col xs={12} md={6} className={jeMobitel ? '' : 'text-end'}>
-                            <Button type="submit" variant="success" className="w-100" disabled={isSubmitting}>
+                            <Button type="submit" variant="success" className="w-100 py-2 fw-semibold" disabled={isSubmitting}>
                                 {isSubmitting ? 'Spremanje...' : 'Dodaj'}
                             </Button>
                         </Col>
