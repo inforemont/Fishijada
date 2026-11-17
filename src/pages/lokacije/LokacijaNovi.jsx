@@ -1,9 +1,12 @@
 import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { RouteNames } from "../../constants"
-import { Button, Col, Form, Row, Container } from "react-bootstrap"
+import { Button, Col, Form, Row, Container, Alert } from "react-bootstrap"
 import LokacijaService from "../../services/lokacije/LokacijaService"
 import useBreakpoint from "../../hooks/useBreakpoint"
+
+import pandaHappy from "../../assets/pandahappy.gif"
+import pandaMad from "../../assets/pandamad.gif"
 
 export default function LokacijaNovi() {
     const breakpoint = useBreakpoint()
@@ -120,16 +123,68 @@ export default function LokacijaNovi() {
         }
     }
 
+    const imaGresaka = Object.keys(touched).some(key => errors[key])
+
     return (
-        <Container className="px-2 px-md-3">
-            <h3 className="my-3 fs-4 fs-md-3">
-                Dodavanje nove lokacije
-            </h3>
+        <Container className="px-2 px-md-3 py-3">
+            <style>
+                {`
+                    @keyframes skakanjeVratolomije {
+                        0% { transform: translateY(0px) rotate(0deg); }
+                        25% { transform: translateY(-8px) rotate(-2deg); }
+                        50% { transform: translateY(0px) rotate(0deg); }
+                        75% { transform: translateY(-4px) rotate(2deg); }
+                        100% { transform: translateY(0px) rotate(0deg); }
+                    }
+                    .skacuci-naslov {
+                        display: inline-block;
+                        animation: skakanjeVratolomije 2.5s infinite ease-in-out;
+                    }
+                `}
+            </style>
+
+            <div className="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h3 className="fw-bold text-dark m-0 fs-2 skacuci-naslov">
+                        Dodavanje nove lokacije
+                    </h3>
+                </div>
+
+                <div className="text-center bg-white p-2 rounded-4 shadow-sm border">
+                    {imaGresaka ? (
+                        <div>
+                            <img 
+                                src={pandaMad} 
+                                alt="Panda razbija sve" 
+                                style={{ width: "190px", height: "140px", objectFit: "cover", borderRadius: "8px" }}
+                                className="shadow-sm border border-danger"
+                            />
+                            <div className="text-danger fw-bold mt-1" style={{ fontSize: "11px" }}>Panda razbija sve! 🐼💥</div>
+                        </div>
+                    ) : (
+                        <div>
+                            <img 
+                                src={pandaHappy} 
+                                alt="Sretna panda" 
+                                style={{ width: "190px", height: "140px", objectFit: "cover", borderRadius: "8px" }}
+                                className="shadow-sm border border-success"
+                            />
+                            <div className="text-success fw-bold mt-1" style={{ fontSize: "11px" }}>Sve je super! 🐼😊</div>
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {imaGresaka && (
+                <Alert variant="danger" className="py-2 text-center fw-bold shadow-sm mb-4">
+                    ⚠️ Pažnja! Podaci nisu u redu, panda je upravo bacila sve sa stola! Ispravite greške ispod.
+                </Alert>
+            )}
 
             <Form onSubmit={obradiSubmit} noValidate>
 
                 <Form.Group controlId="regija" className="mb-3">
-                    <Form.Label>REGIJA</Form.Label>
+                    <Form.Label className="fw-semibold">REGIJA</Form.Label>
                     <Form.Control 
                         type="text" 
                         name="regija" 
@@ -147,7 +202,7 @@ export default function LokacijaNovi() {
                 </Form.Group>
 
                 <Form.Group controlId="mjesto" className="mb-3">
-                    <Form.Label>MJESTO</Form.Label>
+                    <Form.Label className="fw-semibold">MJESTO</Form.Label>
                     <Form.Control 
                         type="text" 
                         name="mjesto" 
@@ -165,7 +220,7 @@ export default function LokacijaNovi() {
                 </Form.Group>
 
                 <Form.Group controlId="zupanija" className="mb-3">
-                    <Form.Label>ŽUPANIJA</Form.Label>
+                    <Form.Label className="fw-semibold">ŽUPANIJA</Form.Label>
                     <Form.Control 
                         type="text" 
                         name="zupanija" 
@@ -183,7 +238,7 @@ export default function LokacijaNovi() {
                 </Form.Group>
 
                 <Form.Group controlId="posta" className="mb-3">
-                    <Form.Label>POŠTANSKI BROJ</Form.Label>
+                    <Form.Label className="fw-semibold">POŠTANSKI BROJ</Form.Label>
                     <Form.Control 
                         type="number" 
                         name="posta" 
@@ -201,7 +256,7 @@ export default function LokacijaNovi() {
                 </Form.Group>
 
                 <Form.Group controlId="datumOdrzavanja" className="mb-3">
-                    <Form.Label>DATUM ODRŽAVANJA</Form.Label>
+                    <Form.Label className="fw-semibold">DATUM ODRŽAVANJA</Form.Label>
                     <Form.Control 
                         type="date" 
                         name="datumOdrzavanja" 
@@ -221,12 +276,12 @@ export default function LokacijaNovi() {
 
                 <Row className={`mt-4 ${jeMobitel ? 'flex-column gap-2' : ''}`}>
                     <Col xs={12} md={6}>
-                        <Link to={RouteNames.LOKACIJE} className="btn btn-danger w-100">
+                        <Link to={RouteNames.LOKACIJE} className="btn btn-danger w-100 py-2 fw-semibold">
                             Odustani
                         </Link>
                     </Col>
                     <Col xs={12} md={6} className={jeMobitel ? '' : 'text-end'}>
-                        <Button type="submit" variant="success" className="w-100">
+                        <Button type="submit" variant="success" className="w-100 py-2 fw-semibold">
                             Dodaj
                         </Button>
                     </Col>
