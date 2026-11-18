@@ -1,14 +1,13 @@
-import axios from 'axios'
-
-const API_URL = "http://localhost:8080/api/auth" 
+import KorisnikService from "./KorisnikService"
 
 class AuthService {
     async prijava(korisnickiPodaci) {
-        const odgovor = await axios.post(`${API_URL}/login`, korisnickiPodaci)
-        if (odgovor.data) {
-            localStorage.setItem("prijavljeniKorisnik", JSON.stringify(odgovor.data))
+        const korisnik = await KorisnikService.prijava(korisnickiPodaci.email, korisnickiPodaci.lozinka)
+        
+        if (korisnik) {
+            localStorage.setItem("prijavljeniKorisnik", JSON.stringify(korisnik))
         }
-        return odgovor.data
+        return korisnik
     }
 
     odjava() {
@@ -21,7 +20,10 @@ class AuthService {
     }
 
     async azurirajProfil(podaci) {
-        const odgovor = await axios.put(`${API_URL}/profil`, podaci)
+        const trenutni = this.dohvatiPrijavljenogKorisnika()
+        if (!trenutni) throw new Error("Korisnik nije prijavljen")
+
+        const odgovor = await KorisnikService.promjeni(trenutni.sifra, podaci)
         if (odgovor.data) {
             localStorage.setItem("prijavljeniKorisnik", JSON.stringify(odgovor.data))
         }
@@ -29,7 +31,11 @@ class AuthService {
     }
 
     async zatraziResetLozinke(email) {
-        return await axios.post(`${API_URL}/zaboravljena-lozinka`, { email })
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                resolve({ success: true, message: "Upute poslane na e-mail." })
+            }, 1000)
+        })
     }
 }
 

@@ -24,7 +24,17 @@ export default function ProfilUredivanje() {
         setPoruka("")
 
         try {
-            await AuthService.azurirajProfil({ ime, prezime, staraLozinka, novaLozinka })
+            const podaciZaSlanje = {
+                ime,
+                prezime
+            }
+
+            if (novaLozinka) {
+                podaciZaSlanje.lozinka = novaLozinka
+                podaciZaSlanje.staraLozinka = staraLozinka 
+            }
+
+            await AuthService.azurirajProfil(podaciZaSlanje)
             setPoruka("Profil i podaci uspješno su ažurirani!")
             setStaraLozinka("")
             setNovaLozinka("")

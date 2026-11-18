@@ -23,7 +23,8 @@ LOGIN: '/login',
 ZABORAVLJENA_LOZINKA:'/zaboravljenalozinka',
 PROFIL:'/profil',
 REGISTRACIJA: '/registracija',
-KORISNICI: '/korisnici',
+KORISNICI: '/korisnici', 
+
 
 
 
