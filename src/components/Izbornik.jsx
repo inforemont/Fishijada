@@ -63,14 +63,17 @@ export default function Izbornik() {
                             O Aplikaciji
                         </Nav.Link>
                         
-                        <Nav.Link onClick={() => navigate(RouteNames.GENERIRANJE)}>
-                            Generiranje podataka
-                        </Nav.Link>
-
                         {isAdmin && (
-                            <Nav.Link onClick={() => navigate(RouteNames.KORISNICI)} className="text-danger fw-semibold">
+                            <>
+                            <Nav.Link onClick={() => navigate(RouteNames.GENERIRANJE)} className="d-flex align-items-center gap-1">
+                                <span style={{ fontSize: '1.2rem', marginRight: '4px', filter: 'drop-shadow(0 0 2px rgba(255,255,255,0.9))' }}>🪄</span>
+                                 Generiranje podataka
+                            </Nav.Link>
+                            <Nav.Link onClick={() => navigate(RouteNames.KORISNICI)} className="text-danger fw-semibold" className="text-warning fw-semibold d-flex align-items-center gap-1"
+                                >
                                 ⚙️ Upravljanje Korisnicima
                             </Nav.Link>
+                            </>
                         )}
                     </Nav>
 

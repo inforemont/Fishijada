@@ -6,7 +6,7 @@ import Table from 'react-bootstrap/Table'
 import { NumericFormat } from 'react-number-format'
 import FormatDatuma from '../../components/FormatDatuma'
 import { RouteNames } from '../../constants'
-import { Button, Form } from "react-bootstrap"
+import { Button, Form, OverlayTrigger, Tooltip } from "react-bootstrap"
 import LokacijaService from '../../services/lokacije/LokacijaService'
 import PrijavaService from '../../services/prijave/PrijavaService'
 import MiniKarta from '../../components/MiniKarta'
@@ -47,8 +47,14 @@ function FishijadeIzbor({ godina, jeMobitel }) {
 
     const [odabranaFisijada, setOdabranaFisijada] = useState('')
     const [sveLokacije, setSveLokacije] = useState([])
+    const [korisnik, setKorisnik] = useState(null)
 
     useEffect(() => {
+        const spremljeniKorisnik = localStorage.getItem("prijavljeniKorisnik")
+        if (spremljeniKorisnik) {
+            setKorisnik(JSON.parse(spremljeniKorisnik))
+        }
+
         console.log('Došao na pregled fishijada')
         ucitajFishijade()
         LokacijaService.get().then((odgovor) => {
@@ -59,6 +65,8 @@ function FishijadeIzbor({ godina, jeMobitel }) {
             setSvePrijave(odgovor.data)
         })
     }, [godina])
+
+    const isAdmin = korisnik?.uloga === "Admin"
 
     async function obrisi(sifra) {
         if (!confirm('sigurno obrisati?')) {
@@ -167,19 +175,60 @@ function FishijadeIzbor({ godina, jeMobitel }) {
 
                                         <td>
                                             <div className={jeMobitel ? "d-flex flex-column gap-2" : "d-flex justify-content-center gap-2"}>
-                                                <Button size="sm" onClick={() => { navigate(`/fishijade/${fishijada.sifra}`) }}>
-                                                    Promjena
-                                                </Button>
-                                                <Button variant="danger" size="sm" onClick={() => obrisi(fishijada.sifra)}>
-                                                    Obriši
-                                                </Button>
+                                                
+                                                {isAdmin ? (
+                                                    <Button size="sm" onClick={() => { navigate(`/fishijade/${fishijada.sifra}`) }}>
+                                                        Promjena
+                                                    </Button>
+                                                ) : (
+                                                    <OverlayTrigger
+                                                        placement="top"
+                                                        overlay={
+                                                            <Tooltip id={`tooltip-promjena-${fishijada.sifra}`} className="shadow-sm">
+                                                                <div style={{ fontSize: '0.85rem', fontWeight: '500' }}>
+                                                                    Samo administratori mogu koristiti ove opcije
+                                                                </div>
+                                                            </Tooltip>
+                                                        }
+                                                    >
+                                                        <span className="d-inline-block">
+                                                            <Button size="sm" disabled>
+                                                                Promjena
+                                                            </Button>
+                                                        </span>
+                                                    </OverlayTrigger>
+                                                )}
+
+                                                {isAdmin ? (
+                                                    <Button variant="danger" size="sm" onClick={() => obrisi(fishijada.sifra)}>
+                                                        Obriši
+                                                    </Button>
+                                                ) : (
+                                                    <OverlayTrigger
+                                                        placement="top"
+                                                        overlay={
+                                                            <Tooltip id={`tooltip-obrisi-${fishijada.sifra}`} className="shadow-sm">
+                                                                <div style={{ fontSize: '0.85rem', fontWeight: '500' }}>
+                                                                    Samo administratori mogu koristiti ove opcije
+                                                                </div>
+                                                            </Tooltip>
+                                                        }
+                                                    >
+                                                        <span className="d-inline-block">
+                                                            <Button variant="danger" size="sm" disabled>
+                                                                Obriši
+                                                            </Button>
+                                                        </span>
+                                                    </OverlayTrigger>
+                                                )}
+
                                                 <Button variant="success" size="sm" onClick={() => detalji(fishijada.sifra)}>
                                                     Detalji
                                                 </Button>
                                             </div>
                                         </td>
                                     </tr>
-                                );
+                                )
                             })}
                         </tbody>
                     </Table>
@@ -232,7 +281,7 @@ function FishijadeIzbor({ godina, jeMobitel }) {
                                     </Table>
                                 </div>
                             </div>
-                        );
+                        )
                     })()}
                 </div>
             )}
@@ -245,5 +294,5 @@ function FishijadeIzbor({ godina, jeMobitel }) {
                 &nbsp; fišijada
             </div>
         </>
-    );
+    )
 }
