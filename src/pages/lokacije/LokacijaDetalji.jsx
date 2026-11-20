@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import LokacijaService from "../../services/lokacije/LokacijaService";
-import { Button, Table } from "react-bootstrap";
-import { RouteNames } from "../../constants";
+import { useEffect, useState } from "react"
+import { useParams, useNavigate } from "react-router-dom"
+import LokacijaService from "../../services/lokacije/LokacijaService"
+import { Button, Table } from "react-bootstrap"
+import { RouteNames } from "../../constants"
 
 export default function LokacijaDetalji() {
     const { sifra } = useParams()
@@ -26,7 +26,7 @@ export default function LokacijaDetalji() {
     return (
         <div>
             <h3 className="my-3">Detalji lokacije: {lokacija.mjesto}</h3>
-            
+
             <Table hover striped bordered className="mt-3">
                 <tbody>
                     <tr>
@@ -45,7 +45,7 @@ export default function LokacijaDetalji() {
                         <td><strong>Pošta:</strong></td>
                         <td>{lokacija.posta}</td>
                     </tr>
-                                        <tr>
+                    <tr>
                         <td><strong>Datum održavanja:</strong></td>
                         <td>{lokacija.datumOdrzavanja}</td>
                     </tr>

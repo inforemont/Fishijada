@@ -34,7 +34,7 @@ function LokacijeIzbor() {
 
     function dohvatiSlikuLokacije(mjesto) {
         if (!mjesto) return zadanaSlikaLokacije;
-        
+
         const oiscenoIme = mjesto
             .toLowerCase()
             .normalize("NFD")
@@ -102,14 +102,14 @@ function LokacijeIzbor() {
                         return (
                             <tr key={lokacija.sifra}>
                                 <td className='lead'>
-                                    <img 
-                                        src={slikaZaPrikaz} 
+                                    <img
+                                        src={slikaZaPrikaz}
                                         alt={lokacija.mjesto}
-                                        style={{ 
-                                            width: '35px', 
-                                            height: '25px', 
-                                            objectFit: 'cover', 
-                                            borderRadius: '4px', 
+                                        style={{
+                                            width: '35px',
+                                            height: '25px',
+                                            objectFit: 'cover',
+                                            borderRadius: '4px',
                                             cursor: 'pointer',
                                             border: '1px solid #ced4da',
                                             marginRight: '10px',
@@ -167,10 +167,10 @@ function LokacijeIzbor() {
                     <Modal.Title>Lokacija: {trenutniNaziv}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body className="text-center">
-                    <img 
-                        src={trenutnaSlika} 
-                        alt="Zumirana lokacija" 
-                        className="img-fluid rounded shadow" 
+                    <img
+                        src={trenutnaSlika}
+                        alt="Zumirana lokacija"
+                        className="img-fluid rounded shadow"
                         style={{ maxHeight: '70vh', objectFit: 'contain' }}
                     />
                 </Modal.Body>

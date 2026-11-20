@@ -1,11 +1,10 @@
 import { useEffect, useState, useRef } from "react"
 import { useParams, useNavigate } from "react-router-dom"
-import FishijadaService from "../../services/FishijadaService"
+import FishijadaService from "../../services/fishijade/FishijadaService"
 import { Button, Table, Form, ListGroup, Row, Col, Container } from "react-bootstrap"
 import { RouteNames } from "../../constants"
 import LokacijaService from "../../services/lokacije/LokacijaService"
 import PrijavaService from "../../services/prijave/PrijavaService"
-import FormatDatuma from "../../components/FormatDatuma"
 import useBreakpoint from "../../hooks/useBreakpoint"
 
 export default function FishijadaDetalji() {

@@ -1,6 +1,6 @@
-import FishijadaServiceMemorija from "./FishijadaServiceMemorija"
-import { DATA_SOURCE } from "../constants"
-import FishijadaServiceLocalStorage from "./FishijadaServiceLocalStorage"
+import FishijadaServiceMemorija from "./../fishijade/FishijadaServiceMemorija"
+import { DATA_SOURCE } from "../../constants"
+import FishijadaServiceLocalStorage from "./../fishijade/FishijadaServiceLocalStorage"
 
 let Servis = null
 switch(DATA_SOURCE){

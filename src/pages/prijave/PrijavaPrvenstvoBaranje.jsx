@@ -48,43 +48,43 @@ export default function PrijavaPrvenstvoBaranje() {
     }
 
     function obradiSubmit(e) {
-        e.preventDefault() 
+        e.preventDefault()
         const podaci = new FormData(e.target)
 
-        if(!podaci.get('imePrezime') || podaci.get('imePrezime').trim().length === 0){
+        if (!podaci.get('imePrezime') || podaci.get('imePrezime').trim().length === 0) {
             alert("Ime i prezime je obavezno i ne smije sadržavati samo razmake ")
             return
         }
-        if(podaci.get('imePrezime').trim().length < 6 || podaci.get('imePrezime').trim().length > 30){
+        if (podaci.get('imePrezime').trim().length < 6 || podaci.get('imePrezime').trim().length > 30) {
             alert("Ime i Prezime mora sadržavati između 6 i 30 znakova")
-            return 
+            return
         }
 
-        if(!podaci.get('ekipa') || podaci.get('ekipa').trim().length === 0){
+        if (!podaci.get('ekipa') || podaci.get('ekipa').trim().length === 0) {
             alert("Ekipa je obavezna i ne smije sadržavati samo razmake ")
             return
         }
-        if(podaci.get('ekipa').trim().length < 3 || podaci.get('ekipa').trim().length > 30){
+        if (podaci.get('ekipa').trim().length < 3 || podaci.get('ekipa').trim().length > 30) {
             alert("Ekipa mora sadržavati između 3 i 30 znakova")
-            return 
+            return
         }
 
-        if (isNaN(podaci.get('stol')) || podaci.get('stol') < 1 || podaci.get('stol') > 500){
+        if (isNaN(podaci.get('stol')) || podaci.get('stol') < 1 || podaci.get('stol') > 500) {
             alert("Unesite ispravan broj stola")
             return
         }
-        if(!podaci.get('stol') || podaci.get('stol') === ""){
+        if (!podaci.get('stol') || podaci.get('stol') === "") {
             alert("Broj stola mora biti unesen")
-            return 
+            return
         }
 
-        if(!podaci.get('email') || podaci.get('email').trim().length === 0){
+        if (!podaci.get('email') || podaci.get('email').trim().length === 0) {
             alert("Email je obavezan i ne smije sadržavati samo razmake ")
             return
         }
-        if(podaci.get('email').trim().length < 6 || podaci.get('email').trim().length > 30){
+        if (podaci.get('email').trim().length < 6 || podaci.get('email').trim().length > 30) {
             alert("Email mora sadržavati između 6 i 30 znakova")
-            return 
+            return
         }
 
         dodaj({
@@ -162,88 +162,88 @@ export default function PrijavaPrvenstvoBaranje() {
                 Prijava za Prvenstvo Baranje u Belom Manastiru
             </h3>
 
-        {!poslanaPrijava ? (
-            <Form onSubmit={obradiSubmit}>
+            {!poslanaPrijava ? (
+                <Form onSubmit={obradiSubmit}>
 
-                <Form.Group controlId="imePrezime">
-                    <Form.Label>IME I PREZIME</Form.Label>
-                    <Form.Control type="text" name="imePrezime" required />
-                </Form.Group>
+                    <Form.Group controlId="imePrezime">
+                        <Form.Label>IME I PREZIME</Form.Label>
+                        <Form.Control type="text" name="imePrezime" required />
+                    </Form.Group>
 
-                <Form.Group controlId="ekipa">
-                    <Form.Label>EKIPA</Form.Label>
-                    <Form.Control type="text" name="ekipa" />
-                </Form.Group>
+                    <Form.Group controlId="ekipa">
+                        <Form.Label>EKIPA</Form.Label>
+                        <Form.Control type="text" name="ekipa" />
+                    </Form.Group>
 
-                <Form.Group controlId="stol" className="mb-3">
-                    <Form.Label>STOL</Form.Label>
-                    <div className="d-flex gap-2">
-                        <Form.Control 
-                            type="number" 
-                            name="stol" 
-                            value={stol}
-                            readOnly
-                        />
-                        <Button type="button" variant="outline-primary" onClick={PostaviAutomatskiStol}>
-                            🎲 Dodijeli stol
+                    <Form.Group controlId="stol" className="mb-3">
+                        <Form.Label>STOL</Form.Label>
+                        <div className="d-flex gap-2">
+                            <Form.Control
+                                type="number"
+                                name="stol"
+                                value={stol}
+                                readOnly
+                            />
+                            <Button type="button" variant="outline-primary" onClick={PostaviAutomatskiStol}>
+                                🎲 Dodijeli stol
+                            </Button>
+                        </div>
+                    </Form.Group>
+
+                    <Form.Group controlId="email">
+                        <Form.Label>E-mail</Form.Label>
+                        <Form.Control type="email" name="email" />
+                    </Form.Group>
+
+                    <Form.Group controlId="kotizacijaPlacena" className="mt-3">
+                        <Form.Check label="Kotizacija uplaćena" name="kotizacijaPlacena" />
+                    </Form.Group>
+
+                    <Form.Group controlId="lokacija" className="mt-3">
+                        <FormLabel>LOKACIJA</FormLabel>
+                        <Form.Select
+                            name="lokacija"
+                            required
+                            defaultValue={111}
+                            disabled
+                        >
+                            <option value={111}>
+                                Beli Manastir (Baranja)
+                            </option>
+                        </Form.Select>
+                    </Form.Group>
+
+                    <Row className="mt-4">
+                        <Col>
+                            <Link to={RouteNames.PRIJAVE} className="btn btn-danger">
+                                Odustani
+                            </Link>
+                        </Col>
+                        <Col>
+                            <Button type="submit" variant="success">
+                                Dodaj
+                            </Button>
+                        </Col>
+                    </Row>
+                </Form>
+            ) : (
+                <div className="text-center p-4 border rounded bg-light my-4">
+                    <h4 className="text-success mb-3">Prijava za Prvenstvo Baranje je uspješno spremljena!</h4>
+                    <p>Možete preuzeti PDF obrazac ili ga direktno ispisati:</p>
+
+                    <div className="d-flex justify-content-center gap-3 mt-4">
+                        <Button variant="primary" onClick={preuzmiPDF}>
+                            Preuzmi PDF prijavu
+                        </Button>
+                        <Button variant="secondary" onClick={ispisiPDF}>
+                            Ispiši PDF
+                        </Button>
+                        <Button variant="success" onClick={() => navigate(RouteNames.PRIJAVE)}>
+                            Natrag na pregled prijava
                         </Button>
                     </div>
-                </Form.Group>
-
-                <Form.Group controlId="email">
-                    <Form.Label>E-mail</Form.Label>
-                    <Form.Control type="email" name="email" />
-                </Form.Group>
-
-                <Form.Group controlId="kotizacijaPlacena" className="mt-3">
-                    <Form.Check label="Kotizacija uplaćena" name="kotizacijaPlacena" />
-                </Form.Group>
-
-                <Form.Group controlId="lokacija" className="mt-3">
-                    <FormLabel>LOKACIJA</FormLabel>
-                    <Form.Select 
-                        name="lokacija"
-                        required
-                        defaultValue={111}
-                        disabled
-                    >
-                        <option value={111}>
-                            Beli Manastir (Baranja)
-                        </option>
-                    </Form.Select>
-                </Form.Group>
-
-                <Row className="mt-4">
-                    <Col>
-                        <Link to={RouteNames.PRIJAVE} className="btn btn-danger">
-                            Odustani
-                        </Link>
-                    </Col>
-                    <Col>
-                        <Button type="submit" variant="success">
-                            Dodaj
-                        </Button>
-                    </Col>
-                </Row>
-            </Form>
-        ) : (
-            <div className="text-center p-4 border rounded bg-light my-4">
-                <h4 className="text-success mb-3">Prijava za Prvenstvo Baranje je uspješno spremljena!</h4>
-                <p>Možete preuzeti PDF obrazac ili ga direktno ispisati:</p>
-                
-                <div className="d-flex justify-content-center gap-3 mt-4">
-                    <Button variant="primary" onClick={preuzmiPDF}>
-                        Preuzmi PDF prijavu
-                    </Button>
-                    <Button variant="secondary" onClick={ispisiPDF}>
-                        Ispiši PDF
-                    </Button>
-                    <Button variant="success" onClick={() => navigate(RouteNames.PRIJAVE)}>
-                        Natrag na pregled prijava
-                    </Button>
                 </div>
-            </div>
-        )}
+            )}
         </>
     )
 }

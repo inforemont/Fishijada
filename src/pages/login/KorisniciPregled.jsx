@@ -2,7 +2,7 @@ import { useState, useEffect } from "react"
 import { Container, Table, Button, Alert, Badge } from "react-bootstrap"
 import { useNavigate } from "react-router-dom"
 import KorisnikService from "../../services/logiranje/KorisnikService"
-import AuthService from "../../services/logiranje/AuthService" 
+import AuthService from "../../services/logiranje/AuthService"
 import { RouteNames } from "../../constants"
 
 export default function KorisniciPregled() {
@@ -46,9 +46,9 @@ export default function KorisniciPregled() {
     }
 
     const prisiliPromjenuLozinke = async (korisnik) => {
-       
+
         const novaPrivremenaLozinka = prompt("Unesite novu privremenu lozinku za korisnika " + korisnik.email + ":");
-        
+
         if (!novaPrivremenaLozinka) return;
 
         try {
@@ -70,10 +70,10 @@ export default function KorisniciPregled() {
                     <h3>Upravljanje korisnicima</h3>
                     <p className="text-muted mb-0">Pregled i administracija korisničkih računa sustava.</p>
                 </div>
-                <Button 
-                    variant="success" 
+                <Button
+                    variant="success"
                     className="rounded-pill px-4 shadow-sm"
-                    onClick={() => navigate(`${RouteNames.KORISNICI}/dodaj`)} 
+                    onClick={() => navigate(`${RouteNames.KORISNICI}/dodaj`)}
                 >
                     ➕ Dodaj novog korisnika
                 </Button>
@@ -94,7 +94,7 @@ export default function KorisniciPregled() {
                 <tbody>
                     {korisnici && korisnici.length > 0 ? (
                         korisnici.map((k) => {
-                        
+
                             const jeLiMojProfil = prijavljeniKorisnik && (String(k.sifra) === String(prijavljeniKorisnik.sifra) || k.email === prijavljeniKorisnik.email);
 
                             return (
@@ -111,28 +111,28 @@ export default function KorisniciPregled() {
                                     </td>
                                     <td className="text-center align-middle">
                                         {jeLiMojProfil ? (
-                                            <Button 
-                                                variant="outline-primary" 
-                                                size="sm" 
+                                            <Button
+                                                variant="outline-primary"
+                                                size="sm"
                                                 className="rounded-pill px-3"
                                                 onClick={() => navigate(RouteNames.PROFIL)}
                                             >
                                                 Uredi moj profil
                                             </Button>
                                         ) : (
-                                            
+
                                             <>
-                                                <Button 
-                                                    variant="outline-warning" 
-                                                    size="sm" 
+                                                <Button
+                                                    variant="outline-warning"
+                                                    size="sm"
                                                     className="me-2 rounded-pill px-3 text-dark fw-semibold"
                                                     onClick={() => prisiliPromjenuLozinke(k)}
                                                 >
                                                     🔑 Resetiraj lozinku
                                                 </Button>
-                                                <Button 
-                                                    variant="outline-danger" 
-                                                    size="sm" 
+                                                <Button
+                                                    variant="outline-danger"
+                                                    size="sm"
                                                     className="rounded-pill px-3"
                                                     onClick={() => obrisiKorisnika(k.sifra)}
                                                 >

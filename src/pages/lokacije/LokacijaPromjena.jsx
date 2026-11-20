@@ -14,8 +14,8 @@ export default function LokacijaPromjena() {
 
     const [lokacija, setLokacija] = useState({})
 
-    async function ucitajLokacije(){
-        await LokacijaService.getBySifra(params.sifra).then((odgovor)=>{
+    async function ucitajLokacije() {
+        await LokacijaService.getBySifra(params.sifra).then((odgovor) => {
             const s = odgovor.data
             if (s.datumOdrzavanja) {
                 s.datumOdrzavanja = s.datumOdrzavanja.substring(0, 10)
@@ -24,18 +24,18 @@ export default function LokacijaPromjena() {
         })
     }
 
-    useEffect(()=>{
+    useEffect(() => {
         ucitajLokacije()
-    },[])
+    }, [])
 
-    async function promjeni(lokacija){
-        await LokacijaService.promjeni(params.sifra, lokacija).then(()=>{
+    async function promjeni(lokacija) {
+        await LokacijaService.promjeni(params.sifra, lokacija).then(() => {
             navigate(RouteNames.LOKACIJE)
         })
     }
 
-    function obradiSubmit(e){
-        e.preventDefault() 
+    function obradiSubmit(e) {
+        e.preventDefault()
         const podaci = new FormData(e.target)
         promjeni({
             regija: podaci.get('regija'),
@@ -55,32 +55,32 @@ export default function LokacijaPromjena() {
             <Form onSubmit={obradiSubmit}>
                 <Form.Group controlId="regija" className="mb-3">
                     <Form.Label>REGIJA</Form.Label>
-                    <Form.Control type="text" name="regija" required 
-                    defaultValue={lokacija.regija}/>
+                    <Form.Control type="text" name="regija" required
+                        defaultValue={lokacija.regija} />
                 </Form.Group>
 
                 <Form.Group controlId="mjesto" className="mb-3">
                     <Form.Label>MJESTO</Form.Label>
                     <Form.Control type="text" name="mjesto" required
-                    defaultValue={lokacija.mjesto} />
+                        defaultValue={lokacija.mjesto} />
                 </Form.Group>
 
                 <Form.Group controlId="posta" className="mb-3">
                     <Form.Label>POŠTA</Form.Label>
                     <Form.Control type="number" name="posta" required
-                    defaultValue={lokacija.posta} />
+                        defaultValue={lokacija.posta} />
                 </Form.Group>
 
                 <Form.Group controlId="zupanija" className="mb-3">
                     <Form.Label>ŽUPANIJA</Form.Label>
                     <Form.Control type="text" name="zupanija" required
-                    defaultValue={lokacija.zupanija} />
+                        defaultValue={lokacija.zupanija} />
                 </Form.Group>
 
                 <Form.Group controlId="datumOdrzavanja" className="mb-3">
                     <Form.Label>DATUM ODRŽAVANJA</Form.Label>
                     <Form.Control type="date" name="datumOdrzavanja" required
-                    defaultValue={lokacija.datumOdrzavanja} />
+                        defaultValue={lokacija.datumOdrzavanja} />
                 </Form.Group>
 
                 <Row className={`mt-4 ${jeMobitel ? 'flex-column gap-2' : ''}`}>

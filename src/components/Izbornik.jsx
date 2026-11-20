@@ -34,8 +34,8 @@ export default function Izbornik() {
     return (
         <Navbar expand="lg" className="bg-body-tertiary shadow-sm px-3">
             <Container>
-                <Navbar.Brand 
-                    onClick={() => navigate(RouteNames.HOME)} 
+                <Navbar.Brand
+                    onClick={() => navigate(RouteNames.HOME)}
                     style={{ cursor: 'pointer' }}
                 >
                     {IME_APLIKACIJE}
@@ -46,15 +46,15 @@ export default function Izbornik() {
                         <Nav.Link onClick={() => navigate(RouteNames.HOME)}>
                             Početna
                         </Nav.Link>
-                        
+
                         <NavDropdown title="Fišijade" id="basic-nav-dropdown">
-                            <NavDropdown.Item onClick={()=> navigate(RouteNames.FISHIJADE, {state :{godina: null}})}>
+                            <NavDropdown.Item onClick={() => navigate(RouteNames.FISHIJADE, { state: { godina: null } })}>
                                 <strong>Prvenstvo Baranje</strong>
                             </NavDropdown.Item>
-                            <NavDropdown.Item onClick={()=> navigate(RouteNames.PRIJAVE, {state :{godina: null}})}>
+                            <NavDropdown.Item onClick={() => navigate(RouteNames.PRIJAVE, { state: { godina: null } })}>
                                 <strong>Prijave</strong>
                             </NavDropdown.Item>
-                            <NavDropdown.Item onClick={()=> navigate(RouteNames.LOKACIJE, {state :{godina: null}})}>
+                            <NavDropdown.Item onClick={() => navigate(RouteNames.LOKACIJE, { state: { godina: null } })}>
                                 <strong>Baranjske Fišijade</strong>
                             </NavDropdown.Item>
                         </NavDropdown>
@@ -62,17 +62,17 @@ export default function Izbornik() {
                         <Nav.Link onClick={() => navigate(RouteNames.O_APLIKACIJI)}>
                             O Aplikaciji
                         </Nav.Link>
-                        
+
                         {isAdmin && (
                             <>
-                            <Nav.Link onClick={() => navigate(RouteNames.GENERIRANJE)} className="d-flex align-items-center gap-1">
-                                <span style={{ fontSize: '1.2rem', marginRight: '4px', filter: 'drop-shadow(0 0 2px rgba(255,255,255,0.9))' }}>🪄</span>
-                                 Generiranje podataka
-                            </Nav.Link>
-                            <Nav.Link onClick={() => navigate(RouteNames.KORISNICI)} className="text-danger fw-semibold" className="text-warning fw-semibold d-flex align-items-center gap-1"
+                                <Nav.Link onClick={() => navigate(RouteNames.GENERIRANJE)} className="d-flex align-items-center gap-1">
+                                    <span style={{ fontSize: '1.2rem', marginRight: '4px', filter: 'drop-shadow(0 0 2px rgba(255,255,255,0.9))' }}>🪄</span>
+                                    Generiranje podataka
+                                </Nav.Link>
+                                <Nav.Link onClick={() => navigate(RouteNames.KORISNICI)} className="text-danger fw-semibold" className="text-warning fw-semibold d-flex align-items-center gap-1"
                                 >
-                                ⚙️ Upravljanje Korisnicima
-                            </Nav.Link>
+                                    ⚙️ Upravljanje Korisnicima
+                                </Nav.Link>
                             </>
                         )}
                     </Nav>
@@ -83,17 +83,17 @@ export default function Izbornik() {
                                 <span className="navbar-text small">
                                     👤 {korisnik.ime || korisnik.email} <span className="badge bg-secondary">{korisnik.uloga}</span>
                                 </span>
-                                <Button 
-                                    variant="outline-primary" 
-                                    size="sm" 
+                                <Button
+                                    variant="outline-primary"
+                                    size="sm"
                                     className="rounded-pill px-3"
                                     onClick={() => navigate(RouteNames.PROFIL)}
                                 >
                                     Profil
                                 </Button>
-                                <Button 
-                                    variant="outline-danger" 
-                                    size="sm" 
+                                <Button
+                                    variant="outline-danger"
+                                    size="sm"
                                     className="rounded-pill px-3"
                                     onClick={odjaviSe}
                                 >
@@ -102,17 +102,17 @@ export default function Izbornik() {
                             </div>
                         ) : (
                             <div className="d-flex gap-2">
-                                <Button 
-                                    variant="outline-success" 
-                                    size="sm" 
+                                <Button
+                                    variant="outline-success"
+                                    size="sm"
                                     className="rounded-pill px-3"
                                     onClick={() => navigate(RouteNames.REGISTRACIJA)}
                                 >
                                     Registracija
                                 </Button>
-                                <Button 
-                                    variant="success" 
-                                    size="sm" 
+                                <Button
+                                    variant="success"
+                                    size="sm"
                                     className="fw-bold rounded-pill px-4 shadow-sm"
                                     onClick={() => navigate(RouteNames.LOGIN)}
                                 >

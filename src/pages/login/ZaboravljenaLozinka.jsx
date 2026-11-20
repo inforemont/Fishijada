@@ -53,8 +53,8 @@ export default function ZaboravljenaLozinka() {
                         </Button>
 
                         <div className="text-center">
-                            <Button 
-                                variant="link" 
+                            <Button
+                                variant="link"
                                 className="text-decoration-none small text-muted"
                                 onClick={() => navigate(RouteNames.LOGIN)}
                             >

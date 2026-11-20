@@ -21,8 +21,8 @@ import PrijavaDetalji from './pages/prijave/PrijavaDetalji'
 import LokacijaDetalji from './pages/lokacije/LokacijaDetalji'
 import GeneriranjePodataka from './pages/GeneriranjePodataka'
 import Login from './pages/login/Login'
-import Registracija from './pages/login/Registracija' // Dodano
-import KorisniciPregled from './pages/login/KorisniciPregled' // Dodano za admine
+import Registracija from './pages/login/Registracija'
+import KorisniciPregled from './pages/login/KorisniciPregled'
 import ZaboravljenaLozinka from './pages/login/ZaboravljenaLozinka'
 import ProfilUredivanje from './pages/login/ProfilUredjivanje'
 
@@ -53,7 +53,7 @@ function App() {
             <Route path={RouteNames.LOKACIJE_DETALJI} element={<LokacijaDetalji />} />
 
             <Route path={RouteNames.GENERIRANJE} element={<GeneriranjePodataka />} />
-            
+
             {/* Auth rute */}
             <Route path={RouteNames.LOGIN} element={<Login />} />
             <Route path={RouteNames.REGISTRACIJA} element={<Registracija />} />

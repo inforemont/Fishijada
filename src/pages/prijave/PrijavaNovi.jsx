@@ -1,12 +1,13 @@
+import { useState, useEffect } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { RouteNames } from "../../constants"
 import { Button, Col, Form, FormLabel, Row, Alert, Container } from "react-bootstrap"
 import PrijavaService from "../../services/prijave/PrijavaService"
-import { useState, useEffect } from "react"
 import LokacijaService from "../../services/lokacije/LokacijaService"
 import { jsPDF } from 'jspdf'
 import { robotoBase64 } from '../../fonts/robotoFont'
 import useBreakpoint from "../../hooks/useBreakpoint"
+import { ShemaPrijava } from "../../schemas/ShemaPrijava" 
 
 import pandaHappy from "../../assets/pandahappy.gif"
 import pandaMad from "../../assets/pandamad.gif"
@@ -94,47 +95,44 @@ export default function PrijavaNovi() {
     const PostaviAutomatskiStol = () => {
         const zauzetiStolovi = svePrijave.map(p => Number(p.stol)).filter(Boolean)
         const dodijeljeniBroj = dodijeliSlucajniStol(zauzetiStolovi)
-        
+
         const updatedForm = { ...form, stol: dodijeljeniBroj }
         setForm(updatedForm)
         setTouched(prev => ({ ...prev, stol: true }))
-        
+
         const newErrors = validateForm(updatedForm)
         setErrors(newErrors)
     }
 
     const validateForm = (currentForm) => {
+        const dataToValidate = {
+            ...currentForm,
+            stol: currentForm.stol !== '' ? Number(currentForm.stol) : NaN,
+            lokacija: currentForm.lokacija !== '' ? Number(currentForm.lokacija) : NaN
+        }
+
+        const result = ShemaPrijava.safeParse(dataToValidate)
+        if (result.success) {
+            return {}
+        }
+
         const newErrors = {}
-
-        const imeTrim = currentForm.imePrezime.trim()
-        if (imeTrim.length > 0 && imeTrim.length < 3) {
-            newErrors.imePrezime = "Ime i prezime mora imati najmanje 3 znaka."
-        }
-
-        const ekipaTrim = currentForm.ekipa.trim()
-        if (ekipaTrim.length > 0 && ekipaTrim.length < 2) {
-            newErrors.ekipa = "Naziv ekipe mora imati najmanje 2 znaka."
-        }
-
-        if (currentForm.stol !== '' && (Number(currentForm.stol) < 1 || Number(currentForm.stol) > 500)) {
-            newErrors.stol = "Broj stola mora biti između 1 i 500."
-        }
-
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-        if (currentForm.email.trim().length > 0 && !emailRegex.test(currentForm.email)) {
-            newErrors.email = "Unesite valjanu e-mail adresu."
-        }
-
-        if (currentForm.lokacija === '') {
-            newErrors.lokacija = "Odabir lokacije je obavezan."
-        }
-
+        result.error.issues.forEach((issue) => {
+            const fieldName = issue.path[0]
+            if (!newErrors[fieldName]) {
+                newErrors[fieldName] = issue.message
+            }
+        })
         return newErrors
     }
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target
-        const val = type === 'checkbox' ? checked : value
+        let val = type === 'checkbox' ? checked : value
+
+        if (['imePrezime', 'ekipa'].includes(name)) {
+            val = val.replace(/[0-9]/g, '')
+        }
 
         const updatedForm = { ...form, [name]: val }
         setForm(updatedForm)
@@ -163,13 +161,6 @@ export default function PrijavaNovi() {
         })
 
         const allErrors = validateForm(form)
-
-        if (!form.imePrezime.trim()) allErrors.imePrezime = "Ime i prezime je obavezno."
-        if (!form.ekipa.trim()) allErrors.ekipa = "Naziv ekipe je obavezan."
-        if (!form.stol) allErrors.stol = "Broj stola mora biti unesen."
-        if (!form.email.trim()) allErrors.email = "E-mail je obavezna stavka."
-        if (!form.lokacija) allErrors.lokacija = "Odabir lokacije je obavezan."
-
         setErrors(allErrors)
 
         if (Object.keys(allErrors).length > 0) {
@@ -201,7 +192,7 @@ export default function PrijavaNovi() {
         if (!uspjesnoNaServeru) {
             const trenutnePrijave = JSON.parse(localStorage.getItem('prijave')) || []
             const vecPostoji = trenutnePrijave.some(p => p.sifra === novaPrijava.sifra)
-            
+
             if (!vecPostoji) {
                 const azuriranePrijave = [...trenutnePrijave, novaPrijava]
                 localStorage.setItem('prijave', JSON.stringify(azuriranePrijave))
@@ -303,9 +294,9 @@ export default function PrijavaNovi() {
                 <div className="text-center bg-white p-2 rounded-4 shadow-sm border">
                     {imaGresaka ? (
                         <div>
-                            <img 
-                                src={pandaMad} 
-                                alt="Panda razbija sve" 
+                            <img
+                                src={pandaMad}
+                                alt="Panda razbija sve"
                                 style={{ width: "190px", height: "140px", objectFit: "cover", borderRadius: "8px" }}
                                 className="shadow-sm border border-danger"
                             />
@@ -313,9 +304,9 @@ export default function PrijavaNovi() {
                         </div>
                     ) : (
                         <div>
-                            <img 
-                                src={pandaHappy} 
-                                alt="Sretna panda" 
+                            <img
+                                src={pandaHappy}
+                                alt="Sretna panda"
                                 style={{ width: "190px", height: "140px", objectFit: "cover", borderRadius: "8px" }}
                                 className="shadow-sm border border-success"
                             />
@@ -336,9 +327,10 @@ export default function PrijavaNovi() {
                 <Form onSubmit={obradiSubmit} noValidate>
                     <Form.Group controlId="imePrezime" className="mb-3">
                         <Form.Label className="fw-semibold">IME I PREZIME</Form.Label>
-                        <Form.Control 
-                            type="text" 
-                            name="imePrezime" 
+                        <Form.Control
+                            type="text"
+                            name="imePrezime"
+                            placeholder="npr. Tomislav Jakopec"
                             value={form.imePrezime}
                             onChange={handleChange}
                             onBlur={handleBlur}
@@ -354,9 +346,10 @@ export default function PrijavaNovi() {
 
                     <Form.Group controlId="ekipa" className="mb-3">
                         <Form.Label className="fw-semibold">EKIPA</Form.Label>
-                        <Form.Control 
-                            type="text" 
-                            name="ekipa" 
+                        <Form.Control
+                            type="text"
+                            name="ekipa"
+                            placeholder="npr. Zlatna Ribica"
                             value={form.ekipa}
                             onChange={handleChange}
                             onBlur={handleBlur}
@@ -393,11 +386,13 @@ export default function PrijavaNovi() {
                             </div>
                         )}
                     </Form.Group>
+
                     <Form.Group controlId="email" className="mb-3">
                         <Form.Label className="fw-semibold">E-mail</Form.Label>
-                        <Form.Control 
-                            type="email" 
-                            name="email" 
+                        <Form.Control
+                            type="email"
+                            name="email"
+                            placeholder="npr. tjakopec@gmail.com"
                             value={form.email}
                             onChange={handleChange}
                             onBlur={handleBlur}
@@ -427,9 +422,9 @@ export default function PrijavaNovi() {
                     </Form.Group>
 
                     <Form.Group controlId="kotizacijaPlacena" className="mt-3">
-                        <Form.Check 
-                            label="Kotizacija uplaćena" 
-                            name="kotizacijaPlacena" 
+                        <Form.Check
+                            label="Kotizacija uplaćena"
+                            name="kotizacijaPlacena"
                             checked={form.kotizacijaPlacena}
                             onChange={handleChange}
                         />
@@ -437,9 +432,9 @@ export default function PrijavaNovi() {
 
                     {jeBeliManastir && (
                         <Form.Group controlId="prvenstvoHrvatske" className="mt-3">
-                            <Form.Check 
-                                label="Prvenstvo Hrvatske" 
-                                name="prvenstvoHrvatske" 
+                            <Form.Check
+                                label="Prvenstvo Hrvatske"
+                                name="prvenstvoHrvatske"
                                 checked={form.prvenstvoHrvatske}
                                 onChange={handleChange}
                             />

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Button, Form, Alert, Container, Row, Col, Badge } from 'react-bootstrap';
 import { Faker, hr } from '@faker-js/faker';
-import FishijadaService from '../services/FishijadaService';
+import FishijadaService from '../services/fishijade/FishijadaService';
 import PrijavaService from '../services/prijave/PrijavaService';
 import LokacijaService from '../services/lokacije/LokacijaService';
 import KorisnikService from '../services/logiranje/KorisnikService';
@@ -9,7 +9,7 @@ import { DATA_SOURCE } from '../constants';
 
 export default function GeneriranjePodataka() {
     const [trenutniIzvor, setTrenutniIzvor] = useState(DATA_SOURCE);
-    
+
     const [brojFishijada, setBrojFishijada] = useState(8)
     const [brojPrijava, setBrojPrijava] = useState(30)
     const [brojLokacija, setBrojLokacija] = useState(10)
@@ -44,7 +44,7 @@ export default function GeneriranjePodataka() {
             if (lokacije.length > 0) {
                 const brojZaOdabrati = faker.number.int({ min: 1, max: Math.min(10, lokacije.length) })
                 const odabraneLokacije = faker.helpers.arrayElements(lokacije, brojZaOdabrati)
-                
+
                 randomLokacijeSifre = odabraneLokacije.map(l => l.sifra)
 
                 if (prijave.length > 0) {
@@ -65,7 +65,7 @@ export default function GeneriranjePodataka() {
                 lokacije: randomLokacijeSifre,
                 prijavePoLokacijama: prijavePoLokacijama
             }
-            
+
             await FishijadaService.dodaj(fishijada)
         }
     }
@@ -85,9 +85,9 @@ export default function GeneriranjePodataka() {
                     email: faker.internet.email(),
                     kotizacijaPlacena: faker.datatype.boolean(),
                     prvenstvoHrvatske: false,
-                    lokacija: lokacija.sifra 
+                    lokacija: lokacija.sifra
                 }
-                
+
                 await PrijavaService.dodaj(prijava);
             }
         }
@@ -95,7 +95,7 @@ export default function GeneriranjePodataka() {
 
     const generirajLokacije = async (broj) => {
         const naziviLokacija = [
-            'Kneževi Vinogradi', 'Luč', 'Jagodnjak', 'Baranjsko Petrovo Selo', 
+            'Kneževi Vinogradi', 'Luč', 'Jagodnjak', 'Baranjsko Petrovo Selo',
             'Petlovac', 'Lug', 'Kopačevo', 'Zmajevac', 'Batina', 'Darda'
         ]
 
@@ -118,8 +118,8 @@ export default function GeneriranjePodataka() {
                 ime: ime,
                 prezime: prezime,
                 email: faker.internet.email({ firstName: ime, lastName: prezime }).toLowerCase(),
-                lozinka: 'Fishijada123!', 
-                uloga: 'Korisnik' 
+                lozinka: 'Fishijada123!',
+                uloga: 'Korisnik'
             }
             await KorisnikService.dodaj(korisnik)
         }

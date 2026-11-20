@@ -2,9 +2,9 @@ import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { RouteNames } from "../../constants"
 import { Button, Col, Form, Row, Container, Alert } from "react-bootstrap"
-import FishijadaService from "../../services/FishijadaService"
+import FishijadaService from "../../services/fishijade/FishijadaService"
 import useBreakpoint from "../../hooks/useBreakpoint"
-
+import { ShemaFishijada } from "../../schemas/ShemaFishijada"
 import pandaHappy from "../../assets/pandahappy.gif"
 import pandaMad from "../../assets/pandamad.gif"
 
@@ -12,7 +12,7 @@ export default function FishijadaNovi() {
     const breakpoint = useBreakpoint()
     const jeMobitel = breakpoint === 'xs' || breakpoint === 'sm'
     const navigate = useNavigate()
-    
+
     const [form, setForm] = useState({
         naziv: '',
         mjestoOdrzavanja: '',
@@ -25,42 +25,30 @@ export default function FishijadaNovi() {
     const [touched, setTouched] = useState({})
 
     const validateForm = (currentForm) => {
+        const dataToValidate = {
+            ...currentForm,
+            kotizacija: currentForm.kotizacija !== '' ? Number(currentForm.kotizacija) : NaN
+        }
+
+        const result = ShemaFishijada.safeParse(dataToValidate)
+        if (result.success) {
+            return {}
+        }
+
         const newErrors = {}
-
-        const nazivTrim = currentForm.naziv.trim()
-        if (nazivTrim.length > 0 && (nazivTrim.length < 3 || nazivTrim.length > 40)) {
-            newErrors.naziv = "Naziv mora imati između 3 i 40 znakova."
-        }
-
-        const adresaTrim = currentForm.mjestoOdrzavanja.trim()
-        if (adresaTrim.length > 0 && (adresaTrim.length < 5 || adresaTrim.length > 50)) {
-            newErrors.mjestoOdrzavanja = "Adresa mora imati između 5 i 50 znakova."
-        }
-
-        if (currentForm.kotizacija !== '') {
-            const kotizacijaNum = Number(currentForm.kotizacija)
-            const decimalPart = currentForm.kotizacija.toString().split('.')[1]
-
-            if (isNaN(kotizacijaNum)) {
-                newErrors.kotizacija = "Kotizacija mora biti valjani broj."
-            } else if (kotizacijaNum < 30 || kotizacijaNum > 200) {
-                newErrors.kotizacija = "Kotizacija mora biti između 30 i 200 €."
-            } else if (decimalPart && decimalPart.length > 2) {
-                newErrors.kotizacija = "Kotizacija može imati najviše 2 decimale."
+        result.error.issues.forEach((issue) => {
+            const fieldName = issue.path[0]
+            if (!newErrors[fieldName]) {
+                newErrors[fieldName] = issue.message
             }
-        }
-
-        if (currentForm.datumPokretanja !== '' && isNaN(Date.parse(currentForm.datumPokretanja))) {
-            newErrors.datumPokretanja = "Nevaljan format datuma."
-        }
-
+        })
         return newErrors
     }
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target
         const val = type === 'checkbox' ? checked : value
-        
+
         const updatedForm = { ...form, [name]: val }
         setForm(updatedForm)
 
@@ -75,14 +63,14 @@ export default function FishijadaNovi() {
         setTouched(prev => ({ ...prev, [name]: true }))
     }
 
-    async function dodaj(fishijada){
-        await FishijadaService.dodaj(fishijada).then(()=>{
+    async function dodaj(fishijada) {
+        await FishijadaService.dodaj(fishijada).then(() => {
             navigate(RouteNames.FISHIJADE)
         })
     }
 
-    function obradiSubmit(e){
-        e.preventDefault() 
+    function obradiSubmit(e) {
+        e.preventDefault()
         setTouched({
             naziv: true,
             mjestoOdrzavanja: true,
@@ -91,12 +79,6 @@ export default function FishijadaNovi() {
         })
 
         const allErrors = validateForm(form)
-        
-        if (!form.naziv.trim()) allErrors.naziv = "Naziv je obavezan."
-        if (!form.mjestoOdrzavanja.trim()) allErrors.mjestoOdrzavanja = "Adresa je obavezna."
-        if (form.kotizacija === '') allErrors.kotizacija = "Kotizacija je obavezna."
-        if (!form.datumPokretanja) allErrors.datumPokretanja = "Datum je obavezan."
-
         setErrors(allErrors)
 
         if (Object.keys(allErrors).length > 0) {
@@ -152,9 +134,9 @@ export default function FishijadaNovi() {
                 <div className="text-center bg-white p-2 rounded-4 shadow-sm border">
                     {imaGresaka ? (
                         <div>
-                            <img 
-                                src={pandaMad} 
-                                alt="Panda razbija sve" 
+                            <img
+                                src={pandaMad}
+                                alt="Panda razbija sve"
                                 style={{ width: "190px", height: "140px", objectFit: "cover", borderRadius: "8px" }}
                                 className="shadow-sm border border-danger"
                             />
@@ -162,9 +144,9 @@ export default function FishijadaNovi() {
                         </div>
                     ) : (
                         <div>
-                            <img 
-                                src={pandaHappy} 
-                                alt="Sretna panda" 
+                            <img
+                                src={pandaHappy}
+                                alt="Sretna panda"
                                 style={{ width: "190px", height: "140px", objectFit: "cover", borderRadius: "8px" }}
                                 className="shadow-sm border border-success"
                             />
@@ -184,9 +166,10 @@ export default function FishijadaNovi() {
 
                 <Form.Group controlId="naziv" className="mb-3">
                     <Form.Label className="fw-semibold">NAZIV</Form.Label>
-                    <Form.Control 
-                        type="text" 
-                        name="naziv" 
+                    <Form.Control
+                        type="text"
+                        name="naziv"
+                        placeholder="npr. Deseta Fišijada"
                         value={form.naziv}
                         onChange={handleChange}
                         onBlur={handleBlur}
@@ -202,9 +185,10 @@ export default function FishijadaNovi() {
 
                 <Form.Group controlId="mjestoOdrzavanja" className="mb-3">
                     <Form.Label className="fw-semibold">ADRESA:</Form.Label>
-                    <Form.Control 
-                        type="text" 
-                        name="mjestoOdrzavanja" 
+                    <Form.Control
+                        type="text"
+                        name="mjestoOdrzavanja"
+                        placeholder="npr. Trg Slobode, Beli Manastir"
                         value={form.mjestoOdrzavanja}
                         onChange={handleChange}
                         onBlur={handleBlur}
@@ -220,10 +204,11 @@ export default function FishijadaNovi() {
 
                 <Form.Group controlId="kotizacija" className="mb-3">
                     <Form.Label className="fw-semibold">KOTIZACIJA (€)</Form.Label>
-                    <Form.Control 
-                        type="number" 
-                        name="kotizacija" 
-                        step="any" 
+                    <Form.Control
+                        type="number"
+                        name="kotizacija"
+                        step="any"
+                        placeholder="npr. 60"
                         value={form.kotizacija}
                         onChange={handleChange}
                         onBlur={handleBlur}
@@ -239,9 +224,9 @@ export default function FishijadaNovi() {
 
                 <Form.Group controlId="datumPokretanja" className="mb-3">
                     <Form.Label className="fw-semibold">DATUM ODRŽAVANJA</Form.Label>
-                    <Form.Control 
-                        type="date" 
-                        name="datumPokretanja" 
+                    <Form.Control
+                        type="date"
+                        name="datumPokretanja"
                         value={form.datumPokretanja}
                         onChange={handleChange}
                         onBlur={handleBlur}

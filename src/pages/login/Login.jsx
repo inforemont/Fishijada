@@ -19,7 +19,6 @@ export default function Login() {
     const [greskaServera, setGreskaServera] = useState("")
     const [isSubmitting, setIsSubmitting] = useState(false)
 
-    // Provjera u hodu prema tvojim točnim uputama
     const validateForm = (currentForm) => {
         const newErrors = {}
 
@@ -81,7 +80,7 @@ export default function Login() {
 
         try {
             const korisnik = await AuthService.prijava({ email: form.email, lozinka: form.lozinka })
-            
+
             if (korisnik) {
                 window.dispatchEvent(new Event("authPromjena"))
                 navigate(RouteNames.HOME)
@@ -93,7 +92,6 @@ export default function Login() {
         }
     }
 
-    // Čim postoji greška, pali se pandaMad.gif
     const imaGresaka = Object.keys(touched).some(key => errors[key]) || !!greskaServera
 
     return (
@@ -116,13 +114,12 @@ export default function Login() {
 
             <Card className="shadow-lg border-0 rounded-4 p-4" style={{ maxWidth: "480px", width: "100%" }}>
                 <Card.Body>
-                    {/* Dinamički prikaz pande u hodu */}
                     <div className="text-center mb-3">
                         {imaGresaka ? (
                             <div>
-                                <img 
-                                    src={pandaMad} 
-                                    alt="Panda razbija sve" 
+                                <img
+                                    src={pandaMad}
+                                    alt="Panda razbija sve"
                                     style={{ width: "190px", height: "140px", objectFit: "cover", borderRadius: "8px" }}
                                     className="shadow-sm border border-danger mb-2"
                                 />
@@ -130,9 +127,9 @@ export default function Login() {
                             </div>
                         ) : (
                             <div>
-                                <img 
-                                    src={pandaHappy} 
-                                    alt="Sretna panda" 
+                                <img
+                                    src={pandaHappy}
+                                    alt="Sretna panda"
                                     style={{ width: "190px", height: "140px", objectFit: "cover", borderRadius: "8px" }}
                                     className="shadow-sm border border-success mb-2"
                                 />

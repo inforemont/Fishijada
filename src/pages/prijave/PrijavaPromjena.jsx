@@ -1,9 +1,9 @@
-import { Link, useNavigate, useParams } from "react-router-dom";
-import { RouteNames } from "../../constants";
-import { Button, Col, Form, Row } from "react-bootstrap";
-import PrijavaService from "../../services/prijave/PrijavaService";
-import { useEffect, useState } from "react";
-import LokacijaService from "../../services/lokacije/LokacijaService";
+import { Link, useNavigate, useParams } from "react-router-dom"
+import { RouteNames } from "../../constants"
+import { Button, Col, Form, Row } from "react-bootstrap"
+import PrijavaService from "../../services/prijave/PrijavaService"
+import { useEffect, useState } from "react"
+import LokacijaService from "../../services/lokacije/LokacijaService"
 
 
 

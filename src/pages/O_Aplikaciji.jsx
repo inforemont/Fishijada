@@ -16,12 +16,12 @@ export default function O_Aplikaciji() {
                     </Badge>
                     <h2 className="fw-bold mb-3">Aplikacija za praćenje Baranjskih fišijada</h2>
                     <p className="lead text-muted mx-auto mb-4" style={{ maxWidth: '750px' }}>
-                        Centralno mjesto za organizaciju, praćenje i prijavu na sve aktualne baranjske fišijade 
+                        Centralno mjesto za organizaciju, praćenje i prijavu na sve aktualne baranjske fišijade
                         te arhivu dosadašnjih natjecanja.
                     </p>
                     <div className="d-flex justify-content-center gap-2 flex-wrap">
-                        <Button 
-                            variant="danger" 
+                        <Button
+                            variant="danger"
                             onClick={() => navigate(RouteNames.PRIJAVE)}
                         >
                             Pregled prijava

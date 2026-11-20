@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from "react"
-import FishijadaService from "../../services/FishijadaService"
+import FishijadaService from "../../services/fishijade/FishijadaService"
 import Badge from 'react-bootstrap/Badge'
 import Table from 'react-bootstrap/Table'
 import { NumericFormat } from 'react-number-format'
@@ -175,7 +175,7 @@ function FishijadeIzbor({ godina, jeMobitel }) {
 
                                         <td>
                                             <div className={jeMobitel ? "d-flex flex-column gap-2" : "d-flex justify-content-center gap-2"}>
-                                                
+
                                                 {isAdmin ? (
                                                     <Button size="sm" onClick={() => { navigate(`/fishijade/${fishijada.sifra}`) }}>
                                                         Promjena

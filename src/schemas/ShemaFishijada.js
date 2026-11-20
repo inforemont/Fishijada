@@ -1,17 +1,22 @@
 import { z } from 'zod';
 
+const noNumbersRegex = /^([^0-9]*)$/;
+
 export const ShemaFishijada = z.object({
   naziv: z.string()
-    .min(1, "Naziv fišijade je obavezan!")
+    .min(5, "Naziv fišijade je obavezan!")
     .min(3, "Naziv mora imati najmanje 3 znaka!")
-    .max(50, "Naziv može imati najviše 50 znakova!")
+    .max(30, "Naziv može imati najviše 30 znakova!")
+    .regex(noNumbersRegex, "Naziv fišijade ne smije sadržavati brojeve!")
     .trim(),
 
   mjestoOdrzavanja: z.string()
     .min(1, "Mjesto održavanja (adresa) je obavezno!")
     .trim(),
 
-  cijena: z.number({ invalid_type_error: "Kotizacija mora biti broj!" })
+  cijena: z.number({ 
+    error: "Pogrešan unos!" 
+  })
     .min(0, "Kotizacija ne može biti negativna!"),
 
   datumPokretanja: z.string()
@@ -20,4 +25,4 @@ export const ShemaFishijada = z.object({
   aktivan: z.boolean().optional(),
 
   lokacije: z.array(z.number()).optional()
-});
+})

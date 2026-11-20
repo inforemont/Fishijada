@@ -1,7 +1,7 @@
 import { Link, useNavigate, useParams } from "react-router-dom"
 import { RouteNames } from "../../constants"
 import { Button, Col, Form, Row, Container } from "react-bootstrap"
-import FishijadaService from "../../services/FishijadaService"
+import FishijadaService from "../../services/fishijade/FishijadaService"
 import useBreakpoint from "../../hooks/useBreakpoint"
 import { useEffect, useState } from "react"
 
@@ -14,21 +14,21 @@ export default function FishijadaPromjena() {
     const [fishijada, setFishijada] = useState({})
     const [aktivan, setAktivan] = useState(false)
 
-    async function ucitajFishijadu(){
-        await FishijadaService.getBySifra(params.sifra).then((odgovor)=>{
-           const s = odgovor.data
-           s.datumPokretanja = s.datumPokretanja.substring(0,10)
-           setFishijada(s)
-           setAktivan(s.aktivan)
+    async function ucitajFishijadu() {
+        await FishijadaService.getBySifra(params.sifra).then((odgovor) => {
+            const s = odgovor.data
+            s.datumPokretanja = s.datumPokretanja.substring(0, 10)
+            setFishijada(s)
+            setAktivan(s.aktivan)
         })
     }
 
-    useEffect(()=>{
+    useEffect(() => {
         ucitajFishijadu()
-    },[])
+    }, [])
 
-    async function promjeni(sifra, fishijada){
-        await FishijadaService.promjeni(sifra, fishijada).then(()=>{
+    async function promjeni(sifra, fishijada) {
+        await FishijadaService.promjeni(sifra, fishijada).then(() => {
             navigate(RouteNames.FISHIJADE)
         })
     }
@@ -42,8 +42,8 @@ export default function FishijadaPromjena() {
         navigate(RouteNames.FISHIJADE);
     }
 
-    function obradiSubmit(e){
-        e.preventDefault() 
+    function obradiSubmit(e) {
+        e.preventDefault()
         const podaci = new FormData(e.target)
         promjeni(params.sifra, {
             sifra: parseInt(params.sifra),
@@ -64,26 +64,26 @@ export default function FishijadaPromjena() {
             <Form onSubmit={obradiSubmit}>
                 <Form.Group controlId="naziv" className="mb-3">
                     <Form.Label>Naziv</Form.Label>
-                    <Form.Control type="text" name="naziv" required 
-                    defaultValue={fishijada.naziv}/>
+                    <Form.Control type="text" name="naziv" required
+                        defaultValue={fishijada.naziv} />
                 </Form.Group>
 
                 <Form.Group controlId="mjestoOdrzavanja" className="mb-3">
                     <Form.Label>Mjesto održavanja</Form.Label>
-                    <Form.Control type="text" name="mjestoOdrzavanja" 
-                    defaultValue={fishijada.mjestoOdrzavanja} />
+                    <Form.Control type="text" name="mjestoOdrzavanja"
+                        defaultValue={fishijada.mjestoOdrzavanja} />
                 </Form.Group>
 
                 <Form.Group controlId="kotizacija" className="mb-3">
                     <Form.Label>Kotizacija</Form.Label>
-                    <Form.Control type="number" name="kotizacija" step={1} 
-                    defaultValue={fishijada.cijena}/>
+                    <Form.Control type="number" name="kotizacija" step={1}
+                        defaultValue={fishijada.cijena} />
                 </Form.Group>
 
                 <Form.Group controlId="datumPokretanja" className="mb-3">
                     <Form.Label>Datum pokretanja</Form.Label>
                     <Form.Control type="date" name="datumPokretanja"
-                    defaultValue={fishijada.datumPokretanja} />
+                        defaultValue={fishijada.datumPokretanja} />
                 </Form.Group>
 
 
@@ -97,7 +97,7 @@ export default function FishijadaPromjena() {
                         <Button type="submit" variant="success" className={jeMobitel ? "w-100 mb-0" : "me-2"}>
                             Promjeni
                         </Button>
-                        <Button variant="danger" onClick={()=>obrisi(params.sifra)} className={jeMobitel ? "w-100" : ""}>
+                        <Button variant="danger" onClick={() => obrisi(params.sifra)} className={jeMobitel ? "w-100" : ""}>
                             Obriši
                         </Button>
                     </Col>

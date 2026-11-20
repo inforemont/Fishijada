@@ -1,5 +1,5 @@
 import { Navigate } from "react-router-dom"
-import AuthService from "../services/logiranje/AuthService" 
+import AuthService from "../services/logiranje/AuthService"
 import { RouteNames } from "../constants"
 
 export default function PrivateRoute({ children, adminOnly = false }) {

@@ -23,7 +23,7 @@ const useBreakpoint = () => {
   useEffect(() => {
     const handleResize = () => {
       const currentBreakpoint = getBreakpoint(window.innerWidth);
-      
+
       setBreakpoint((prev) => {
         if (prev !== currentBreakpoint) {
           return currentBreakpoint;

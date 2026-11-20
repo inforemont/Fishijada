@@ -31,14 +31,14 @@ export default function ProfilUredivanje() {
 
             if (novaLozinka) {
                 podaciZaSlanje.lozinka = novaLozinka
-                podaciZaSlanje.staraLozinka = staraLozinka 
+                podaciZaSlanje.staraLozinka = staraLozinka
             }
 
             await AuthService.azurirajProfil(podaciZaSlanje)
             setPoruka("Profil i podaci uspješno su ažurirani!")
             setStaraLozinka("")
             setNovaLozinka("")
-            window.dispatchEvent(new Event("authPromjena")) 
+            window.dispatchEvent(new Event("authPromjena"))
         } catch (err) {
             console.error(err)
             setGreska("Greška prilikom ažuriranja. Provjerite staru lozinku.")

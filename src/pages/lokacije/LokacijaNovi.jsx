@@ -4,6 +4,7 @@ import { RouteNames } from "../../constants"
 import { Button, Col, Form, Row, Container, Alert } from "react-bootstrap"
 import LokacijaService from "../../services/lokacije/LokacijaService"
 import useBreakpoint from "../../hooks/useBreakpoint"
+import { ShemaLokacija } from "../../schemas/ShemaLokacija" 
 
 import pandaHappy from "../../assets/pandahappy.gif"
 import pandaMad from "../../assets/pandamad.gif"
@@ -25,34 +26,23 @@ export default function LokacijaNovi() {
     const [touched, setTouched] = useState({})
 
     const validateForm = (currentForm) => {
+        const dataToValidate = {
+            ...currentForm,
+            posta: currentForm.posta !== '' ? Number(currentForm.posta) : NaN
+        }
+
+        const result = ShemaLokacija.safeParse(dataToValidate)
+        if (result.success) {
+            return {}
+        }
+
         const newErrors = {}
-
-        const regijaTrim = currentForm.regija.trim()
-        if (regijaTrim.length > 0 && (regijaTrim.length < 3 || regijaTrim.length > 30)) {
-            newErrors.regija = "Regija mora imati između 3 i 30 znakova."
-        }
-
-        const mjestoTrim = currentForm.mjesto.trim()
-        if (mjestoTrim.length > 0 && (mjestoTrim.length < 2 || mjestoTrim.length > 40)) {
-            newErrors.mjesto = "Mjesto mora imati između 2 i 40 znakova."
-        }
-
-        const zupanijaTrim = currentForm.zupanija.trim()
-        if (zupanijaTrim.length > 0 && (zupanijaTrim.length < 3 || zupanijaTrim.length > 40)) {
-            newErrors.zupanija = "Županija mora imati između 3 i 40 znakova."
-        }
-
-        if (currentForm.posta !== '') {
-            const postaNum = Number(currentForm.posta)
-            if (isNaN(postaNum) || postaNum < 10000 || postaNum > 99999) {
-                newErrors.posta = "Poštanski broj mora imati 5 znamenki."
+        result.error.issues.forEach((issue) => {
+            const fieldName = issue.path[0]
+            if (!newErrors[fieldName]) {
+                newErrors[fieldName] = issue.message
             }
-        }
-
-        if (currentForm.datumOdrzavanja !== '' && isNaN(Date.parse(currentForm.datumOdrzavanja))) {
-            newErrors.datumOdrzavanja = "Nevaljan format datuma."
-        }
-
+        })
         return newErrors
     }
 
@@ -90,13 +80,6 @@ export default function LokacijaNovi() {
         })
 
         const allErrors = validateForm(form)
-
-        if (!form.regija.trim()) allErrors.regija = "Regija je obavezna."
-        if (!form.mjesto.trim()) allErrors.mjesto = "Mjesto je obavezno."
-        if (!form.zupanija.trim()) allErrors.zupanija = "Županija je obavezna."
-        if (!form.posta) allErrors.posta = "Poštanski broj je obavezan."
-        if (!form.datumOdrzavanja) allErrors.datumOdrzavanja = "Datum održavanja je obavezan."
-
         setErrors(allErrors)
 
         if (Object.keys(allErrors).length > 0) {
@@ -119,7 +102,6 @@ export default function LokacijaNovi() {
                 e.target.showPicker()
             }
         } catch (error) {
-
         }
     }
 
@@ -188,6 +170,7 @@ export default function LokacijaNovi() {
                     <Form.Control 
                         type="text" 
                         name="regija" 
+                        placeholder="npr. Slavonija, Baranja..."
                         value={form.regija}
                         onChange={handleChange}
                         onBlur={handleBlur}
@@ -206,6 +189,7 @@ export default function LokacijaNovi() {
                     <Form.Control 
                         type="text" 
                         name="mjesto" 
+                        placeholder="npr. Osijek, Beli Manastir..."
                         value={form.mjesto}
                         onChange={handleChange}
                         onBlur={handleBlur}
@@ -224,6 +208,7 @@ export default function LokacijaNovi() {
                     <Form.Control 
                         type="text" 
                         name="zupanija" 
+                        placeholder="npr. Osječko-baranjska"
                         value={form.zupanija}
                         onChange={handleChange}
                         onBlur={handleBlur}
@@ -242,6 +227,7 @@ export default function LokacijaNovi() {
                     <Form.Control 
                         type="number" 
                         name="posta" 
+                        placeholder="npr. 31000 ili 10000"
                         value={form.posta}
                         onChange={handleChange}
                         onBlur={handleBlur}

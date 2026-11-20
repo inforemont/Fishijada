@@ -12,7 +12,7 @@ export default function PrijavaDetalji() {
     const jeMobitel = breakpoint === 'xs' || breakpoint === 'sm'
     const { sifra } = useParams()
     const navigate = useNavigate()
-    
+
     const [prijava, setPrijava] = useState(null)
     const [slike, setSlike] = useState([])
 
@@ -93,7 +93,7 @@ export default function PrijavaDetalji() {
     return (
         <Container className="px-2 px-md-3">
             <h3 className="my-3 fs-4 fs-md-3">Detalji prijave: {prijava.imePrezime} ({prijava.ekipa})</h3>
-            
+
             <div className="table-responsive">
                 <Table hover striped bordered className="mt-3 align-middle">
                     <tbody>
@@ -123,12 +123,12 @@ export default function PrijavaDetalji() {
 
             <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mt-4 mb-3 gap-3">
                 <h4 className="fs-5 mb-0">Galerija fotografija (Ukupno: {slike.length})</h4>
-                
+
                 {slike.length > 0 && (
                     <div className="d-flex align-items-center gap-2">
                         <Form.Label className="mb-0 text-nowrap fs-6">Prikaži po:</Form.Label>
-                        <Form.Select 
-                            value={brojPoStranici} 
+                        <Form.Select
+                            value={brojPoStranici}
                             onChange={promjeniBrojPoStranici}
                             style={{ width: '100px' }}
                         >
@@ -150,10 +150,10 @@ export default function PrijavaDetalji() {
                             return (
                                 <Col xs={12} md={dohvatiSirinuStupca()} key={slika.id || index}>
                                     <Card className="h-100 shadow-sm border-0 rounded-3 overflow-hidden">
-                                        <div 
-                                            style={{ 
-                                                height: brojPoStranici === 3 ? '400px' : '230px', 
-                                                backgroundColor: '#f8f9fa', 
+                                        <div
+                                            style={{
+                                                height: brojPoStranici === 3 ? '400px' : '230px',
+                                                backgroundColor: '#f8f9fa',
                                                 cursor: 'pointer',
                                                 display: 'flex',
                                                 alignItems: 'center',
@@ -163,13 +163,13 @@ export default function PrijavaDetalji() {
                                             onClick={() => otvoriZumiranje(slika)}
                                             title="Klikni za uvećanje"
                                         >
-                                            <Card.Img 
-                                                variant="top" 
-                                                src={imageUrl} 
+                                            <Card.Img
+                                                variant="top"
+                                                src={imageUrl}
                                                 alt={`Slika ${prviIndeks + index + 1}`}
-                                                style={{ 
-                                                    maxHeight: '100%', 
-                                                    maxWidth: '100%', 
+                                                style={{
+                                                    maxHeight: '100%',
+                                                    maxWidth: '100%',
                                                     objectFit: 'contain',
                                                     transition: 'transform 0.2s ease-in-out'
                                                 }}
@@ -184,10 +184,10 @@ export default function PrijavaDetalji() {
                                                 </Card.Title>
                                                 <small className="text-muted" style={{ fontSize: '0.75rem' }}>Pritisni za zoom</small>
                                             </div>
-                                            
-                                            <Button 
-                                                variant="outline-primary" 
-                                                size="sm" 
+
+                                            <Button
+                                                variant="outline-primary"
+                                                size="sm"
                                                 className="mt-2 rounded-pill fw-semibold"
                                                 onClick={(e) => {
                                                     e.stopPropagation();
@@ -206,15 +206,15 @@ export default function PrijavaDetalji() {
                     {ukupnoStranica > 1 && (
                         <div className="d-flex justify-content-center my-4">
                             <Pagination>
-                                <Pagination.First 
-                                    disabled={trenutnaStranica === 1} 
-                                    onClick={() => setTrenutnaStranica(1)} 
+                                <Pagination.First
+                                    disabled={trenutnaStranica === 1}
+                                    onClick={() => setTrenutnaStranica(1)}
                                 />
-                                <Pagination.Prev 
-                                    disabled={trenutnaStranica === 1} 
-                                    onClick={() => setTrenutnaStranica((prev) => Math.max(prev - 1, 1))} 
+                                <Pagination.Prev
+                                    disabled={trenutnaStranica === 1}
+                                    onClick={() => setTrenutnaStranica((prev) => Math.max(prev - 1, 1))}
                                 />
-                                
+
                                 {[...Array(ukupnoStranica).keys()].map((broj) => (
                                     <Pagination.Item
                                         key={broj + 1}
@@ -225,13 +225,13 @@ export default function PrijavaDetalji() {
                                     </Pagination.Item>
                                 ))}
 
-                                <Pagination.Next 
-                                    disabled={trenutnaStranica === ukupnoStranica} 
-                                    onClick={() => setTrenutnaStranica((prev) => Math.min(prev + 1, ukupnoStranica))} 
+                                <Pagination.Next
+                                    disabled={trenutnaStranica === ukupnoStranica}
+                                    onClick={() => setTrenutnaStranica((prev) => Math.min(prev + 1, ukupnoStranica))}
                                 />
-                                <Pagination.Last 
-                                    disabled={trenutnaStranica === ukupnoStranica} 
-                                    onClick={() => setTrenutnaStranica(ukupnoStranica)} 
+                                <Pagination.Last
+                                    disabled={trenutnaStranica === ukupnoStranica}
+                                    onClick={() => setTrenutnaStranica(ukupnoStranica)}
                                 />
                             </Pagination>
                         </div>
@@ -245,9 +245,9 @@ export default function PrijavaDetalji() {
                 </Modal.Header>
                 <Modal.Body className="text-center p-3">
                     {aktivnaSlika && (
-                        <img 
-                            src={aktivnaSlika} 
-                            alt="Uvećana slika" 
+                        <img
+                            src={aktivnaSlika}
+                            alt="Uvećana slika"
                             className="img-fluid rounded shadow-sm"
                             style={{ maxHeight: '80vh', objectFit: 'contain' }}
                         />
@@ -289,9 +289,9 @@ export default function PrijavaDetalji() {
                 </Modal.Footer>
             </Modal>
 
-            <Button 
-                variant="secondary" 
-                onClick={() => navigate(RouteNames.PRIJAVE)} 
+            <Button
+                variant="secondary"
+                onClick={() => navigate(RouteNames.PRIJAVE)}
                 className={`mt-3 mb-4 ${jeMobitel ? 'w-100' : ''}`}
             >
                 Natrag na pregled

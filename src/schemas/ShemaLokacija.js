@@ -1,19 +1,26 @@
-import { z } from 'zod';
+import { z } from 'zod'
+
+const noNumbersRegex = /^([^0-9]*)$/;
 
 export const ShemaLokacija = z.object({
   regija: z.string()
     .min(1, "Regija je obavezna!")
+    .regex(noNumbersRegex, "Regija ne smije sadržavati brojeve!")
     .trim(),
 
   mjesto: z.string()
     .min(1, "Naziv mjesta je obavezan!")
+    .regex(noNumbersRegex, "Naziv mjesta ne smije sadržavati brojeve!")
     .trim(),
 
   zupanija: z.string()
     .min(1, "Županija je obavezna!")
+    .regex(noNumbersRegex, "Županija ne smije sadržavati brojeve!")
     .trim(),
 
-  posta: z.number({ invalid_type_error: "Poštanski broj mora biti broj!" })
+  posta: z.number({ 
+    error: "Pogrešan unos!" 
+  })
     .min(10000, "Poštanski broj mora imati 5 znamenaka!")
     .max(99999, "Poštanski broj mora imati 5 znamenaka!"),
 
@@ -23,4 +30,4 @@ export const ShemaLokacija = z.object({
   slika: z.string().optional(),
 
   ekipe: z.array(z.any()).optional()
-});
+})

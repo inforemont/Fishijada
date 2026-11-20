@@ -9,7 +9,7 @@ import { RouteNames } from '../../constants'
 import { Button, Container, Pagination } from "react-bootstrap"
 import LokacijaService from '../../services/lokacije/LokacijaService'
 import { Form } from "react-bootstrap"
-import { fishijade } from "../../services/FishijadaPodaci"
+import { fishijade } from "../../services/fishijade/FishijadaPodaci"
 import useBreakpoint from "../../hooks/useBreakpoint"
 
 export default function PrijavePregled() {
@@ -80,10 +80,6 @@ function PrijaveIzbor({ godina }) {
                 className="btn btn-success w-100 my-3">
                 Dodavanje nove prijave
             </Link>
-            <Link to={RouteNames.PRIJAVE_PRVENSTVO_BARANJE}
-                className="btn btn-success w-100 my-3">
-                Prijavi se na prvenstvo Baranje
-            </Link>
 
             <Form.Group className='mb-4'>
                 <Form.Label>Filtriraj po lokaciji:</Form.Label>
@@ -91,7 +87,7 @@ function PrijaveIzbor({ godina }) {
                     value={odabranaLokacija}
                     onChange={(e) => {
                         setOdabranaLokacija(e.target.value)
-                        setTrenutnaStranica(1) 
+                        setTrenutnaStranica(1)
                     }}
                 >
                     <option value="">Sve lokacije</option>
@@ -176,15 +172,15 @@ function PrijaveIzbor({ godina }) {
             {ukupnoStranica > 1 && (
                 <div className="d-flex justify-content-center my-4">
                     <Pagination>
-                        <Pagination.First 
-                            disabled={trenutnaStranica === 1} 
-                            onClick={() => setTrenutnaStranica(1)} 
+                        <Pagination.First
+                            disabled={trenutnaStranica === 1}
+                            onClick={() => setTrenutnaStranica(1)}
                         />
-                        <Pagination.Prev 
-                            disabled={trenutnaStranica === 1} 
-                            onClick={() => setTrenutnaStranica((prev) => Math.max(prev - 1, 1))} 
+                        <Pagination.Prev
+                            disabled={trenutnaStranica === 1}
+                            onClick={() => setTrenutnaStranica((prev) => Math.max(prev - 1, 1))}
                         />
-                        
+
                         {[...Array(ukupnoStranica).keys()].map((broj) => (
                             <Pagination.Item
                                 key={broj + 1}
@@ -195,13 +191,13 @@ function PrijaveIzbor({ godina }) {
                             </Pagination.Item>
                         ))}
 
-                        <Pagination.Next 
-                            disabled={trenutnaStranica === ukupnoStranica} 
-                            onClick={() => setTrenutnaStranica((prev) => Math.min(prev + 1, ukupnoStranica))} 
+                        <Pagination.Next
+                            disabled={trenutnaStranica === ukupnoStranica}
+                            onClick={() => setTrenutnaStranica((prev) => Math.min(prev + 1, ukupnoStranica))}
                         />
-                        <Pagination.Last 
-                            disabled={trenutnaStranica === ukupnoStranica} 
-                            onClick={() => setTrenutnaStranica(ukupnoStranica)} 
+                        <Pagination.Last
+                            disabled={trenutnaStranica === ukupnoStranica}
+                            onClick={() => setTrenutnaStranica(ukupnoStranica)}
                         />
                     </Pagination>
                 </div>
