@@ -11,6 +11,12 @@ body {
   position: relative;
 }
 
+body {
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #b45309 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
+}
+
 body::before {
   content: "";
   position: absolute;
