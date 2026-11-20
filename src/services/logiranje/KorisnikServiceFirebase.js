@@ -50,11 +50,10 @@ async function getBySifra(sifra) {
 
 async function dodaj(korisnik) {
     try {
-        const hashiranaLozinka = bcrypt.hashSync(korisnik.lozinka, 10);
         const noviKorisnik = {
             email: korisnik.email,
             uloga: korisnik.uloga || 'Korisnik',
-            lozinka: hashiranaLozinka,
+            lozinka: korisnik.lozinka, 
             ime: korisnik.ime || '',
             prezime: korisnik.prezime || ''
         }
@@ -76,10 +75,10 @@ async function promjeni(sifra, korisnik) {
             uloga: korisnik.uloga,
             ime: korisnik.ime || '',
             prezime: korisnik.prezime || ''
-        };
+        }
         
         if (korisnik.lozinka) {
-            podaciZaAzuriranje.lozinka = bcrypt.hashSync(korisnik.lozinka, 10)
+            podaciZaAzuriranje.lozinka = korisnik.lozinka
         }
 
         await updateDoc(docRef, podaciZaAzuriranje);
@@ -136,4 +135,3 @@ export default {
     obrisi,
     prijava,
 }
-
