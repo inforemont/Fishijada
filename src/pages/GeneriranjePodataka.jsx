@@ -21,8 +21,16 @@ export default function GeneriranjePodataka() {
         locale: [hr]
     })
 
-    const promjeniIzvorPodataka = () => {
-        const noviIzvor = trenutniIzvor === 'localStorage' ? 'firebase' : 'localStorage'
+const promjeniIzvorPodataka = () => {
+        let noviIzvor
+        if (trenutniIzvor === 'localStorage') {
+            noviIzvor = 'firebase'
+        } else if (trenutniIzvor === 'firebase') {
+            noviIzvor = 'memorija'
+        } else {
+            noviIzvor = 'localStorage'
+        }
+        
         setTrenutniIzvor(noviIzvor)
         setPoruka({
             tip: 'info',
@@ -285,7 +293,13 @@ export default function GeneriranjePodataka() {
                 </div>
                 <div className="p-3 border rounded shadow-sm bg-light text-end">
                     <span className="me-2 small fw-semibold">Aktivni izvor:</span>
-                    <Badge bg={trenutniIzvor === 'localStorage' ? 'primary' : 'success'} className="me-3">
+                    <Badge 
+                        bg={
+                            trenutniIzvor === 'localStorage' ? 'primary' : 
+                            trenutniIzvor === 'firebase' ? 'success' : 'warning'
+                        } 
+                        className="me-3 text-dark"
+                    >
                         {trenutniIzvor}
                     </Badge>
                     <Button variant="outline-dark" size="sm" onClick={promjeniIzvorPodataka}>
