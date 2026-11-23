@@ -3,10 +3,9 @@ import { useEffect, useState } from "react"
 import PrijavaService from "../../services/prijave/PrijavaService"
 import Badge from 'react-bootstrap/Badge'
 import Table from 'react-bootstrap/Table'
-import { FcApproval, FcDisapprove } from 'react-icons/fc'
 import { NumericFormat } from 'react-number-format'
 import { RouteNames } from '../../constants'
-import { Button, Container, Pagination, Modal, Form } from "react-bootstrap"
+import { Button, Container, Pagination, Modal, Form, Card } from "react-bootstrap"
 import LokacijaService from '../../services/lokacije/LokacijaService'
 import { fishijade } from "../../services/fishijade/FishijadaPodaci"
 import useBreakpoint from "../../hooks/useBreakpoint"
@@ -153,83 +152,138 @@ function PrijaveIzbor({ godina }) {
                 </Form.Select>
             </Form.Group>
 
-            <div className="table-responsive">
-                <Table hover striped bordered className="align-middle">
-                    <thead>
-                        <tr>
-                            <th>Ime i prezime</th>
-                            <th>Ekipa</th>
-                            <th>Stol</th>
-                            <th>E-mail</th>
-                            <th>Lokacija</th>
-                            <th className="text-center">Plaćeno</th>
-                            <th className="text-center">Akcije</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {prijave && trenutnePrijave.map((prijava) => {
-                            const jePlaceno = prijava.kotizacijaPlacena;
-                            
-                            const jeVlasnik = korisnik && prijava.korisnikSifra && String(prijava.korisnikSifra) === String(korisnik.sifra)
-                            const smijeUredivati = isAdmin || jeVlasnik
+            {!jeMobitel && (
+                <div className="table-responsive">
+                    <Table hover striped bordered className="align-middle">
+                        <thead>
+                            <tr>
+                                <th>Ime i prezime</th>
+                                <th>Ekipa</th>
+                                <th>Stol</th>
+                                <th>E-mail</th>
+                                <th>Lokacija</th>
+                                <th className="text-center">Kotizacija</th>
+                                <th className="text-center">Akcije</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {prijave && trenutnePrijave.map((prijava) => {
+                                const jePlaceno = prijava.kotizacijaPlacena;
+                                
+                                const jeVlasnik = korisnik && prijava.korisnikSifra && String(prijava.korisnikSifra) === String(korisnik.sifra)
+                                const smijeUredivati = isAdmin || jeVlasnik
 
-                            return (
-                                <tr key={prijava.sifra}>
-                                    <td className='lead fs-6 fs-md-5'>
-                                        {prijava.imePrezime}
-                                    </td>
-                                    <td className='text-end'>
-                                        {prijava.ekipa}
-                                    </td>
-                                    <td className='desno'>
-                                        <NumericFormat
-                                            value={prijava.stol}
-                                            displayType={'text'}
-                                        />
-                                    </td>
-                                    <td style={{ textAlign: 'center' }}>
-                                        {prijava.email}
-                                    </td>
-                                    <td style={{ textAlign: 'center' }}>
-                                        {prijava.lokacija ? (
-                                            lokacije.find((l) => l.sifra === prijava.lokacija)?.mjesto ||
-                                            fishijade.find((f) => f.sifra === prijava.lokacija)?.mjesto ||
-                                            '-'
-                                        ) : '-'}
-                                    </td>
+                                const nazivLokacije = prijava.lokacija ? (
+                                    lokacije.find((l) => l.sifra === prijava.lokacija)?.mjesto ||
+                                    fishijade.find((f) => f.sifra === prijava.lokacija)?.mjesto ||
+                                    '-'
+                                ) : '-'
 
-                                    <td style={{ textAlign: 'center' }}>
-                                        {jePlaceno ? (
-                                            <FcApproval size={25} />
-                                        ) : (
-                                            <FcDisapprove size={25} />
-                                        )}
-                                    </td>
+                                return (
+                                    <tr key={prijava.sifra}>
+                                        <td className='lead fs-6 fs-md-5'>
+                                            {prijava.imePrezime}
+                                        </td>
+                                        <td className='text-end'>
+                                            {prijava.ekipa}
+                                        </td>
+                                        <td className='desno'>
+                                            <NumericFormat
+                                                value={prijava.stol}
+                                                displayType={'text'}
+                                            />
+                                        </td>
+                                        <td style={{ textAlign: 'center' }}>
+                                            {prijava.email}
+                                        </td>
+                                        <td style={{ textAlign: 'center' }}>
+                                            {nazivLokacije}
+                                        </td>
 
-                                    <td>
-                                        <div className={jeMobitel ? "d-flex flex-column gap-2" : "d-flex justify-content-center gap-2"}>
-                                            {smijeUredivati && (
-                                                <>
-                                                    <Button variant='success' size="sm" onClick={() => { navigate(RouteNames.PRIJAVE_PROMJENA.replace(':sifra', prijava.sifra)) }}>
-                                                        Promjena
-                                                    </Button>
-                                                    <Button variant="danger" size="sm" onClick={() => pokreniBrisanje(prijava.sifra)}>
-                                                        Obriši
-                                                    </Button>
-                                                </>
+                                        <td style={{ textAlign: 'center' }}>
+                                            {jePlaceno ? (
+                                                <span className="text-success fw-bold">✅ kotizacija je uplaćena</span>
+                                            ) : (
+                                                <span className="text-danger fw-bold">❌ kotizacija nije uplaćena</span>
                                             )}
+                                        </td>
 
-                                            <Button variant="primary" size="sm" onClick={() => { navigate(RouteNames.PRIJAVE_DETALJI.replace(':sifra', prijava.sifra)) }}>
-                                                Galerija
+                                        <td>
+                                            <div className="d-flex justify-content-center gap-2">
+                                                {smijeUredivati && (
+                                                    <>
+                                                        <Button variant='success' size="sm" onClick={() => { navigate(RouteNames.PRIJAVE_PROMJENA.replace(':sifra', prijava.sifra)) }}>
+                                                            Promjena
+                                                        </Button>
+                                                        <Button variant="danger" size="sm" onClick={() => pokreniBrisanje(prijava.sifra)}>
+                                                            Obriši
+                                                        </Button>
+                                                    </>
+                                                )}
+
+                                                <Button variant="primary" size="sm" onClick={() => { navigate(RouteNames.PRIJAVE_DETALJI.replace(':sifra', prijava.sifra)) }}>
+                                                    Galerija
+                                                </Button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                )
+                            })}
+                        </tbody>
+                    </Table>
+                </div>
+            )}
+
+            {jeMobitel && (
+                <div className="d-flex flex-column gap-3">
+                    {prijave && trenutnePrijave.map((prijava) => {
+                        const jePlaceno = prijava.kotizacijaPlacena;
+                        
+                        const jeVlasnik = korisnik && prijava.korisnikSifra && String(prijava.korisnikSifra) === String(korisnik.sifra)
+                        const smijeUredivati = isAdmin || jeVlasnik
+
+                        const nazivLokacije = prijava.lokacija ? (
+                            lokacije.find((l) => l.sifra === prijava.lokacija)?.mjesto ||
+                            fishijade.find((f) => f.sifra === prijava.lokacija)?.mjesto ||
+                            '-'
+                        ) : '-'
+
+                        return (
+                            <Card key={prijava.sifra} className="shadow-sm border-0 rounded-3 p-3">
+                                <div className="d-flex justify-content-between align-items-start mb-2">
+                                    <h5 className="fw-bold text-success mb-0">{prijava.imePrezime}</h5>
+                                    <span className={`fw-bold small ${jePlaceno ? 'text-success' : 'text-danger'}`}>
+                                        {jePlaceno ? '✅ kotizacija je uplaćena' : '❌ kotizacija nije uplaćena'}
+                                    </span>
+                                </div>
+                                
+                                <div className="small text-muted mb-3">
+                                    <div><strong>Ekipa:</strong> {prijava.ekipa}</div>
+                                    <div><strong>Stol:</strong> <NumericFormat value={prijava.stol} displayType={'text'} /></div>
+                                    <div><strong>E-mail:</strong> {prijava.email}</div>
+                                    <div><strong>Lokacija:</strong> {nazivLokacije}</div>
+                                </div>
+
+                                <div className="d-flex flex-column gap-2">
+                                    <Button variant="primary" size="sm" onClick={() => { navigate(RouteNames.PRIJAVE_DETALJI.replace(':sifra', prijava.sifra)) }}>
+                                        Galerija
+                                    </Button>
+                                    {smijeUredivati && (
+                                        <div className="d-flex gap-2">
+                                            <Button variant="outline-success" size="sm" className="w-100" onClick={() => { navigate(RouteNames.PRIJAVE_PROMJENA.replace(':sifra', prijava.sifra)) }}>
+                                                Promjena
+                                            </Button>
+                                            <Button variant="outline-danger" size="sm" className="w-100" onClick={() => pokreniBrisanje(prijava.sifra)}>
+                                                Obriši
                                             </Button>
                                         </div>
-                                    </td>
-                                </tr>
-                            )
-                        })}
-                    </tbody>
-                </Table>
-            </div>
+                                    )}
+                                </div>
+                            </Card>
+                        )
+                    })}
+                </div>
+            )}
 
             {ukupnoStranica > 1 && (
                 <div className="d-flex justify-content-center my-4">

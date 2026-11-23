@@ -5,7 +5,7 @@ import Badge from 'react-bootstrap/Badge'
 import Table from 'react-bootstrap/Table'
 import { NumericFormat } from 'react-number-format'
 import { RouteNames } from '../../constants'
-import { Button, Modal, Container, Pagination } from "react-bootstrap"
+import { Button, Modal, Container, Pagination, Card } from "react-bootstrap"
 import FormatDatuma from "../../components/FormatDatuma"
 import PrijavaService from "../../services/prijave/PrijavaService"
 import zadanaSlikaLokacije from "../../assets/slikelokacija/knezevivinogradi.jpg"
@@ -146,35 +146,107 @@ function LokacijeIzbor() {
                 </Link>
             )}
 
-            <Table hover striped bordered responsive>
-                <thead>
-                    <tr>
-                        <th>Mjesto</th>
-                        <th>Županija</th>
-                        <th>Poštanski ured</th>
-                        <th>Datum održavanja</th>
-                        <th>Akcije</th>
-                    </tr>
-                </thead>
-                <tbody>
+            {!jeMobitel && (
+                <div className="table-responsive">
+                    <Table hover striped bordered className="align-middle">
+                        <thead>
+                            <tr>
+                                <th>Mjesto</th>
+                                <th>Županija</th>
+                                <th>Poštanski ured</th>
+                                <th>Datum održavanja</th>
+                                <th className="text-center">Akcije</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {trenutneLokacije.map((lokacija) => {
+                                const slikaZaPrikaz = lokacija.slika || dohvatiSlikuLokacije(lokacija.mjesto);
+                                const brojEkipa = prijave.filter(p => Number(p.lokacija) === Number(lokacija.sifra)).length;
+
+                                return (
+                                    <tr key={lokacija.sifra}>
+                                        <td className='lead'>
+                                            <img
+                                                src={slikaZaPrikaz}
+                                                alt={lokacija.mjesto}
+                                                loading="lazy"
+                                                style={{
+                                                    width: '35px',
+                                                    height: '25px',
+                                                    objectFit: 'cover',
+                                                    borderRadius: '4px',
+                                                    cursor: 'pointer',
+                                                    border: '1px solid #ced4da',
+                                                    marginRight: '10px',
+                                                    verticalAlign: 'middle'
+                                                }}
+                                                title="Klikni za uvećanje slike"
+                                                onClick={() => {
+                                                    setTrenutnaSlika(slikaZaPrikaz)
+                                                    setTrenutniNaziv(lokacija.mjesto)
+                                                    setPrikaziModal(true)
+                                                }}
+                                            />
+                                            {lokacija.mjesto}
+                                            <span title="Broj ekipa"> ({brojEkipa})</span>
+                                        </td>
+                                        <td className='text-end'>
+                                            {lokacija.zupanija}
+                                        </td>
+                                        <td className='desno'>
+                                            <NumericFormat
+                                                value={lokacija.posta}
+                                                displayType={'text'}
+                                            />
+                                        </td>
+                                        <td style={{ textAlign: 'center' }}>
+                                            <FormatDatuma datum={lokacija.datumOdrzavanja} prikazDatuma="Nije postavljeno" />
+                                        </td>
+                                        <td>
+                                            <div className="d-flex justify-content-center gap-2">
+                                                {isAdmin && (
+                                                    <>
+                                                        <Button size="sm" onClick={() => { navigate(RouteNames.LOKACIJE_PROMJENA.replace(':sifra', lokacija.sifra)) }}>
+                                                            Promjena
+                                                        </Button>
+                                                        <Button size="sm" variant="danger" onClick={() => pokreniBrisanje(lokacija.sifra)}>
+                                                            Obriši
+                                                        </Button>
+                                                    </>
+                                                )}
+                                                <Button size="sm" variant="success" onClick={() => detalji(lokacija.sifra)}>
+                                                    Detalji
+                                                </Button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                )
+                            })}
+                        </tbody>
+                    </Table>
+                </div>
+            )}
+
+            {jeMobitel && (
+                <div className="d-flex flex-column gap-3">
                     {trenutneLokacije.map((lokacija) => {
                         const slikaZaPrikaz = lokacija.slika || dohvatiSlikuLokacije(lokacija.mjesto);
+                        const brojEkipa = prijave.filter(p => Number(p.lokacija) === Number(lokacija.sifra)).length;
 
                         return (
-                            <tr key={lokacija.sifra}>
-                                <td className='lead'>
+                            <Card key={lokacija.sifra} className="shadow-sm border-0 rounded-3 p-3">
+                                <div className="d-flex align-items-center gap-3 mb-2">
                                     <img
                                         src={slikaZaPrikaz}
                                         alt={lokacija.mjesto}
+                                        loading="lazy"
                                         style={{
-                                            width: '35px',
-                                            height: '25px',
+                                            width: '50px',
+                                            height: '35px',
                                             objectFit: 'cover',
                                             borderRadius: '4px',
                                             cursor: 'pointer',
-                                            border: '1px solid #ced4da',
-                                            marginRight: '10px',
-                                            verticalAlign: 'middle'
+                                            border: '1px solid #ced4da'
                                         }}
                                         title="Klikni za uvećanje slike"
                                         onClick={() => {
@@ -183,43 +255,38 @@ function LokacijeIzbor() {
                                             setPrikaziModal(true)
                                         }}
                                     />
-                                    {lokacija.mjesto}
-                                    <span title="Broj ekipa"> ({prijave.filter(p => p.lokacija === lokacija.sifra).length})</span>
-                                </td>
-                                <td className='text-end'>
-                                    {lokacija.zupanija}
-                                </td>
-                                <td className='desno'>
-                                    <NumericFormat
-                                        value={lokacija.posta}
-                                        displayType={'text'}
-                                    />
-                                </td>
-                                <td style={{ textAlign: 'center' }}>
-                                    <FormatDatuma datum={lokacija.datumOdrzavanja} prikazDatuma="Nije postavljeno" />
-                                </td>
-                                <td className={jeMobitel ? "d-flex flex-column gap-1" : ""}>
-                                    {isAdmin && (
-                                        <>
-                                            <Button size="sm" className={jeMobitel ? "w-100" : ""} onClick={() => { navigate(RouteNames.LOKACIJE_PROMJENA.replace(':sifra', lokacija.sifra)) }}>
-                                                Promjena
-                                            </Button>
-                                            {!jeMobitel && <>&nbsp;&nbsp;&nbsp;</>}
-                                            <Button size="sm" variant="danger" className={jeMobitel ? "w-100" : ""} onClick={() => pokreniBrisanje(lokacija.sifra)}>
-                                                Obriši
-                                            </Button>
-                                            {!jeMobitel && <>&nbsp;&nbsp;&nbsp;</>}
-                                        </>
-                                    )}
-                                    <Button size="sm" variant="success" className={jeMobitel ? "w-100" : ""} onClick={() => detalji(lokacija.sifra)}>
+                                    <div>
+                                        <h5 className="fw-bold text-success mb-0">{lokacija.mjesto}</h5>
+                                        <span className="small text-muted">Broj prijava: {brojEkipa}</span>
+                                    </div>
+                                </div>
+                                
+                                <div className="small text-muted mb-3">
+                                    <div><strong>Županija:</strong> {lokacija.zupanija}</div>
+                                    <div><strong>Poštanski ured:</strong> <NumericFormat value={lokacija.posta} displayType={'text'} /></div>
+                                    <div><strong>Datum održavanja:</strong> <FormatDatuma datum={lokacija.datumOdrzavanja} prikazDatuma="Nije postavljeno" /></div>
+                                </div>
+
+                                <div className="d-flex flex-column gap-2">
+                                    <Button variant="success" size="sm" onClick={() => detalji(lokacija.sifra)}>
                                         Detalji
                                     </Button>
-                                </td>
-                            </tr>
+                                    {isAdmin && (
+                                        <div className="d-flex gap-2">
+                                            <Button variant="outline-primary" size="sm" className="w-100" onClick={() => { navigate(RouteNames.LOKACIJE_PROMJENA.replace(':sifra', lokacija.sifra)) }}>
+                                                Promjena
+                                            </Button>
+                                            <Button variant="outline-danger" size="sm" className="w-100" onClick={() => pokreniBrisanje(lokacija.sifra)}>
+                                                Obriši
+                                            </Button>
+                                        </div>
+                                    )}
+                                </div>
+                            </Card>
                         )
                     })}
-                </tbody>
-            </Table>
+                </div>
+            )}
 
             {ukupnoStranica > 1 && (
                 <div className="d-flex justify-content-center my-4">

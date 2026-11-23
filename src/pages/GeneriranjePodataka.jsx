@@ -21,7 +21,17 @@ export default function GeneriranjePodataka() {
         locale: [hr]
     })
 
-const promjeniIzvorPodataka = () => {
+    const uvoziSlikeIzMape = () => {
+        try {
+            const uvoziModule = import.meta.glob('../assets/slikegalerija/*.{jpg,jpeg,png,webp,avif}', { eager: true });
+            return Object.values(uvoziModule).map(modul => modul.default);
+        } catch (e) {
+            console.log("Mapa sa slikama nije pronađena ili je prazna.");
+            return [];
+        }
+    }
+
+    const promjeniIzvorPodataka = () => {
         let noviIzvor
         if (trenutniIzvor === 'localStorage') {
             noviIzvor = 'firebase'
@@ -82,10 +92,18 @@ const promjeniIzvorPodataka = () => {
         let rezultatLokacija = await LokacijaService.get()
         let lokacije = rezultatLokacija.data || []
 
+        const sveSlikeIzMape = uvoziSlikeIzMape();
+
         for (const lokacija of lokacije) {
             const brojPrijavaZaOvuLokaciju = faker.number.int({ min: 1, max: Math.min(20, broj) })
 
             for (let j = 0; j < brojPrijavaZaOvuLokaciju; j++) {
+                let odabraneSlikeZaPrijavu = [];
+                if (sveSlikeIzMape.length > 0) {
+                    const brojSlikaZaUbaciti = faker.number.int({ min: 1, max: Math.min(10, sveSlikeIzMape.length) });
+                    odabraneSlikeZaPrijavu = faker.helpers.arrayElements(sveSlikeIzMape, brojSlikaZaUbaciti);
+                }
+
                 const prijava = {
                     imePrezime: faker.person.firstName() + ' ' + faker.person.lastName(),
                     ekipa: 'Ekipa ' + faker.person.lastName() + ' ' + faker.number.int({ min: 1, max: 100 }),
@@ -93,7 +111,8 @@ const promjeniIzvorPodataka = () => {
                     email: faker.internet.email(),
                     kotizacijaPlacena: faker.datatype.boolean(),
                     prvenstvoHrvatske: false,
-                    lokacija: lokacija.sifra
+                    lokacija: lokacija.sifra,
+                    slike: odabraneSlikeZaPrijavu
                 }
 
                 await PrijavaService.dodaj(prijava);
@@ -116,7 +135,6 @@ const promjeniIzvorPodataka = () => {
             })
         }
     }
-
 
     const generirajKorisnike = async (broj) => {
         for (let i = 0; i < broj; i++) {
@@ -176,7 +194,7 @@ const promjeniIzvorPodataka = () => {
             }
 
             await generirajPrijave(brojPrijava)
-            setPoruka({ tip: 'success', tekst: `Uspješno generirano ${brojPrijava} prijava!` })
+            setPoruka({ tip: 'success', tekst: `Uspješno generirano ${brojPrijava} prijava s nasumičnim slikama iz galerije!` })
         } catch (error) {
             setPoruka({ tip: 'danger', tekst: 'Greška pri generiranju prijava: ' + error.message })
         } finally {
@@ -393,7 +411,7 @@ const promjeniIzvorPodataka = () => {
             </Row>
 
             <Alert variant="warning" className="mt-4">
-                <strong>Preporučen redoslijed:</strong> Lokacije → Prijave → Fišijade (Korisnici se generiraju isključivo s ulogom 'Korisnik').
+                <strong>Preporučen redoslijed:</strong> Lokacije → Prijave → Fišijade (Prijave automatski povlače do 10 nasumičnih slika iz mape `src/assets/slikegalerija`).
             </Alert>
 
             <hr className="my-4" />

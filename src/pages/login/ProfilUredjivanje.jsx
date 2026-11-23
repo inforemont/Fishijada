@@ -13,7 +13,6 @@ export default function ProfilUredivanje() {
     const jeMobitel = breakpoint === 'xs' || breakpoint === 'sm'
     const navigate = useNavigate()
 
-    // Odvojena stanja za formu profila i formu lozinke
     const [formProfil, setFormProfil] = useState({ ime: "", prezime: "" })
     const [formLozinka, setFormLozinka] = useState({ staraLozinka: "", novaLozinka: "" })
 
@@ -42,7 +41,6 @@ export default function ProfilUredivanje() {
         }
     }, [])
 
-    // Validacija za profil
     const validateProfil = (data) => {
         const result = ShemaProfilOsnovno.safeParse(data)
         if (result.success) return {}
@@ -53,7 +51,6 @@ export default function ProfilUredivanje() {
         return newErrors
     }
 
-    // Validacija za lozinku
     const validateLozinka = (data) => {
         const result = ShemaProfilLozinka.safeParse(data)
         if (result.success) return {}
@@ -80,7 +77,6 @@ export default function ProfilUredivanje() {
         setErrorsLozinka(validateLozinka(updated))
     }
 
-    // Spremanje samo imena i prezimena
     const spremiProfil = async (e) => {
         e.preventDefault()
         setGreskaProfil("")
@@ -108,7 +104,6 @@ export default function ProfilUredivanje() {
         }
     }
 
-    // Spremanje samo lozinke
     const spremiLozinku = async (e) => {
         e.preventDefault()
         setGreskaLozinka("")
@@ -140,13 +135,12 @@ export default function ProfilUredivanje() {
         }
     }
 
-    // Ukupno grešaka za prikaz pande
     const imaGresaka = 
         Object.keys(touchedProfil).some(k => errorsProfil[k]) || 
         Object.keys(touchedLozinka).some(k => errorsLozinka[k])
 
     return (
-        <Container className="d-flex justify-content-center align-items-center my-5">
+        <Container className={`d-flex justify-content-center align-items-center ${jeMobitel ? 'my-2 px-2' : 'my-5'}`}>
             <style>
                 {`
                     @keyframes skakanjeVratolomije {
@@ -163,46 +157,47 @@ export default function ProfilUredivanje() {
                 `}
             </style>
 
-            <Card className="shadow-lg border-0 rounded-4 p-4" style={{ maxWidth: "540px", width: "100%" }}>
-                <Card.Body>
-                    <div className="text-center mb-3">
+            <Card className={`shadow-lg border-0 rounded-4 ${jeMobitel ? 'p-2 w-100' : 'p-4'}`} style={{ maxWidth: "540px", width: "100%" }}>
+                <Card.Body className={jeMobitel ? "p-2" : ""}>
+                    <div className="text-center mb-2">
                         {imaGresaka ? (
                             <div>
                                 <img
                                     src={pandaMad}
                                     alt="Panda razbija sve"
-                                    style={{ width: "170px", height: "130px", objectFit: "cover", borderRadius: "8px" }}
+                                    style={{ width: jeMobitel ? "120px" : "170px", height: jeMobitel ? "90px" : "130px", objectFit: "cover", borderRadius: "8px" }}
                                     className="shadow-sm border border-danger mb-1"
                                 />
-                                <div className="text-danger fw-bold" style={{ fontSize: "11px" }}>Panda razbija sve! 🐼💥</div>
+                                <div className="text-danger fw-bold" style={{ fontSize: "10px" }}>Panda razbija sve! 🐼💥</div>
                             </div>
                         ) : (
                             <div>
                                 <img
                                     src={pandaHappy}
                                     alt="Sretna panda"
-                                    style={{ width: "170px", height: "130px", objectFit: "cover", borderRadius: "8px" }}
+                                    style={{ width: jeMobitel ? "120px" : "170px", height: jeMobitel ? "90px" : "130px", objectFit: "cover", borderRadius: "8px" }}
                                     className="shadow-sm border border-success mb-1"
                                 />
-                                <div className="text-success fw-bold" style={{ fontSize: "11px" }}>Sve je super! 🐼😊</div>
+                                <div className="text-success fw-bold" style={{ fontSize: "10px" }}>Sve je super! 🐼😊</div>
                             </div>
                         )}
                     </div>
 
-                    <div className="text-center mb-3">
-                        <h3 className="fw-bold text-dark fs-2 skacuci-naslov m-0">Uređivanje profila</h3>
+                    <div className="text-center mb-2">
+                        <h3 className={`fw-bold text-dark skacuci-naslov m-0 ${jeMobitel ? 'fs-4' : 'fs-2'}`}>Uređivanje profila</h3>
                     </div>
 
-                    <Card className="p-3 mb-4 border bg-white shadow-sm">
-                        <h5 className="fw-bold text-secondary fs-6 mb-3">Osnovni podaci</h5>
+                    <Card className={`p-3 mb-3 border bg-white shadow-sm ${jeMobitel ? 'p-2' : ''}`}>
+                        <h5 className="fw-bold text-secondary fs-6 mb-2">Osnovni podaci</h5>
 
-                        {porukaProfil && <Alert variant="success" className="py-2 small text-center">{porukaProfil}</Alert>}
-                        {greskaProfil && <Alert variant="danger" className="py-2 small text-center">⚠️ {greskaProfil}</Alert>}
+                        {porukaProfil && <Alert variant="success" className="py-1 small text-center">{porukaProfil}</Alert>}
+                        {greskaProfil && <Alert variant="danger" className="py-1 small text-center">⚠️ {greskaProfil}</Alert>}
 
                         <Form onSubmit={spremiProfil} noValidate>
-                            <Form.Group className="mb-3">
-                                <Form.Label className="fw-semibold small">Ime</Form.Label>
+                            <Form.Group className="mb-2">
+                                <Form.Label className="fw-semibold small mb-1">Ime</Form.Label>
                                 <Form.Control
+                                    size={jeMobitel ? "sm" : ""}
                                     type="text"
                                     name="ime"
                                     value={formProfil.ime}
@@ -216,8 +211,9 @@ export default function ProfilUredivanje() {
                             </Form.Group>
 
                             <Form.Group className="mb-3">
-                                <Form.Label className="fw-semibold small">Prezime</Form.Label>
+                                <Form.Label className="fw-semibold small mb-1">Prezime</Form.Label>
                                 <Form.Control
+                                    size={jeMobitel ? "sm" : ""}
                                     type="text"
                                     name="prezime"
                                     value={formProfil.prezime}
@@ -233,24 +229,27 @@ export default function ProfilUredivanje() {
                             <Button 
                                 variant="success" 
                                 type="submit" 
+                                size={jeMobitel ? "sm" : ""}
                                 className="w-50 d-block mx-auto fw-bold py-2 rounded-pill shadow-sm"
                                 disabled={isSubmittingProfil}
                             >
-                                {isSubmittingProfil ? 'Spremanje imena...' : 'Spremi ime i prezime'}
+                                {isSubmittingProfil ? 'Spremanje...' : 'Spremi ime i prezime'}
                             </Button>
                         </Form>
                     </Card>
-                    <Card className="p-3 mb-4 border bg-white shadow-sm">
-                        <h5 className="fw-bold text-secondary fs-6 mb-2">Promjena lozinke</h5>
-                        <p className="text-muted small">Min. 13 znakova, veliko slovo, malo slovo, broj i poseban znak.</p>
 
-                        {porukaLozinka && <Alert variant="success" className="py-2 small text-center">{porukaLozinka}</Alert>}
-                        {greskaLozinka && <Alert variant="danger" className="py-2 small text-center">⚠️ {greskaLozinka}</Alert>}
+                    <Card className={`p-3 mb-3 border bg-white shadow-sm ${jeMobitel ? 'p-2' : ''}`}>
+                        <h5 className="fw-bold text-secondary fs-6 mb-1">Promjena lozinke</h5>
+                        <p className="text-muted small mb-2" style={{ fontSize: "11px" }}>Min. 13 znakova, veliko slovo, malo slovo, broj i poseban znak.</p>
+
+                        {porukaLozinka && <Alert variant="success" className="py-1 small text-center">{porukaLozinka}</Alert>}
+                        {greskaLozinka && <Alert variant="danger" className="py-1 small text-center">⚠️ {greskaLozinka}</Alert>}
 
                         <Form onSubmit={spremiLozinku} noValidate>
-                            <Form.Group className="mb-3">
-                                <Form.Label className="fw-semibold small">Trenutna lozinka</Form.Label>
+                            <Form.Group className="mb-2">
+                                <Form.Label className="fw-semibold small mb-1">Trenutna lozinka</Form.Label>
                                 <Form.Control
+                                    size={jeMobitel ? "sm" : ""}
                                     type="password"
                                     name="staraLozinka"
                                     placeholder="••••••••"
@@ -265,8 +264,9 @@ export default function ProfilUredivanje() {
                             </Form.Group>
 
                             <Form.Group className="mb-3">
-                                <Form.Label className="fw-semibold small">Nova lozinka</Form.Label>
+                                <Form.Label className="fw-semibold small mb-1">Nova lozinka</Form.Label>
                                 <Form.Control
+                                    size={jeMobitel ? "sm" : ""}
                                     type="password"
                                     name="novaLozinka"
                                     placeholder="••••••••"
@@ -283,10 +283,11 @@ export default function ProfilUredivanje() {
                             <Button 
                                 variant="primary" 
                                 type="submit" 
+                                size={jeMobitel ? "sm" : ""}
                                 className="w-50 d-block mx-auto fw-bold py-2 rounded-pill shadow-sm"
                                 disabled={isSubmittingLozinka}
                             >
-                                {isSubmittingLozinka ? 'Mijenjanje lozinke...' : 'Spremi novu lozinku'}
+                                {isSubmittingLozinka ? 'Mijenjanje...' : 'Spremi novu lozinku'}
                             </Button>
                         </Form>
                     </Card>
@@ -294,6 +295,7 @@ export default function ProfilUredivanje() {
                     <div>
                         <Button 
                             variant="danger" 
+                            size={jeMobitel ? "sm" : ""}
                             className="w-50 d-block mx-auto py-2 rounded-pill fw-semibold shadow-sm"
                             onClick={() => navigate(-1)}
                         >

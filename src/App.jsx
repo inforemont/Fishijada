@@ -1,30 +1,33 @@
 import 'bootstrap/dist/css/bootstrap.min.css'
 import './App.css'
-import { Container } from 'react-bootstrap'
+import { Container, Spinner } from 'react-bootstrap'
 import Izbornik from './components/Izbornik'
 import { IME_APLIKACIJE, RouteNames } from './constants'
 import { Route, Routes, Navigate } from 'react-router-dom'
-import Home from './pages/Home'
-import O_Aplikaciji from './pages/O_Aplikaciji'
-import FishijadePregled from './pages/fishijade/FishijadePregled'
-import FishijadaNovi from './pages/fishijade/FishijadaNovi'
-import FishijadaPromjena from './pages/fishijade/FishijadaPromjena'
-import FishijadaDetalji from './pages/fishijade/FishijadaDetalji'
-import PrijavaPregled from './pages/prijave/PrijavaPregled'
-import PrijavaNovi from './pages/prijave/PrijavaNovi'
-import PrijavaPrvenstvoBaranje from './pages/prijave/PrijavaPrvenstvoBaranje'
-import PrijavaPromjena from './pages/prijave/PrijavaPromjena'
-import LokacijaPregled from './pages/lokacije/LokacijaPregled'
-import LokacijaNovi from './pages/lokacije/LokacijaNovi'
-import LokacijaPromjena from './pages/lokacije/LokacijaPromjena'
-import PrijavaDetalji from './pages/prijave/PrijavaDetalji'
-import LokacijaDetalji from './pages/lokacije/LokacijaDetalji'
-import GeneriranjePodataka from './pages/GeneriranjePodataka'
-import Login from './pages/login/Login'
-import Registracija from './pages/login/Registracija'
-import KorisniciPregled from './pages/login/KorisniciPregled'
-import ZaboravljenaLozinka from './pages/login/ZaboravljenaLozinka'
-import ProfilUredivanje from './pages/login/ProfilUredjivanje'
+import React, { lazy, Suspense } from 'react'
+
+// Dinamičko učitavanje stranica (Lazy Loading)
+const Home = lazy(() => import('./pages/Home'))
+const O_Aplikaciji = lazy(() => import('./pages/O_Aplikaciji'))
+const FishijadePregled = lazy(() => import('./pages/fishijade/FishijadePregled'))
+const FishijadaNovi = lazy(() => import('./pages/fishijade/FishijadaNovi'))
+const FishijadaPromjena = lazy(() => import('./pages/fishijade/FishijadaPromjena'))
+const FishijadaDetalji = lazy(() => import('./pages/fishijade/FishijadaDetalji'))
+const PrijavaPregled = lazy(() => import('./pages/prijave/PrijavaPregled'))
+const PrijavaNovi = lazy(() => import('./pages/prijave/PrijavaNovi'))
+const PrijavaPrvenstvoBaranje = lazy(() => import('./pages/prijave/PrijavaPrvenstvoBaranje'))
+const PrijavaPromjena = lazy(() => import('./pages/prijave/PrijavaPromjena'))
+const LokacijaPregled = lazy(() => import('./pages/lokacije/LokacijaPregled'))
+const LokacijaNovi = lazy(() => import('./pages/lokacije/LokacijaNovi'))
+const LokacijaPromjena = lazy(() => import('./pages/lokacije/LokacijaPromjena'))
+const PrijavaDetalji = lazy(() => import('./pages/prijave/PrijavaDetalji'))
+const LokacijaDetalji = lazy(() => import('./pages/lokacije/LokacijaDetalji'))
+const GeneriranjePodataka = lazy(() => import('./pages/GeneriranjePodataka'))
+const Login = lazy(() => import('./pages/login/Login'))
+const Registracija = lazy(() => import('./pages/login/Registracija'))
+const KorisniciPregled = lazy(() => import('./pages/login/KorisniciPregled'))
+const ZaboravljenaLozinka = lazy(() => import('./pages/login/ZaboravljenaLozinka'))
+const ProfilUredivanje = lazy(() => import('./pages/login/ProfilUredjivanje'))
 
 function App() {
   return (
@@ -33,37 +36,44 @@ function App() {
         <Izbornik />
         <Container className='app'>
 
-          <Routes>
-            <Route path="/" element={<Navigate to={RouteNames.HOME} replace />} />
+          <Suspense fallback={
+            <div className="text-center py-5">
+              <Spinner animation="border" variant="success" />
+              <p className="mt-2 text-muted">Učitavanje sadržaja...</p>
+            </div>
+          }>
+            <Routes>
+              <Route path="/" element={<Navigate to={RouteNames.HOME} replace />} />
 
-            <Route path={RouteNames.HOME} element={<Home />} />
-            <Route path={RouteNames.FISHIJADE} element={<FishijadePregled />} />
-            <Route path={RouteNames.O_APLIKACIJI} element={<O_Aplikaciji />} />
-            <Route path={RouteNames.FISHIJADE_DODAJ} element={<FishijadaNovi />} />
-            <Route path={RouteNames.FISHIJADE_PROMJENA} element={<FishijadaPromjena />} />
-            <Route path={RouteNames.FISHIJADE_DETALJI} element={<FishijadaDetalji />} />
+              <Route path={RouteNames.HOME} element={<Home />} />
+              <Route path={RouteNames.FISHIJADE} element={<FishijadePregled />} />
+              <Route path={RouteNames.O_APLIKACIJI} element={<O_Aplikaciji />} />
+              <Route path={RouteNames.FISHIJADE_DODAJ} element={<FishijadaNovi />} />
+              <Route path={RouteNames.FISHIJADE_PROMJENA} element={<FishijadaPromjena />} />
+              <Route path={RouteNames.FISHIJADE_DETALJI} element={<FishijadaDetalji />} />
 
-            <Route path={RouteNames.PRIJAVE} element={<PrijavaPregled />} />
-            <Route path={RouteNames.PRIJAVE_DODAJ} element={<PrijavaNovi />} />
-            <Route path={RouteNames.PRIJAVE_PROMJENA} element={<PrijavaPromjena />} />
-            <Route path={RouteNames.PRIJAVE_PRVENSTVO_BARANJE} element={<PrijavaPrvenstvoBaranje />} />
-            <Route path={RouteNames.PRIJAVE_DETALJI} element={<PrijavaDetalji />} />
+              <Route path={RouteNames.PRIJAVE} element={<PrijavaPregled />} />
+              <Route path={RouteNames.PRIJAVE_DODAJ} element={<PrijavaNovi />} />
+              <Route path={RouteNames.PRIJAVE_PROMJENA} element={<PrijavaPromjena />} />
+              <Route path={RouteNames.PRIJAVE_PRVENSTVO_BARANJE} element={<PrijavaPrvenstvoBaranje />} />
+              <Route path={RouteNames.PRIJAVE_DETALJI} element={<PrijavaDetalji />} />
 
-            <Route path={RouteNames.LOKACIJE} element={<LokacijaPregled />} />
-            <Route path={RouteNames.LOKACIJE_DODAJ} element={<LokacijaNovi />} />
-            <Route path={RouteNames.LOKACIJE_PROMJENA} element={<LokacijaPromjena />} />
-            <Route path={RouteNames.LOKACIJE_DETALJI} element={<LokacijaDetalji />} />
+              <Route path={RouteNames.LOKACIJE} element={<LokacijaPregled />} />
+              <Route path={RouteNames.LOKACIJE_DODAJ} element={<LokacijaNovi />} />
+              <Route path={RouteNames.LOKACIJE_PROMJENA} element={<LokacijaPromjena />} />
+              <Route path={RouteNames.LOKACIJE_DETALJI} element={<LokacijaDetalji />} />
 
-            <Route path={RouteNames.GENERIRANJE} element={<GeneriranjePodataka />} />
+              <Route path={RouteNames.GENERIRANJE} element={<GeneriranjePodataka />} />
 
-            {/* Auth rute */}
-            <Route path={RouteNames.LOGIN} element={<Login />} />
-            <Route path={RouteNames.REGISTRACIJA} element={<Registracija />} />
-            <Route path={RouteNames.KORISNICI} element={<KorisniciPregled />} />
-            <Route path={RouteNames.ZABORAVLJENA_LOZINKA} element={<ZaboravljenaLozinka />} />
-            <Route path={RouteNames.PROFIL} element={<ProfilUredivanje />} />
+              {/* Auth rute */}
+              <Route path={RouteNames.LOGIN} element={<Login />} />
+              <Route path={RouteNames.REGISTRACIJA} element={<Registracija />} />
+              <Route path={RouteNames.KORISNICI} element={<KorisniciPregled />} />
+              <Route path={RouteNames.ZABORAVLJENA_LOZINKA} element={<ZaboravljenaLozinka />} />
+              <Route path={RouteNames.PROFIL} element={<ProfilUredivanje />} />
 
-          </Routes>
+            </Routes>
+          </Suspense>
 
         </Container>
         <Container>

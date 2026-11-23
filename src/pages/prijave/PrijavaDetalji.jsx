@@ -30,6 +30,8 @@ export default function PrijavaDetalji() {
 
     const [greskaUploada, setGreskaUploada] = useState('')
     const [uspjehUploadaModal, setUspjehUploadaModal] = useState(false)
+    const [slikaZaBrisanjeIndex, setSlikaZaBrisanjeIndex] = useState(null)
+    const [potvrdaBrisanjaSlikaModal, setPotvrdaBrisanjaSlikaModal] = useState(false)
 
     useEffect(() => {
         const spremljeniKorisnik = localStorage.getItem("prijavljeniKorisnik")
@@ -48,10 +50,10 @@ export default function PrijavaDetalji() {
     }
 
     const toBase64 = file => new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = error => reject(error);
+        const reader = new FileReader()
+        reader.readAsDataURL(file)
+        reader.onload = () => resolve(reader.result)
+        reader.onerror = error => reject(error)
     })
 
     async function dodajNoveFotografije(e) {
@@ -92,6 +94,31 @@ export default function PrijavaDetalji() {
         } catch (err) {
             console.error("Greška kod uploada slika:", err)
             setGreskaUploada('Došlo je do greške prilikom učitavanja fotografija.')
+        }
+    }
+
+    function pokreniBrisanjeSlika(stvarniIndex) {
+        setSlikaZaBrisanjeIndex(stvarniIndex)
+        setPotvrdaBrisanjaSlikaModal(true)
+    }
+
+    async function potvrdiBrisanjeSlike() {
+        if (slikaZaBrisanjeIndex === null) return
+
+        try {
+            const azuriraneSlike = slike.filter((_, idx) => idx !== slikaZaBrisanjeIndex)
+            const izmjenjenaPrijava = { ...prijava, slike: azuriraneSlike }
+            
+            await PrijavaService.promjeni(sifra, izmjenjenaPrijava)
+
+            setSlike(azuriraneSlike)
+            setPrijava(izmjenjenaPrijava)
+            setPotvrdaBrisanjaSlikaModal(false)
+            setSlikaZaBrisanjeIndex(null)
+        } catch (err) {
+            console.error("Greška kod brisanja slike:", err)
+            setPotvrdaBrisanjaSlikaModal(false)
+            alert("Došlo je do greške prilikom brisanja fotografije.")
         }
     }
 
@@ -152,7 +179,9 @@ export default function PrijavaDetalji() {
 
     const isAdmin = korisnik?.uloga === "Admin"
     const jeVlasnik = korisnik && prijava.korisnikSifra && String(prijava.korisnikSifra) === String(korisnik.sifra)
-    const smijeDodavatiSlike = isAdmin || jeVlasnik
+    
+    const smijeDodavatiSlike = !isAdmin && jeVlasnik
+    const smijeUredivatiSlike = isAdmin || jeVlasnik
 
     return (
         <Container className="px-2 px-md-3">
@@ -236,6 +265,7 @@ export default function PrijavaDetalji() {
                     <Row className="g-4 my-2">
                         {trenutneSlike.map((slika, index) => {
                             const imageUrl = slika.url || slika;
+                            const stvarniIndex = prviIndeks + index;
                             return (
                                 <Col xs={12} md={dohvatiSirinuStupca()} key={slika.id || index}>
                                     <Card className="h-100 shadow-sm border-0 rounded-3 overflow-hidden">
@@ -255,7 +285,7 @@ export default function PrijavaDetalji() {
                                             <Card.Img
                                                 variant="top"
                                                 src={imageUrl}
-                                                alt={`Slika ${prviIndeks + index + 1}`}
+                                                alt={`Slika ${stvarniIndex + 1}`}
                                                 style={{
                                                     maxHeight: '100%',
                                                     maxWidth: '100%',
@@ -269,23 +299,36 @@ export default function PrijavaDetalji() {
                                         <Card.Body className="text-center p-2 bg-light d-flex flex-column justify-content-between">
                                             <div>
                                                 <Card.Title className="fs-6 mb-0 text-secondary">
-                                                    Slika {prviIndeks + index + 1}
+                                                    Slika {stvarniIndex + 1}
                                                 </Card.Title>
                                                 <small className="text-muted" style={{ fontSize: '0.75rem' }}>Pritisni za zoom</small>
                                             </div>
 
-                                            {smijeDodavatiSlike && (
-                                                <Button
-                                                    variant="outline-primary"
-                                                    size="sm"
-                                                    className="mt-2 rounded-pill fw-semibold"
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        otvoriCrop(slika, index);
-                                                    }}
-                                                >
-                                                    ✂️ Izreži (Crop)
-                                                </Button>
+                                            {smijeUredivatiSlike && (
+                                                <div className="d-flex gap-2 mt-2 justify-content-center">
+                                                    <Button
+                                                        variant="outline-primary"
+                                                        size="sm"
+                                                        className="rounded-pill fw-semibold w-100"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            otvoriCrop(slika, index);
+                                                        }}
+                                                    >
+                                                        ✂️ Crop
+                                                    </Button>
+                                                    <Button
+                                                        variant="outline-danger"
+                                                        size="sm"
+                                                        className="rounded-pill fw-semibold w-100"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            pokreniBrisanjeSlika(stvarniIndex);
+                                                        }}
+                                                    >
+                                                        🗑️ Obriši
+                                                    </Button>
+                                                </div>
                                             )}
                                         </Card.Body>
                                     </Card>
@@ -311,6 +354,7 @@ export default function PrijavaDetalji() {
                     )}
                 </>
             )}
+
             <Modal show={prikaziModal} onHide={() => setPrikaziModal(false)} size="lg" centered>
                 <Modal.Header closeButton className="border-0 pb-0">
                     <Modal.Title className="fs-6 text-muted">Pregled fotografije</Modal.Title>
@@ -361,6 +405,23 @@ export default function PrijavaDetalji() {
                 </Modal.Footer>
             </Modal>
 
+            <Modal show={potvrdaBrisanjaSlikaModal} onHide={() => setPotvrdaBrisanjaSlikaModal(false)} centered>
+                <Modal.Header closeButton className="bg-danger text-white">
+                    <Modal.Title className="fw-bold fs-5">⚠️ Potvrda brisanja slike</Modal.Title>
+                </Modal.Header>
+                <Modal.Body className="text-center py-4">
+                    <p className="fs-5 mb-0">Jeste li sigurni da želite obrisati ovu fotografiju iz galerije?</p>
+                </Modal.Body>
+                <Modal.Footer className="justify-content-center border-0 pb-3">
+                    <Button variant="secondary" className="rounded-pill px-4" onClick={() => setPotvrdaBrisanjaSlikaModal(false)}>
+                        Odustani
+                    </Button>
+                    <Button variant="danger" className="rounded-pill px-4 fw-bold shadow-sm" onClick={potvrdiBrisanjeSlike}>
+                        Obriši
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
             <Modal show={uspjehUploadaModal} centered backdrop="static">
                 <Modal.Header className="bg-primary text-white">
                     <Modal.Title className="fw-bold fs-5">✨ Uspješan prijenos</Modal.Title>
@@ -383,6 +444,7 @@ export default function PrijavaDetalji() {
 
             <Button
                 variant="secondary"
+                export={() => navigate(RouteNames.PRIJAVE)}
                 onClick={() => navigate(RouteNames.PRIJAVE)}
                 className={`mt-3 mb-4 ${jeMobitel ? 'w-100' : ''}`}
             >

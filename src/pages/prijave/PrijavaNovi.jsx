@@ -314,23 +314,34 @@ export default function PrijavaNovi() {
                         display: inline-block;
                         animation: skakanjeVratolomije 2.5s infinite ease-in-out;
                     }
+                    /* Responzivni okvir za pandu koji se postepeno smanjuje */
+                    .panda-prozor {
+                        width: 100%;
+                        max-width: 190px;
+                        transition: max-width 0.3s ease;
+                    }
+                    @media (max-width: 1000px) {
+                        .panda-prozor {
+                            max-width: clamp(120px, 40vw, 190px);
+                        }
+                    }
                 `}
             </style>
 
-            <div className="d-flex justify-content-between align-items-center mb-4">
+            <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
                 <div>
                     <h3 className="fw-bold text-dark m-0 fs-2 skacuci-naslov">
                         Dodavanje nove prijave
                     </h3>
                 </div>
 
-                <div className="text-center bg-white p-2 rounded-4 shadow-sm border">
+                <div className="text-center bg-white p-2 rounded-4 shadow-sm border panda-prozor">
                     {imaGresaka ? (
                         <div>
                             <img
                                 src={pandaMad}
                                 alt="Panda razbija sve"
-                                style={{ width: "190px", height: "140px", objectFit: "cover", borderRadius: "8px" }}
+                                style={{ width: "100%", height: "auto", maxHeight: "130px", objectFit: "cover", borderRadius: "8px" }}
                                 className="shadow-sm border border-danger"
                             />
                             <div className="text-danger fw-bold mt-1" style={{ fontSize: "11px" }}>Panda razbija sve! 🐼💥</div>
@@ -340,7 +351,7 @@ export default function PrijavaNovi() {
                             <img
                                 src={pandaHappy}
                                 alt="Sretna panda"
-                                style={{ width: "190px", height: "140px", objectFit: "cover", borderRadius: "8px" }}
+                                style={{ width: "100%", height: "auto", maxHeight: "130px", objectFit: "cover", borderRadius: "8px" }}
                                 className="shadow-sm border border-success"
                             />
                             <div className="text-success fw-bold mt-1" style={{ fontSize: "11px" }}>Sve je super! 🐼😊</div>

@@ -6,11 +6,11 @@ import Table from 'react-bootstrap/Table'
 import { NumericFormat } from 'react-number-format'
 import FormatDatuma from '../../components/FormatDatuma'
 import { RouteNames } from '../../constants'
-import { Button, Form, Modal, Pagination } from "react-bootstrap"
+import { Button, Form, Modal, Pagination, Card } from "react-bootstrap"
 import LokacijaService from '../../services/lokacije/LokacijaService'
 import PrijavaService from '../../services/prijave/PrijavaService'
 import MiniKarta from '../../components/MiniKarta'
-import { Container, Card } from 'react-bootstrap'
+import { Container } from 'react-bootstrap'
 import useBreakpoint from '../../hooks/useBreakpoint'
 
 export default function FishijadePregled() {
@@ -53,7 +53,6 @@ function FishijadeIzbor({ godina, jeMobitel }) {
     const [potvrdaBrisanjaModal, setPotvrdaBrisanjaModal] = useState(false)
     const [uspjehBrisanjaModal, setUspjehBrisanjaModal] = useState(false)
 
-    // Stanja za paginaciju
     const [trenutnaStranica, setTrenutnaStranica] = useState(1)
     const poStranici = 10
 
@@ -129,7 +128,7 @@ function FishijadeIzbor({ godina, jeMobitel }) {
     const trenutneFishijade = filtriraneFishijade.slice(prviIndeks, zadnjiIndeks)
     const ukupnoStranica = Math.ceil(filtriraneFishijade.length / poStranici)
 
-    // Funkcija za generiranje skraćenog prikaza stranica s točkicama
+
     const dohvatiStraniceZaPrikaz = () => {
         const stranice = []
         if (ukupnoStranica <= 6) {
@@ -181,79 +180,135 @@ function FishijadeIzbor({ godina, jeMobitel }) {
 
             {!odabranaFisijada && (
                 <>
-                    <div className="table-responsive">
-                        <Table hover striped bordered className="align-middle">
-                            <thead>
-                                <tr>
-                                    <th>Naziv</th>
-                                    <th>Mjesto održavanja</th>
-                                    <th>Kotizacija</th>
-                                    <th>Datum pokretanja</th>
-                                    <th className="text-center">Održana</th>
-                                    <th className="text-center">Akcija</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {trenutneFishijade.map((fishijada) => {
-                                    const jeOdrzana = fishijada?.datumPokretanja
-                                        ? new Date(fishijada.datumPokretanja) < new Date()
-                                        : false;
 
-                                    return (
-                                        <tr key={fishijada.sifra}>
-                                            <td className='lead fs-6 fs-md-5'>
-                                                {fishijada.naziv}
-                                            </td>
-                                            <td className='text-end'>
-                                                {fishijada.mjestoOdrzavanja}
-                                            </td>
-                                            <td className='text-end'>
+                    {!jeMobitel && (
+                        <div className="table-responsive">
+                            <Table hover striped bordered className="align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Naziv</th>
+                                        <th>Mjesto održavanja</th>
+                                        <th>Kotizacija</th>
+                                        <th>Datum pokretanja</th>
+                                        <th className="text-center">Status</th>
+                                        <th className="text-center">Akcija</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {trenutneFishijade.map((fishijada) => {
+                                        const jeOdrzana = fishijada?.datumPokretanja
+                                            ? new Date(fishijada.datumPokretanja) < new Date()
+                                            : false;
+
+                                        return (
+                                            <tr key={fishijada.sifra}>
+                                                <td className='lead fs-6 fs-md-5'>
+                                                    {fishijada.naziv}
+                                                </td>
+                                                <td className='text-end'>
+                                                    {fishijada.mjestoOdrzavanja}
+                                                </td>
+                                                <td className='text-end'>
+                                                    <NumericFormat
+                                                        value={fishijada.cijena}
+                                                        displayType={'text'}
+                                                        decimalSeparator=","
+                                                        decimalScale={2}
+                                                        fixedDecimalScale='.'
+                                                        suffix=' €'
+                                                        prefix="="
+                                                    />
+                                                </td>
+                                                <td style={{ textAlign: 'center' }}>
+                                                    <FormatDatuma datum={fishijada.datumPokretanja} prikazDatuma="Nije postavljeno" />
+                                                </td>
+
+                                                <td style={{ textAlign: 'center' }}>
+                                                    {jeOdrzana ? (
+                                                        <span className="text-success fw-bold">✅ održana</span>
+                                                    ) : (
+                                                        <span className="text-warning fw-bold">⏳ u tijeku</span>
+                                                    )}
+                                                </td>
+
+                                                <td>
+                                                    <div className="d-flex justify-content-center gap-2">
+                                                        {isAdmin && (
+                                                            <>
+                                                                <Button size="sm" onClick={() => { navigate(RouteNames.FISHIJADE_PROMJENA.replace(':sifra', fishijada.sifra)) }}>
+                                                                    Promjena
+                                                                </Button>
+                                                                <Button variant="danger" size="sm" onClick={() => pokreniBrisanje(fishijada.sifra)}>
+                                                                    Obriši
+                                                                </Button>
+                                                            </>
+                                                        )}
+
+                                                        <Button variant="success" size="sm" onClick={() => detalji(fishijada.sifra)}>
+                                                            Detalji
+                                                        </Button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        )
+                                    })}
+                                </tbody>
+                            </Table>
+                        </div>
+                    )}
+
+                    {jeMobitel && (
+                        <div className="d-flex flex-column gap-3">
+                            {trenutneFishijade.map((fishijada) => {
+                                const jeOdrzana = fishijada?.datumPokretanja
+                                    ? new Date(fishijada.datumPokretanja) < new Date()
+                                    : false;
+
+                                return (
+                                    <Card key={fishijada.sifra} className="shadow-sm border-0 rounded-3 p-3">
+                                        <div className="d-flex justify-content-between align-items-start mb-2">
+                                            <h5 className="fw-bold text-success mb-0">{fishijada.naziv}</h5>
+                                            <span className={`fw-bold small ${jeOdrzana ? 'text-success' : 'text-warning'}`}>
+                                                {jeOdrzana ? '✅ održana' : '⏳ u tijeku'}
+                                            </span>
+                                        </div>
+                                        
+                                        <div className="small text-muted mb-3">
+                                            <div><strong>Mjesto:</strong> {fishijada.mjestoOdrzavanja}</div>
+                                            <div><strong>Datum:</strong> <FormatDatuma datum={fishijada.datumPokretanja} prikazDatuma="Nije postavljeno" /></div>
+                                            <div>
+                                                <strong>Kotizacija:</strong>{' '}
                                                 <NumericFormat
                                                     value={fishijada.cijena}
                                                     displayType={'text'}
                                                     decimalSeparator=","
                                                     decimalScale={2}
-                                                    fixedDecimalScale='.'
+                                                    fixedDecimalScale
                                                     suffix=' €'
-                                                    prefix="="
                                                 />
-                                            </td>
-                                            <td style={{ textAlign: 'center' }}>
-                                                <FormatDatuma datum={fishijada.datumPokretanja} prikazDatuma="Nije postavljeno" />
-                                            </td>
+                                            </div>
+                                        </div>
 
-                                            <td style={{ textAlign: 'center' }}>
-                                                {jeOdrzana ? (
-                                                    <span style={{ fontSize: '1.3rem' }} title="Održana">✅</span>
-                                                ) : (
-                                                    <span style={{ fontSize: '1.3rem' }} title="Nije održana">❌</span>
-                                                )}
-                                            </td>
-
-                                            <td>
-                                                <div className={jeMobitel ? "d-flex flex-column gap-2" : "d-flex justify-content-center gap-2"}>
-                                                    {isAdmin && (
-                                                        <>
-                                                            <Button size="sm" onClick={() => { navigate(RouteNames.FISHIJADE_PROMJENA.replace(':sifra', fishijada.sifra)) }}>
-                                                                Promjena
-                                                            </Button>
-                                                            <Button variant="danger" size="sm" onClick={() => pokreniBrisanje(fishijada.sifra)}>
-                                                                Obriši
-                                                            </Button>
-                                                        </>
-                                                    )}
-
-                                                    <Button variant="success" size="sm" onClick={() => detalji(fishijada.sifra)}>
-                                                        Detalji
+                                        <div className="d-flex flex-column gap-2">
+                                            <Button variant="success" size="sm" onClick={() => detalji(fishijada.sifra)}>
+                                                Detalji
+                                            </Button>
+                                            {isAdmin && (
+                                                <div className="d-flex gap-2">
+                                                    <Button variant="outline-primary" size="sm" className="w-100" onClick={() => { navigate(RouteNames.FISHIJADE_PROMJENA.replace(':sifra', fishijada.sifra)) }}>
+                                                        Promjena
+                                                    </Button>
+                                                    <Button variant="outline-danger" size="sm" className="w-100" onClick={() => pokreniBrisanje(fishijada.sifra)}>
+                                                        Obriši
                                                     </Button>
                                                 </div>
-                                            </td>
-                                        </tr>
-                                    )
-                                })}
-                            </tbody>
-                        </Table>
-                    </div>
+                                            )}
+                                        </div>
+                                    </Card>
+                                )
+                            })}
+                        </div>
+                    )}
 
                     {ukupnoStranica > 1 && (
                         <div className="d-flex justify-content-center my-4">
