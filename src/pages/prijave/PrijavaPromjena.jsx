@@ -5,9 +5,6 @@ import PrijavaService from "../../services/prijave/PrijavaService"
 import { useEffect, useState } from "react"
 import LokacijaService from "../../services/lokacije/LokacijaService"
 
-
-
-
 export default function PrijavaPromjena() {
 
     const navigate = useNavigate()
@@ -18,11 +15,8 @@ export default function PrijavaPromjena() {
 
     const [prijava, setPrijava] = useState({})
 
-
     async function ucitajPrijave() {
-
         try {
-
             const odgovorLokacije = await LokacijaService.get()
             setLokacije(odgovorLokacije.data)
 
@@ -36,9 +30,6 @@ export default function PrijavaPromjena() {
             console.error("Ne mogu učitati podatke", error)
         }
     }
-
-
-
 
     useEffect(() => {
         ucitajPrijave()
@@ -62,7 +53,6 @@ export default function PrijavaPromjena() {
             lokacija: parseInt(odabranaLokacija)
         })
     }
-
 
     return (
         <>
@@ -121,7 +111,6 @@ export default function PrijavaPromjena() {
                     </Form.Select>
                 </Form.Group>
 
-
                 <Row className="mt-4">
                     <Col>
                         <Link to={RouteNames.PRIJAVE}
@@ -136,8 +125,6 @@ export default function PrijavaPromjena() {
                     </Col>
                 </Row>
             </Form>
-
-
         </>
     )
 }

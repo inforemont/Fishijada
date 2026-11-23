@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import PrijavaService from "../../services/prijave/PrijavaService"
-import { Button, Table, Container, Row, Col, Card, Pagination, Form, Modal } from "react-bootstrap"
+import { Button, Table, Container, Row, Col, Card, Pagination, Form, Modal, Alert } from "react-bootstrap"
 import { RouteNames } from "../../constants"
 import useBreakpoint from "../../hooks/useBreakpoint"
 import Cropper from "react-cropper"
@@ -15,6 +15,7 @@ export default function PrijavaDetalji() {
 
     const [prijava, setPrijava] = useState(null)
     const [slike, setSlike] = useState([])
+    const [korisnik, setKorisnik] = useState(null)
 
     const [trenutnaStranica, setTrenutnaStranica] = useState(1)
     const [brojPoStranici, setBrojPoStranici] = useState(12)
@@ -27,7 +28,14 @@ export default function PrijavaDetalji() {
     const [aktivniIndexSlike, setAktivniIndexSlike] = useState(null)
     const cropperRef = useRef(null)
 
+    const [greskaUploada, setGreskaUploada] = useState('')
+    const [uspjehUploadaModal, setUspjehUploadaModal] = useState(false)
+
     useEffect(() => {
+        const spremljeniKorisnik = localStorage.getItem("prijavljeniKorisnik")
+        if (spremljeniKorisnik) {
+            setKorisnik(JSON.parse(spremljeniKorisnik))
+        }
         ucitajDetalje()
     }, [sifra])
 
@@ -37,6 +45,54 @@ export default function PrijavaDetalji() {
             setPrijava(data)
             setSlike(data.slike || [])
         })
+    }
+
+    const toBase64 = file => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+    })
+
+    async function dodajNoveFotografije(e) {
+        const files = Array.from(e.target.files)
+        setGreskaUploada('')
+
+        if (slike.length + files.length > 36) {
+            setGreskaUploada(`Maksimalan broj fotografija je 36. Trenutno ih imate ${slike.length}, a pokušali ste dodati još ${files.length}.`)
+            return
+        }
+
+        const dozvoljeniFormati = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/avif']
+        const nepropisanFormat = files.some(file => !dozvoljeniFormati.includes(file.type))
+        if (nepropisanFormat) {
+            setGreskaUploada('Dopušteni su samo popularni formati fotografija (JPEG, JPG, PNG, WEBP, AVIF).')
+            return
+        }
+
+        const previseVelika = files.some(file => file.size > 5 * 1024 * 1024)
+        if (previseVelika) {
+            setGreskaUploada('Jedna ili više fotografija prelazi maksimalnu veličinu od 5 MB.')
+            return
+        }
+
+        try {
+            const base64Promises = files.map(file => toBase64(file))
+            const base64Results = await Promise.all(base64Promises)
+
+            const azuriraneSlike = [...slike, ...base64Results]
+            
+            const izmjenjenaPrijava = { ...prijava, slike: azuriraneSlike }
+            await PrijavaService.promjeni(sifra, izmjenjenaPrijava)
+
+            setSlike(azuriraneSlike)
+            setPrijava(izmjenjenaPrijava)
+
+            setUspjehUploadaModal(true)
+        } catch (err) {
+            console.error("Greška kod uploada slika:", err)
+            setGreskaUploada('Došlo je do greške prilikom učitavanja fotografija.')
+        }
     }
 
     const promjeniBrojPoStranici = (e) => {
@@ -62,7 +118,7 @@ export default function PrijavaDetalji() {
         setPrikaziCropModal(true);
     }
 
-    const spremiIzrezanuSliku = () => {
+    const spremiIzrezanuSliku = async () => {
         const cropper = cropperRef.current?.cropper;
         if (cropper) {
             const croppedCanvas = cropper.getCroppedCanvas();
@@ -75,7 +131,11 @@ export default function PrijavaDetalji() {
                 noveSlike[aktivniIndexSlike] = croppedImageUrl;
             }
 
+            const izmjenjenaPrijava = { ...prijava, slike: noveSlike }
+            await PrijavaService.promjeni(sifra, izmjenjenaPrijava)
+
             setSlike(noveSlike);
+            setPrijava(izmjenjenaPrijava);
             setPrikaziCropModal(false);
         }
     }
@@ -87,8 +147,12 @@ export default function PrijavaDetalji() {
     const dohvatiSirinuStupca = () => {
         if (brojPoStranici === 3) return 12
         if (brojPoStranici === 6) return 6
-        return 4;
+        return 4
     }
+
+    const isAdmin = korisnik?.uloga === "Admin"
+    const jeVlasnik = korisnik && prijava.korisnikSifra && String(prijava.korisnikSifra) === String(korisnik.sifra)
+    const smijeDodavatiSlike = isAdmin || jeVlasnik
 
     return (
         <Container className="px-2 px-md-3">
@@ -122,23 +186,48 @@ export default function PrijavaDetalji() {
             </div>
 
             <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mt-4 mb-3 gap-3">
-                <h4 className="fs-5 mb-0">Galerija fotografija (Ukupno: {slike.length})</h4>
+                <h4 className="fs-5 mb-0">Galerija fotografija (Ukupno: {slike.length} / 36)</h4>
 
-                {slike.length > 0 && (
-                    <div className="d-flex align-items-center gap-2">
-                        <Form.Label className="mb-0 text-nowrap fs-6">Prikaži po:</Form.Label>
-                        <Form.Select
-                            value={brojPoStranici}
-                            onChange={promjeniBrojPoStranici}
-                            style={{ width: '100px' }}
-                        >
-                            <option value={3}>3</option>
-                            <option value={6}>6</option>
-                            <option value={12}>12</option>
-                        </Form.Select>
-                    </div>
-                )}
+                <div className="d-flex align-items-center gap-3 flex-wrap">
+                    {smijeDodavatiSlike && slike.length < 36 && (
+                        <div>
+                            <input
+                                type="file"
+                                id="dodaj-slike-input"
+                                multiple
+                                accept="image/jpeg, image/jpg, image/png, image/webp, image/avif"
+                                style={{ display: 'none' }}
+                                onChange={dodajNoveFotografije}
+                            />
+                            <Button
+                                variant="success"
+                                size="sm"
+                                className="rounded-pill px-3 fw-bold shadow-sm"
+                                onClick={() => document.getElementById('dodaj-slike-input').click()}
+                            >
+                                ➕ Dodaj još fotografija
+                            </Button>
+                        </div>
+                    )}
+
+                    {slike.length > 0 && (
+                        <div className="d-flex align-items-center gap-2">
+                            <Form.Label className="mb-0 text-nowrap fs-6">Prikaži po:</Form.Label>
+                            <Form.Select
+                                value={brojPoStranici}
+                                onChange={promjeniBrojPoStranici}
+                                style={{ width: '100px' }}
+                            >
+                                <option value={3}>3</option>
+                                <option value={6}>6</option>
+                                <option value={12}>12</option>
+                            </Form.Select>
+                        </div>
+                    )}
+                </div>
             </div>
+
+            {greskaUploada && <Alert variant="danger" className="py-2">{greskaUploada}</Alert>}
 
             {slike.length === 0 ? (
                 <p className="text-muted">Nema spremljenih fotografija za ovu prijavu.</p>
@@ -185,17 +274,19 @@ export default function PrijavaDetalji() {
                                                 <small className="text-muted" style={{ fontSize: '0.75rem' }}>Pritisni za zoom</small>
                                             </div>
 
-                                            <Button
-                                                variant="outline-primary"
-                                                size="sm"
-                                                className="mt-2 rounded-pill fw-semibold"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    otvoriCrop(slika, index);
-                                                }}
-                                            >
-                                                ✂️ Izreži (Crop)
-                                            </Button>
+                                            {smijeDodavatiSlike && (
+                                                <Button
+                                                    variant="outline-primary"
+                                                    size="sm"
+                                                    className="mt-2 rounded-pill fw-semibold"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        otvoriCrop(slika, index);
+                                                    }}
+                                                >
+                                                    ✂️ Izreži (Crop)
+                                                </Button>
+                                            )}
                                         </Card.Body>
                                     </Card>
                                 </Col>
@@ -206,39 +297,20 @@ export default function PrijavaDetalji() {
                     {ukupnoStranica > 1 && (
                         <div className="d-flex justify-content-center my-4">
                             <Pagination>
-                                <Pagination.First
-                                    disabled={trenutnaStranica === 1}
-                                    onClick={() => setTrenutnaStranica(1)}
-                                />
-                                <Pagination.Prev
-                                    disabled={trenutnaStranica === 1}
-                                    onClick={() => setTrenutnaStranica((prev) => Math.max(prev - 1, 1))}
-                                />
-
+                                <Pagination.First disabled={trenutnaStranica === 1} onClick={() => setTrenutnaStranica(1)} />
+                                <Pagination.Prev disabled={trenutnaStranica === 1} onClick={() => setTrenutnaStranica((prev) => Math.max(prev - 1, 1))} />
                                 {[...Array(ukupnoStranica).keys()].map((broj) => (
-                                    <Pagination.Item
-                                        key={broj + 1}
-                                        active={broj + 1 === trenutnaStranica}
-                                        onClick={() => setTrenutnaStranica(broj + 1)}
-                                    >
+                                    <Pagination.Item key={broj + 1} active={broj + 1 === trenutnaStranica} onClick={() => setTrenutnaStranica(broj + 1)}>
                                         {broj + 1}
                                     </Pagination.Item>
                                 ))}
-
-                                <Pagination.Next
-                                    disabled={trenutnaStranica === ukupnoStranica}
-                                    onClick={() => setTrenutnaStranica((prev) => Math.min(prev + 1, ukupnoStranica))}
-                                />
-                                <Pagination.Last
-                                    disabled={trenutnaStranica === ukupnoStranica}
-                                    onClick={() => setTrenutnaStranica(ukupnoStranica)}
-                                />
+                                <Pagination.Next disabled={trenutnaStranica === ukupnoStranica} onClick={() => setTrenutnaStranica((prev) => Math.min(prev + 1, ukupnoStranica))} />
+                                <Pagination.Last disabled={trenutnaStranica === ukupnoStranica} onClick={() => setTrenutnaStranica(ukupnoStranica)} />
                             </Pagination>
                         </div>
                     )}
                 </>
             )}
-
             <Modal show={prikaziModal} onHide={() => setPrikaziModal(false)} size="lg" centered>
                 <Modal.Header closeButton className="border-0 pb-0">
                     <Modal.Title className="fs-6 text-muted">Pregled fotografije</Modal.Title>
@@ -285,6 +357,26 @@ export default function PrijavaDetalji() {
                     </Button>
                     <Button variant="success" onClick={spremiIzrezanuSliku}>
                         Spremi izrezano
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
+            <Modal show={uspjehUploadaModal} centered backdrop="static">
+                <Modal.Header className="bg-primary text-white">
+                    <Modal.Title className="fw-bold fs-5">✨ Uspješan prijenos</Modal.Title>
+                </Modal.Header>
+                <Modal.Body className="text-center py-5 bg-white rounded-4 shadow-lg">
+                    <div className="mb-3" style={{ fontSize: "3rem" }}>📸🎉</div>
+                    <h4 className="fw-bold text-success mb-2">Fotografije uspješno dodane!</h4>
+                    <p className="text-muted mb-0">Vaša galerija je uspješno osvježena novim slikama.</p>
+                </Modal.Body>
+                <Modal.Footer className="justify-content-center border-0 pb-3">
+                    <Button 
+                        variant="success" 
+                        className="rounded-pill px-4 fw-bold shadow-sm"
+                        onClick={() => setUspjehUploadaModal(false)}
+                    >
+                        U redu
                     </Button>
                 </Modal.Footer>
             </Modal>

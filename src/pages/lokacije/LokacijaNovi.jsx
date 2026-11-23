@@ -1,278 +1,246 @@
-import { useState } from "react"
-import { Link, useNavigate } from "react-router-dom"
-import { RouteNames } from "../../constants"
-import { Button, Col, Form, Row, Container, Alert } from "react-bootstrap"
+import { Link, useNavigate } from 'react-router-dom'
+import { useEffect, useState } from "react"
 import LokacijaService from "../../services/lokacije/LokacijaService"
+import Badge from 'react-bootstrap/Badge'
+import Table from 'react-bootstrap/Table'
+import { NumericFormat } from 'react-number-format'
+import { RouteNames } from '../../constants'
+import { Button, Modal, Container } from "react-bootstrap"
+import FormatDatuma from "../../components/FormatDatuma"
+import PrijavaService from "../../services/prijave/PrijavaService"
+import zadanaSlikaLokacije from "../../assets/slikelokacija/knezevivinogradi.jpg"
 import useBreakpoint from "../../hooks/useBreakpoint"
-import { ShemaLokacija } from "../../schemas/ShemaLokacija" 
 
-import pandaHappy from "../../assets/pandahappy.gif"
-import pandaMad from "../../assets/pandamad.gif"
+export default function LokacijePregled() {
+    return (
+        <Container className="px-2 px-md-3">
+            <h3 className='my-3 fs-4 fs-md-3'>Pregled lokacija</h3>
+            <LokacijeIzbor />
+        </Container>
+    )
+}
 
-export default function LokacijaNovi() {
+function LokacijeIzbor() {
     const breakpoint = useBreakpoint()
     const jeMobitel = breakpoint === 'xs' || breakpoint === 'sm'
+
+    const [lokacije, setLokacije] = useState([])
+    const [prijave, setPrijave] = useState([])
+    const [korisnik, setKorisnik] = useState(null)
     const navigate = useNavigate()
 
-    const [form, setForm] = useState({
-        regija: '',
-        mjesto: '',
-        zupanija: '',
-        posta: '',
-        datumOdrzavanja: ''
-    })
+    const [prikaziModal, setPrikaziModal] = useState(false)
+    const [trenutnaSlika, setTrenutnaSlika] = useState('')
+    const [trenutniNaziv, setTrenutniNaziv] = useState('')
 
-    const [errors, setErrors] = useState({})
-    const [touched, setTouched] = useState({})
+    const [lokacijaZaBrisanje, setLokacijaZaBrisanje] = useState(null)
+    const [potvrdaBrisanjaModal, setPotvrdaBrisanjaModal] = useState(false)
+    const [uspjehBrisanjaModal, setUspjehBrisanjaModal] = useState(false)
 
-    const validateForm = (currentForm) => {
-        const dataToValidate = {
-            ...currentForm,
-            posta: currentForm.posta !== '' ? Number(currentForm.posta) : NaN
-        }
+    function dohvatiSlikuLokacije(mjesto) {
+        if (!mjesto) return zadanaSlikaLokacije;
 
-        const result = ShemaLokacija.safeParse(dataToValidate)
-        if (result.success) {
-            return {}
-        }
+        const oiscenoIme = mjesto
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/\s+/g, "")
 
-        const newErrors = {}
-        result.error.issues.forEach((issue) => {
-            const fieldName = issue.path[0]
-            if (!newErrors[fieldName]) {
-                newErrors[fieldName] = issue.message
-            }
-        })
-        return newErrors
-    }
-
-    const handleChange = (e) => {
-        const { name, value } = e.target
-        const updatedForm = { ...form, [name]: value }
-        
-        setForm(updatedForm)
-        setTouched(prev => ({ ...prev, [name]: true }))
-
-        const liveErrors = validateForm(updatedForm)
-        setErrors(liveErrors)
-    }
-
-    const handleBlur = (e) => {
-        const { name } = e.target
-        setTouched(prev => ({ ...prev, [name]: true }))
-    }
-
-    async function dodaj(lokacija) {
-        await LokacijaService.dodaj(lokacija).then(() => {
-            navigate(RouteNames.LOKACIJE)
-        })
-    }
-
-    function obradiSubmit(e) {
-        e.preventDefault()
-
-        setTouched({
-            regija: true,
-            mjesto: true,
-            zupanija: true,
-            posta: true,
-            datumOdrzavanja: true
-        })
-
-        const allErrors = validateForm(form)
-        setErrors(allErrors)
-
-        if (Object.keys(allErrors).length > 0) {
-            return
-        }
-
-        dodaj({
-            regija: form.regija.trim(),
-            mjesto: form.mjesto.trim(),
-            zupanija: form.zupanija.trim(),
-            posta: parseFloat(form.posta),
-            datumOdrzavanja: form.datumOdrzavanja,
-            ekipe: []
-        })
-    }
-
-    const otvoriKalendar = (e) => {
         try {
-            if (e.target.showPicker) {
-                e.target.showPicker()
-            }
+            return new URL(`../../assets/slikelokacija/${oiscenoIme}.jpg`, import.meta.url).href;
         } catch (error) {
+            return zadanaSlikaLokacije
         }
     }
 
-    const imaGresaka = Object.keys(touched).some(key => errors[key])
+    async function ucitajLokacije() {
+        await LokacijaService.get().then((odgovor) => {
+            setLokacije(odgovor.data)
+        })
+    }
+
+    async function ucitajPrijave() {
+        await PrijavaService.get().then((odgovor) => {
+            setPrijave(odgovor.data)
+        })
+    }
+
+    useEffect(() => {
+        const spremljeniKorisnik = localStorage.getItem("prijavljeniKorisnik")
+        if (spremljeniKorisnik) {
+            setKorisnik(JSON.parse(spremljeniKorisnik))
+        }
+
+        ucitajLokacije()
+        ucitajPrijave()
+    }, [])
+
+    const isAdmin = korisnik?.uloga === "Admin"
+
+    function pokreniBrisanje(sifra) {
+        setLokacijaZaBrisanje(sifra)
+        setPotvrdaBrisanjaModal(true)
+    }
+
+    async function potvrdiBrisanje() {
+        if (!lokacijaZaBrisanje) return
+
+        try {
+            await LokacijaService.obrisi(lokacijaZaBrisanje)
+            setPotvrdaBrisanjaModal(false)
+            setLokacijaZaBrisanje(null)
+
+            setUspjehBrisanjaModal(true)
+
+            setTimeout(() => {
+                setUspjehBrisanjaModal(false)
+                ucitajLokacije()
+            }, 2000)
+        } catch (err) {
+            console.error("Greška kod brisanja lokacije:", err)
+            setPotvrdaBrisanjaModal(false)
+            alert("Došlo je do greške prilikom brisanja lokacije.")
+        }
+    }
+
+    function detalji(sifra) {
+        navigate(RouteNames.LOKACIJE_DETALJI.replace(':sifra', sifra))
+    }
 
     return (
-        <Container className="px-2 px-md-3 py-3">
-            <style>
-                {`
-                    @keyframes skakanjeVratolomije {
-                        0% { transform: translateY(0px) rotate(0deg); }
-                        25% { transform: translateY(-8px) rotate(-2deg); }
-                        50% { transform: translateY(0px) rotate(0deg); }
-                        75% { transform: translateY(-4px) rotate(2deg); }
-                        100% { transform: translateY(0px) rotate(0deg); }
-                    }
-                    .skacuci-naslov {
-                        display: inline-block;
-                        animation: skakanjeVratolomije 2.5s infinite ease-in-out;
-                    }
-                `}
-            </style>
-
-            <div className="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h3 className="fw-bold text-dark m-0 fs-2 skacuci-naslov">
-                        Dodavanje nove lokacije
-                    </h3>
-                </div>
-
-                <div className="text-center bg-white p-2 rounded-4 shadow-sm border">
-                    {imaGresaka ? (
-                        <div>
-                            <img 
-                                src={pandaMad} 
-                                alt="Panda razbija sve" 
-                                style={{ width: "190px", height: "140px", objectFit: "cover", borderRadius: "8px" }}
-                                className="shadow-sm border border-danger"
-                            />
-                            <div className="text-danger fw-bold mt-1" style={{ fontSize: "11px" }}>Panda razbija sve! 🐼💥</div>
-                        </div>
-                    ) : (
-                        <div>
-                            <img 
-                                src={pandaHappy} 
-                                alt="Sretna panda" 
-                                style={{ width: "190px", height: "140px", objectFit: "cover", borderRadius: "8px" }}
-                                className="shadow-sm border border-success"
-                            />
-                            <div className="text-success fw-bold mt-1" style={{ fontSize: "11px" }}>Sve je super! 🐼😊</div>
-                        </div>
-                    )}
-                </div>
-            </div>
-
-            {imaGresaka && (
-                <Alert variant="danger" className="py-2 text-center fw-bold shadow-sm mb-4">
-                    ⚠️ Pažnja! Podaci nisu u redu, panda je upravo bacila sve sa stola! Ispravite greške ispod.
-                </Alert>
+        <>
+            {isAdmin && (
+                <Link to={RouteNames.LOKACIJE_DODAJ} className="btn btn-success w-100 my-3">
+                    Dodavanje nove lokacije
+                </Link>
             )}
 
-            <Form onSubmit={obradiSubmit} noValidate>
+            <Table hover striped bordered responsive>
+                <thead>
+                    <tr>
+                        <th>Mjesto</th>
+                        <th>Županija</th>
+                        <th>Poštanski ured</th>
+                        <th>Datum održavanja</th>
+                        <th className="text-center">Akcije</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {lokacije && lokacije.filter((lokacija) => lokacija.sifra !== 111).map((lokacija) => {
+                        const slikaZaPrikaz = lokacija.slika || dohvatiSlikuLokacije(lokacija.mjesto);
 
-                <Form.Group controlId="regija" className="mb-3">
-                    <Form.Label className="fw-semibold">REGIJA</Form.Label>
-                    <Form.Control 
-                        type="text" 
-                        name="regija" 
-                        placeholder="npr. Slavonija, Baranja..."
-                        value={form.regija}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        isInvalid={touched.regija && !!errors.regija}
-                        isValid={touched.regija && !errors.regija && form.regija.trim().length > 0}
+                        return (
+                            <tr key={lokacija.sifra}>
+                                <td className='lead'>
+                                    <img
+                                        src={slikaZaPrikaz}
+                                        alt={lokacija.mjesto}
+                                        style={{
+                                            width: '35px',
+                                            height: '25px',
+                                            objectFit: 'cover',
+                                            borderRadius: '4px',
+                                            cursor: 'pointer',
+                                            border: '1px solid #ced4da',
+                                            marginRight: '10px',
+                                            verticalAlign: 'middle'
+                                        }}
+                                        title="Klikni za uvećanje slike"
+                                        onClick={() => {
+                                            setTrenutnaSlika(slikaZaPrikaz)
+                                            setTrenutniNaziv(lokacija.mjesto)
+                                            setPrikaziModal(true)
+                                        }}
+                                    />
+                                    {lokacija.mjesto}
+                                    <span title="Broj ekipa"> ({prijave.filter(p => p.lokacija === lokacija.sifra).length})</span>
+                                </td>
+                                <td className='text-end'>
+                                    {lokacija.zupanija}
+                                </td>
+                                <td className='desno'>
+                                    <NumericFormat
+                                        value={lokacija.posta}
+                                        displayType={'text'}
+                                    />
+                                </td>
+                                <td style={{ textAlign: 'center' }}>
+                                    <FormatDatuma datum={lokacija.datumOdrzavanja} prikazDatuma="Nije postavljeno" />
+                                </td>
+                                <td className="text-center">
+                                    <div className={jeMobitel ? "d-flex flex-column gap-1" : "d-flex justify-content-center gap-2 align-items-center"}>
+
+                                        {isAdmin && (
+                                            <>
+                                                <Button size="sm" onClick={() => { navigate(RouteNames.LOKACIJE_PROMJENA.replace(':sifra', lokacija.sifra)) }}>
+                                                    Promjena
+                                                </Button>
+                                                <Button size="sm" variant="danger" onClick={() => pokreniBrisanje(lokacija.sifra)}>
+                                                    Obriši
+                                                </Button>
+                                            </>
+                                        )}
+
+                                        <Button size="sm" variant="success" onClick={() => detalji(lokacija.sifra)}>
+                                            Detalji
+                                        </Button>
+                                    </div>
+                                </td>
+                            </tr>
+                        )
+                    })}
+                </tbody>
+            </Table>
+
+            Ukupno lokacija : &nbsp;
+            <Badge pill bg="success">
+                {lokacije && lokacije.length}
+            </Badge>
+            &nbsp;
+
+            <Modal show={prikaziModal} onHide={() => setPrikaziModal(false)} centered size="lg">
+                <Modal.Header closeButton>
+                    <Modal.Title>Lokacija: {trenutniNaziv}</Modal.Title>
+                </Modal.Header>
+                <Modal.Body className="text-center">
+                    <img
+                        src={trenutnaSlika}
+                        alt="Zumirana lokacija"
+                        className="img-fluid rounded shadow"
+                        style={{ maxHeight: '70vh', objectFit: 'contain' }}
                     />
-                    {touched.regija && errors.regija && (
-                        <div className="text-danger fw-semibold small mt-1">
-                            {errors.regija}
-                        </div>
-                    )}
-                </Form.Group>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setPrikaziModal(false)}>
+                        Zatvori
+                    </Button>
+                </Modal.Footer>
+            </Modal>
 
-                <Form.Group controlId="mjesto" className="mb-3">
-                    <Form.Label className="fw-semibold">MJESTO</Form.Label>
-                    <Form.Control 
-                        type="text" 
-                        name="mjesto" 
-                        placeholder="npr. Osijek, Beli Manastir..."
-                        value={form.mjesto}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        isInvalid={touched.mjesto && !!errors.mjesto}
-                        isValid={touched.mjesto && !errors.mjesto && form.mjesto.trim().length > 0}
-                    />
-                    {touched.mjesto && errors.mjesto && (
-                        <div className="text-danger fw-semibold small mt-1">
-                            {errors.mjesto}
-                        </div>
-                    )}
-                </Form.Group>
+            <Modal show={potvrdaBrisanjaModal} onHide={() => setPotvrdaBrisanjaModal(false)} centered>
+                <Modal.Header closeButton className="bg-primary text-white">
+                    <Modal.Title className="fw-bold fs-5">⚠️ Potvrda brisanja</Modal.Title>
+                </Modal.Header>
+                <Modal.Body className="text-center py-4">
+                    <p className="fs-5 mb-0">Jeste li sigurni da želite obrisati ovu lokaciju?</p>
+                </Modal.Body>
+                <Modal.Footer className="justify-content-center border-0 pb-3">
+                    <Button variant="danger" className="rounded-pill px-4" onClick={() => setPotvrdaBrisanjaModal(false)}>
+                        Odustani
+                    </Button>
+                    <Button variant="success" className="rounded-pill px-4 fw-bold shadow-sm" onClick={potvrdiBrisanje}>
+                        Prihvati (Potvrdi)
+                    </Button>
+                </Modal.Footer>
+            </Modal>
 
-                <Form.Group controlId="zupanija" className="mb-3">
-                    <Form.Label className="fw-semibold">ŽUPANIJA</Form.Label>
-                    <Form.Control 
-                        type="text" 
-                        name="zupanija" 
-                        placeholder="npr. Osječko-baranjska"
-                        value={form.zupanija}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        isInvalid={touched.zupanija && !!errors.zupanija}
-                        isValid={touched.zupanija && !errors.zupanija && form.zupanija.trim().length > 0}
-                    />
-                    {touched.zupanija && errors.zupanija && (
-                        <div className="text-danger fw-semibold small mt-1">
-                            {errors.zupanija}
-                        </div>
-                    )}
-                </Form.Group>
-
-                <Form.Group controlId="posta" className="mb-3">
-                    <Form.Label className="fw-semibold">POŠTANSKI BROJ</Form.Label>
-                    <Form.Control 
-                        type="number" 
-                        name="posta" 
-                        placeholder="npr. 31000 ili 10000"
-                        value={form.posta}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        isInvalid={touched.posta && !!errors.posta}
-                        isValid={touched.posta && !errors.posta && form.posta !== ''}
-                    />
-                    {touched.posta && errors.posta && (
-                        <div className="text-danger fw-semibold small mt-1">
-                            {errors.posta}
-                        </div>
-                    )}
-                </Form.Group>
-
-                <Form.Group controlId="datumOdrzavanja" className="mb-3">
-                    <Form.Label className="fw-semibold">DATUM ODRŽAVANJA</Form.Label>
-                    <Form.Control 
-                        type="date" 
-                        name="datumOdrzavanja" 
-                        value={form.datumOdrzavanja}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        onClick={otvoriKalendar}
-                        isInvalid={touched.datumOdrzavanja && !!errors.datumOdrzavanja}
-                        isValid={touched.datumOdrzavanja && !errors.datumOdrzavanja && form.datumOdrzavanja !== ''}
-                    />
-                    {touched.datumOdrzavanja && errors.datumOdrzavanja && (
-                        <div className="text-danger fw-semibold small mt-1">
-                            {errors.datumOdrzavanja}
-                        </div>
-                    )}
-                </Form.Group>
-
-                <Row className={`mt-4 ${jeMobitel ? 'flex-column gap-2' : ''}`}>
-                    <Col xs={12} md={6}>
-                        <Link to={RouteNames.LOKACIJE} className="btn btn-danger w-100 py-2 fw-semibold">
-                            Odustani
-                        </Link>
-                    </Col>
-                    <Col xs={12} md={6} className={jeMobitel ? '' : 'text-end'}>
-                        <Button type="submit" variant="success" className="w-100 py-2 fw-semibold">
-                            Dodaj
-                        </Button>
-                    </Col>
-                </Row>
-            </Form>
-        </Container>
+            <Modal show={uspjehBrisanjaModal} centered backdrop="static">
+                <Modal.Body className="text-center py-5 bg-white rounded-4 shadow-lg">
+                    <div className="mb-3" style={{ fontSize: "3rem" }}>🗑️✨</div>
+                    <h4 className="fw-bold text-success mb-2">Uspješno obrisano!</h4>
+                    <p className="text-muted mb-0">Lokacija je uspješno uklonjena iz sustava.</p>
+                </Modal.Body>
+            </Modal>
+        </>
     )
 }

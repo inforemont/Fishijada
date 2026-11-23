@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { RouteNames } from "../../constants"
-import { Button, Col, Form, FormLabel, Row, Alert, Container } from "react-bootstrap"
+import { Button, Col, Form, FormLabel, Row, Alert, Container, Modal } from "react-bootstrap"
 import PrijavaService from "../../services/prijave/PrijavaService"
 import LokacijaService from "../../services/lokacije/LokacijaService"
 import { jsPDF } from 'jspdf'
@@ -20,11 +20,15 @@ export default function PrijavaNovi() {
     const [lokacije, setLokacije] = useState([])
     const [svePrijave, setSvePrijave] = useState([])
     const [poslanaPrijava, setPoslanaPrijava] = useState(null)
+    const [prijavljeniKorisnik, setPrijavljeniKorisnik] = useState(null)
 
     const [odabraneSlikeBase64, setOdabraneSlikeBase64] = useState([])
     const [greskaSlike, setGreskaSlike] = useState('')
     const [statusUploada, setStatusUploada] = useState('')
     const [isSubmitting, setIsSubmitting] = useState(false)
+
+
+    const [duplaPrijavaModal, setDuplaPrijavaModal] = useState(false)
 
     const [form, setForm] = useState({
         imePrezime: '',
@@ -40,11 +44,27 @@ export default function PrijavaNovi() {
     const [touched, setTouched] = useState({})
 
     useEffect(() => {
+        const korisnikStorage = localStorage.getItem("prijavljeniKorisnik")
+        if (korisnikStorage) {
+            const k = JSON.parse(korisnikStorage)
+            setPrijavljeniKorisnik(k)
+            setForm(prev => ({
+                ...prev,
+                email: k.email || k.korisnickoIme || prev.email,
+                imePrezime: k.ime || prev.imePrezime
+            }))
+        }
+
         LokacijaService.get().then((o) => {
             setLokacije(o.data)
         })
-        const lokalnePrijave = JSON.parse(localStorage.getItem('prijave')) || []
-        setSvePrijave(lokalnePrijave)
+
+        PrijavaService.get().then((o) => {
+            setSvePrijave(o.data)
+        }).catch(() => {
+            const lokalnePrijave = JSON.parse(localStorage.getItem('prijave')) || []
+            setSvePrijave(lokalnePrijave)
+        })
     }, [])
 
     const toBase64 = file => new Promise((resolve, reject) => {
@@ -167,10 +187,23 @@ export default function PrijavaNovi() {
             return
         }
 
+        if (prijavljeniKorisnik) {
+            const vecPostojiNaLokaciji = svePrijave.some(p => 
+                String(p.korisnikSifra) === String(prijavljeniKorisnik.sifra) && 
+                Number(p.lokacija) === Number(form.lokacija)
+            )
+
+            if (vecPostojiNaLokaciji) {
+                setDuplaPrijavaModal(true)
+                return
+            }
+        }
+
         setIsSubmitting(true)
 
         const novaPrijava = {
             sifra: Date.now(),
+            korisnikSifra: prijavljeniKorisnik ? prijavljeniKorisnik.sifra : null,
             imePrezime: form.imePrezime.trim(),
             ekipa: form.ekipa.trim(),
             stol: parseFloat(form.stol),
@@ -315,7 +348,6 @@ export default function PrijavaNovi() {
                     )}
                 </div>
             </div>
-
 
             {imaGresaka && (
                 <Alert variant="danger" className="py-2 text-center fw-bold shadow-sm mb-4">
@@ -496,6 +528,22 @@ export default function PrijavaNovi() {
                     </div>
                 </div>
             )}
+            <Modal show={duplaPrijavaModal} onHide={() => setDuplaPrijavaModal(false)} centered>
+                <Modal.Header closeButton className="bg-primary text-white">
+                    <Modal.Title className="fw-bold fs-5">⚠️ Obavijest o prijavi</Modal.Title>
+                </Modal.Header>
+                <Modal.Body className="text-center py-4">
+                    <p className="fs-5 mb-0">Već ste prijavljeni na ovu fišijadu!</p>
+                </Modal.Body>
+                <Modal.Footer className="justify-content-center border-0 pb-3">
+                    <Button variant="danger" className="rounded-pill px-4" onClick={() => setDuplaPrijavaModal(false)}>
+                        Odustani
+                    </Button>
+                    <Button variant="success" className="rounded-pill px-4 fw-bold shadow-sm" onClick={() => setDuplaPrijavaModal(false)}>
+                        U redu
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </Container>
     )
 }

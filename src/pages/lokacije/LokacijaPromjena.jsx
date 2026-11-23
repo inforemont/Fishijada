@@ -1,6 +1,6 @@
 import { Link, useNavigate, useParams } from "react-router-dom"
 import { RouteNames } from "../../constants"
-import { Button, Col, Form, Row, Container } from "react-bootstrap"
+import { Button, Col, Form, Row, Container, Modal } from "react-bootstrap"
 import LokacijaService from "../../services/lokacije/LokacijaService"
 import useBreakpoint from "../../hooks/useBreakpoint"
 import { useEffect, useState } from "react"
@@ -13,14 +13,15 @@ export default function LokacijaPromjena() {
     const params = useParams()
 
     const [lokacija, setLokacija] = useState({})
+    const [uspjehModal, setUspjehModal] = useState(false)
 
     async function ucitajLokacije() {
         await LokacijaService.getBySifra(params.sifra).then((odgovor) => {
             const s = odgovor.data
-            if (s.datumOdrzavanja) {
+            if (s && s.datumOdrzavanja) {
                 s.datumOdrzavanja = s.datumOdrzavanja.substring(0, 10)
             }
-            setLokacija(s)
+            setLokacija(s || {})
         })
     }
 
@@ -28,15 +29,32 @@ export default function LokacijaPromjena() {
         ucitajLokacije()
     }, [])
 
-    async function promjeni(lokacija) {
-        await LokacijaService.promjeni(params.sifra, lokacija).then(() => {
-            navigate(RouteNames.LOKACIJE)
-        })
+    async function promjeni(lokacijaPodaci) {
+        try {
+            await LokacijaService.promjeni(params.sifra, lokacijaPodaci)
+            
+            setUspjehModal(true)
+
+            setTimeout(() => {
+                setUspjehModal(false)
+                navigate(RouteNames.LOKACIJE)
+            }, 2000)
+        } catch (err) {
+            console.error("Greška kod promjene lokacije:", err)
+            alert("Došlo je do greške prilikom spremanja podataka.")
+        }
     }
 
     function obradiSubmit(e) {
         e.preventDefault()
-        const podaci = new FormData(e.target)
+        const formElement = e.target
+        
+        if (!formElement.checkValidity()) {
+            formElement.reportValidity()
+            return
+        }
+
+        const podaci = new FormData(formElement)
         promjeni({
             regija: podaci.get('regija'),
             mjesto: podaci.get('mjesto'),
@@ -52,35 +70,35 @@ export default function LokacijaPromjena() {
                 Promijeni lokaciju
             </h3>
 
-            <Form onSubmit={obradiSubmit}>
+            <Form onSubmit={obradiSubmit} noValidate>
                 <Form.Group controlId="regija" className="mb-3">
                     <Form.Label>REGIJA</Form.Label>
                     <Form.Control type="text" name="regija" required
-                        defaultValue={lokacija.regija} />
+                        defaultValue={lokacija.regija || ''} />
                 </Form.Group>
 
                 <Form.Group controlId="mjesto" className="mb-3">
                     <Form.Label>MJESTO</Form.Label>
                     <Form.Control type="text" name="mjesto" required
-                        defaultValue={lokacija.mjesto} />
+                        defaultValue={lokacija.mjesto || ''} />
                 </Form.Group>
 
                 <Form.Group controlId="posta" className="mb-3">
                     <Form.Label>POŠTA</Form.Label>
                     <Form.Control type="number" name="posta" required
-                        defaultValue={lokacija.posta} />
+                        defaultValue={lokacija.posta || ''} />
                 </Form.Group>
 
                 <Form.Group controlId="zupanija" className="mb-3">
                     <Form.Label>ŽUPANIJA</Form.Label>
                     <Form.Control type="text" name="zupanija" required
-                        defaultValue={lokacija.zupanija} />
+                        defaultValue={lokacija.zupanija || ''} />
                 </Form.Group>
 
                 <Form.Group controlId="datumOdrzavanja" className="mb-3">
                     <Form.Label>DATUM ODRŽAVANJA</Form.Label>
                     <Form.Control type="date" name="datumOdrzavanja" required
-                        defaultValue={lokacija.datumOdrzavanja} />
+                        defaultValue={lokacija.datumOdrzavanja || ''} />
                 </Form.Group>
 
                 <Row className={`mt-4 ${jeMobitel ? 'flex-column gap-2' : ''}`}>
@@ -96,6 +114,14 @@ export default function LokacijaPromjena() {
                     </Col>
                 </Row>
             </Form>
+
+            <Modal show={uspjehModal} centered backdrop="static">
+                <Modal.Body className="text-center py-5 bg-white rounded-4 shadow-lg">
+                    <div className="mb-3" style={{ fontSize: "3rem" }}>✨🎉</div>
+                    <h4 className="fw-bold text-success mb-2">Uspješno promijenjeno!</h4>
+                    <p className="text-muted mb-0">Podaci o lokaciji su uspješno ažurirani. Preusmjeravanje...</p>
+                </Modal.Body>
+            </Modal>
         </Container>
     )
 }

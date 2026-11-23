@@ -6,7 +6,7 @@ import Table from 'react-bootstrap/Table'
 import { NumericFormat } from 'react-number-format'
 import FormatDatuma from '../../components/FormatDatuma'
 import { RouteNames } from '../../constants'
-import { Button, Form, OverlayTrigger, Tooltip } from "react-bootstrap"
+import { Button, Form, Modal } from "react-bootstrap"
 import LokacijaService from '../../services/lokacije/LokacijaService'
 import PrijavaService from '../../services/prijave/PrijavaService'
 import MiniKarta from '../../components/MiniKarta'
@@ -49,13 +49,16 @@ function FishijadeIzbor({ godina, jeMobitel }) {
     const [sveLokacije, setSveLokacije] = useState([])
     const [korisnik, setKorisnik] = useState(null)
 
+    const [fishijadaZaBrisanje, setFishijadaZaBrisanje] = useState(null)
+    const [potvrdaBrisanjaModal, setPotvrdaBrisanjaModal] = useState(false)
+    const [uspjehBrisanjaModal, setUspjehBrisanjaModal] = useState(false)
+
     useEffect(() => {
         const spremljeniKorisnik = localStorage.getItem("prijavljeniKorisnik")
         if (spremljeniKorisnik) {
             setKorisnik(JSON.parse(spremljeniKorisnik))
         }
 
-        console.log('Došao na pregled fishijada')
         ucitajFishijade()
         LokacijaService.get().then((odgovor) => {
             setSveLokacije(odgovor.data)
@@ -68,17 +71,34 @@ function FishijadeIzbor({ godina, jeMobitel }) {
 
     const isAdmin = korisnik?.uloga === "Admin"
 
-    async function obrisi(sifra) {
-        if (!confirm('sigurno obrisati?')) {
-            return
-        }
+    function pokreniBrisanje(sifra) {
+        setFishijadaZaBrisanje(sifra)
+        setPotvrdaBrisanjaModal(true)
+    }
 
-        await FishijadaService.obrisi(sifra)
-        await ucitajFishijade()
+    async function potvrdiBrisanje() {
+        if (!fishijadaZaBrisanje) return
+
+        try {
+            await FishijadaService.obrisi(fishijadaZaBrisanje)
+            setPotvrdaBrisanjaModal(false)
+            setFishijadaZaBrisanje(null)
+
+            setUspjehBrisanjaModal(true)
+
+            setTimeout(() => {
+                setUspjehBrisanjaModal(false)
+                ucitajFishijade()
+            }, 2000)
+        } catch (err) {
+            console.error("Greška kod brisanja fišijade:", err)
+            setPotvrdaBrisanjaModal(false)
+            alert("Došlo je do greške prilikom brisanja fišijade.")
+        }
     }
 
     function detalji(sifra) {
-        navigate(`/fishijade/detalji/${sifra}`)
+        navigate(RouteNames.FISHIJADE_DETALJI.replace(':sifra', sifra))
     }
 
     async function ucitajFishijade() {
@@ -101,10 +121,11 @@ function FishijadeIzbor({ godina, jeMobitel }) {
 
     return (
         <>
-            <Link to={RouteNames.FISHIJADE_DODAJ}
-                className="btn btn-success w-100 my-3">
-                Dodavanje nove fišijade
-            </Link>
+            {isAdmin && (
+                <Link to={RouteNames.FISHIJADE_DODAJ} className="btn btn-success w-100 my-3">
+                    Dodavanje nove fišijade
+                </Link>
+            )}
 
             <Form.Group className='mb-4'>
                 <Form.Label>Odaberi fišijadu / godinu:</Form.Label>
@@ -119,10 +140,11 @@ function FishijadeIzbor({ godina, jeMobitel }) {
                             <option key={f.sifra} value={f.sifra}>
                                 {f.naziv} ({godinaF})
                             </option>
-                        );
+                        )
                     })}
                 </Form.Select>
             </Form.Group>
+
             {!odabranaFisijada && (
                 <div className="table-responsive">
                     <Table hover striped bordered className="align-middle">
@@ -175,51 +197,15 @@ function FishijadeIzbor({ godina, jeMobitel }) {
 
                                         <td>
                                             <div className={jeMobitel ? "d-flex flex-column gap-2" : "d-flex justify-content-center gap-2"}>
-
-                                                {isAdmin ? (
-                                                    <Button size="sm" onClick={() => { navigate(`/fishijade/${fishijada.sifra}`) }}>
-                                                        Promjena
-                                                    </Button>
-                                                ) : (
-                                                    <OverlayTrigger
-                                                        placement="top"
-                                                        overlay={
-                                                            <Tooltip id={`tooltip-promjena-${fishijada.sifra}`} className="shadow-sm">
-                                                                <div style={{ fontSize: '0.85rem', fontWeight: '500' }}>
-                                                                    Samo administratori mogu koristiti ove opcije
-                                                                </div>
-                                                            </Tooltip>
-                                                        }
-                                                    >
-                                                        <span className="d-inline-block">
-                                                            <Button size="sm" disabled>
-                                                                Promjena
-                                                            </Button>
-                                                        </span>
-                                                    </OverlayTrigger>
-                                                )}
-
-                                                {isAdmin ? (
-                                                    <Button variant="danger" size="sm" onClick={() => obrisi(fishijada.sifra)}>
-                                                        Obriši
-                                                    </Button>
-                                                ) : (
-                                                    <OverlayTrigger
-                                                        placement="top"
-                                                        overlay={
-                                                            <Tooltip id={`tooltip-obrisi-${fishijada.sifra}`} className="shadow-sm">
-                                                                <div style={{ fontSize: '0.85rem', fontWeight: '500' }}>
-                                                                    Samo administratori mogu koristiti ove opcije
-                                                                </div>
-                                                            </Tooltip>
-                                                        }
-                                                    >
-                                                        <span className="d-inline-block">
-                                                            <Button variant="danger" size="sm" disabled>
-                                                                Obriši
-                                                            </Button>
-                                                        </span>
-                                                    </OverlayTrigger>
+                                                {isAdmin && (
+                                                    <>
+                                                        <Button size="sm" onClick={() => { navigate(RouteNames.FISHIJADE_PROMJENA.replace(':sifra', fishijada.sifra)) }}>
+                                                            Promjena
+                                                        </Button>
+                                                        <Button variant="danger" size="sm" onClick={() => pokreniBrisanje(fishijada.sifra)}>
+                                                            Obriši
+                                                        </Button>
+                                                    </>
                                                 )}
 
                                                 <Button variant="success" size="sm" onClick={() => detalji(fishijada.sifra)}>
@@ -251,21 +237,28 @@ function FishijadeIzbor({ godina, jeMobitel }) {
                                         <thead>
                                             <tr>
                                                 <th>Regionalno prvenstvo (Lokacija)</th>
-                                                <th>Broj prijavljenih ekipa</th>
+                                                <th className="text-end pe-4">Broj prijavljenih ekipa</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             {odabrana && odabrana.lokacije && odabrana.lokacije.length > 0 ? (
                                                 odabrana.lokacije.map((lokacijaId) => {
-                                                    const lokacija = sveLokacije.find(l => l.sifra === lokacijaId)
-                                                    const brojPrijava = svePrijave.filter(
-                                                        p => p.lokacija === lokacijaId || p.lokacijaSifra === lokacijaId || p.lokacijaId === lokacijaId
-                                                    ).length
+                                                    const lokacija = sveLokacije.find(l => Number(l.sifra) === Number(lokacijaId))
+                                                    
+                                                    const prijaveNaLokacijiIds = odabrana.prijavePoLokacijama?.[lokacijaId] || 
+                                                                                 odabrana.prijavePoLokacijama?.[String(lokacijaId)] || []
+                                                    
+                                                    const brojPrijava = prijaveNaLokacijiIds.length > 0 
+                                                        ? prijaveNaLokacijiIds.length 
+                                                        : svePrijave.filter(p => Number(p.lokacijaId || p.lokacija) === Number(lokacijaId)).length
 
                                                     return (
                                                         <tr key={lokacijaId}>
-                                                            <td colSpan="2">
-                                                                {lokacija ? lokacija.mjesto : 'Nepoznata lokacija'} ({brojPrijava})
+                                                            <td>
+                                                                {lokacija ? lokacija.mjesto : `Lokacija ID: ${lokacijaId}`}
+                                                            </td>
+                                                            <td className="text-end pe-4">
+                                                                {brojPrijava}
                                                             </td>
                                                         </tr>
                                                     )
@@ -293,6 +286,31 @@ function FishijadeIzbor({ godina, jeMobitel }) {
                 </Badge>
                 &nbsp; fišijada
             </div>
+
+            <Modal show={potvrdaBrisanjaModal} onHide={() => setPotvrdaBrisanjaModal(false)} centered>
+                <Modal.Header closeButton className="bg-primary text-white">
+                    <Modal.Title className="fw-bold fs-5">⚠️ Potvrda brisanja</Modal.Title>
+                </Modal.Header>
+                <Modal.Body className="text-center py-4">
+                    <p className="fs-5 mb-0">Jeste li sigurni da želite obrisati ovu fišijadu?</p>
+                </Modal.Body>
+                <Modal.Footer className="justify-content-center border-0 pb-3">
+                    <Button variant="danger" className="rounded-pill px-4" onClick={() => setPotvrdaBrisanjaModal(false)}>
+                        Odustani
+                    </Button>
+                    <Button variant="success" className="rounded-pill px-4 fw-bold shadow-sm" onClick={potvrdiBrisanje}>
+                        Prihvati (Potvrdi)
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
+            <Modal show={uspjehBrisanjaModal} centered backdrop="static">
+                <Modal.Body className="text-center py-5 bg-white rounded-4 shadow-lg">
+                    <div className="mb-3" style={{ fontSize: "3rem" }}>🗑️✨</div>
+                    <h4 className="fw-bold text-success mb-2">Uspješno obrisano!</h4>
+                    <p className="text-muted mb-0">Fišijada je uspješno uklonjena iz sustava.</p>
+                </Modal.Body>
+            </Modal>
         </>
     )
 }

@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import FishijadaService from "../../services/fishijade/FishijadaService"
-import { Button, Table, Form, ListGroup, Row, Col, Container } from "react-bootstrap"
+import { Button, Table, Form, ListGroup, Row, Col, Container, Modal } from "react-bootstrap"
 import { RouteNames } from "../../constants"
 import LokacijaService from "../../services/lokacije/LokacijaService"
 import PrijavaService from "../../services/prijave/PrijavaService"
@@ -18,6 +18,21 @@ export default function FishijadaDetalji() {
     const [svePrijave, setSvePrijave] = useState([])
     const [odabranePrijave, setOdabranePrijave] = useState({})
     const [sveFishijade, setSveFishijade] = useState([])
+
+    const [modalInfo, setModalInfo] = useState({
+        prikazi: false,
+        naslov: "",
+        tekst: "",
+        tip: "warning" 
+    })
+
+    const prikaziObavijest = (naslov, tekst, tip = "warning") => {
+        setModalInfo({ prikazi: true, naslov, tekst, tip })
+    }
+
+    const zatvoriModal = () => {
+        setModalInfo(prev => ({ ...prev, prikazi: false }))
+    }
 
     const [lokacijaInputText, setLokacijaInputText] = useState('')
     const [prikaziLokacijeDropdown, setPrikaziLokacijeDropdown] = useState(false)
@@ -81,22 +96,30 @@ export default function FishijadaDetalji() {
         FishijadaService.get().then((res) => setSveFishijade(res.data))
     }
 
+    const jeOdrzana = fishijada?.datumPokretanja
+        ? new Date(fishijada.datumPokretanja) < new Date()
+        : false
+
     async function dodajLokaciju(e) {
         e.preventDefault()
 
         if (jeOdrzana) {
-            alert("Ova fišijada je već održana! Nije moguće dodavati nove lokacije na zaključane podatke.")
+            prikaziObavijest(
+                "Fišijada je zaključana", 
+                "Ova fišijada je već održana! Nije moguće dodavati nove lokacije na zaključane podatke.", 
+                "danger"
+            )
             return
         }
 
         if (!odabranaLokacija) {
-            alert("Lokacija je obavezna")
+            prikaziObavijest("Greška u unosu", "Molimo odaberite lokaciju s popisa.", "warning")
             return
         }
         const lokacijaId = parseInt(odabranaLokacija)
 
         if (fishijada.lokacije.includes(lokacijaId)) {
-            alert("Lokacija je vec dodana")
+            prikaziObavijest("Dupla lokacija", "Ova lokacija je već dodana na fišijadu.", "warning")
             return
         }
 
@@ -129,7 +152,11 @@ export default function FishijadaDetalji() {
             []
 
         if (dodijeljenePrijaveIds.length > 0) {
-            alert("Nije moguće ukloniti lokaciju jer na njoj još uvijek postoje pridružene prijave (ekipe). Prvo uklonite sve prijave s ove lokacije.")
+            prikaziObavijest(
+                "Nije moguće ukloniti lokaciju", 
+                "Na ovoj lokaciji još uvijek postoje pridružene prijave (ekipe). Prvo uklonite sve prijave s ove lokacije.", 
+                "danger"
+            )
             return
         }
 
@@ -156,19 +183,23 @@ export default function FishijadaDetalji() {
         const prijavaId = odabranePrijave[lokacijaId]
 
         if (jeOdrzana) {
-            alert("Ova fišijada je već održana! Nije moguće dodavati nove prijave.")
+            prikaziObavijest(
+                "Fišijada je zaključana", 
+                "Ova fišijada je već održana! Nije moguće dodavati nove prijave.", 
+                "danger"
+            )
             return
         }
 
         if (!prijavaId) {
-            alert("Molimo odaberite prijavu/ekipu")
+            prikaziObavijest("Greška", "Molimo odaberite prijavu/ekipu iz padajućeg izbornika.", "warning")
             return
         }
 
         const trenutnePrijaveNaLokaciji = fishijada.prijavePoLokacijama?.[lokacijaId] || []
 
         if (trenutnePrijaveNaLokaciji.includes(parseInt(prijavaId))) {
-            alert("Ova prijava je već dodana na ovu lokaciju.")
+            prikaziObavijest("Dupla prijava", "Ova prijava je već dodana na ovu lokaciju.", "warning")
             return
         }
 
@@ -209,10 +240,6 @@ export default function FishijadaDetalji() {
     if (!fishijada) {
         return <Container className="mt-3"><p>Učitavanje podataka...</p></Container>
     }
-
-    const jeOdrzana = fishijada?.datumPokretanja
-        ? new Date(fishijada.datumPokretanja) < new Date()
-        : false
 
     const filtriraneLokacije = sveLokacije.filter(l => 
         l.mjesto.toLowerCase().includes(lokacijaInputText.toLowerCase())
@@ -255,7 +282,7 @@ export default function FishijadaDetalji() {
                 <Form.Label>Odaberi drugu fišijadu:</Form.Label>
                 <Form.Select
                     value={sifra}
-                    onChange={(e) => navigate(`/fishijade/detalji/${e.target.value}`)}
+                    onChange={(e) => navigate(RouteNames.FISHIJADE_DETALJI.replace(':sifra', e.target.value))}
                 >
                     {sveFishijade.map((f) => {
                         const godina = new Date(f.datumPokretanja).getFullYear();
@@ -458,6 +485,27 @@ export default function FishijadaDetalji() {
             <Button variant="secondary" onClick={() => navigate(RouteNames.FISHIJADE)} className="mt-3 mb-4">
                 Natrag na pregled
             </Button>
+
+            <Modal show={modalInfo.prikazi} onHide={zatvoriModal} centered>
+                <Modal.Header closeButton className={`bg-${modalInfo.tip} text-white`}>
+                    <Modal.Title className="fw-bold fs-5">
+                        {modalInfo.tip === 'danger' ? '⚠️ Obavijest sustava' : 'ℹ️ Informacija'}
+                    </Modal.Title>
+                </Modal.Header>
+                <Modal.Body className="py-4 text-center">
+                    <h5 className="fw-bold mb-3">{modalInfo.naslov}</h5>
+                    <p className="text-secondary mb-0">{modalInfo.tekst}</p>
+                </Modal.Body>
+                <Modal.Footer className="justify-content-center border-0 pb-3">
+                    <Button 
+                        variant={modalInfo.tip === 'danger' ? 'danger' : 'success'} 
+                        className="rounded-pill px-4 fw-bold shadow-sm"
+                        onClick={zatvoriModal}
+                    >
+                        U redu
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </Container>
     )
 }

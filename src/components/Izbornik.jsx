@@ -8,26 +8,26 @@ import { IME_APLIKACIJE, RouteNames } from '../constants'
 import { useNavigate } from 'react-router-dom'
 
 export default function Izbornik() {
-    const navigate = useNavigate();
-    const [korisnik, setKorisnik] = useState(null);
+    const navigate = useNavigate()
+    const [korisnik, setKorisnik] = useState(null)
 
     useEffect(() => {
         const ucitajKorisnika = () => {
-            const spremljeno = localStorage.getItem("prijavljeniKorisnik");
-            setKorisnik(spremljeno ? JSON.parse(spremljeno) : null);
-        };
+            const spremljeno = localStorage.getItem("prijavljeniKorisnik")
+            setKorisnik(spremljeno ? JSON.parse(spremljeno) : null)
+        }
 
-        ucitajKorisnika();
-        window.addEventListener("authPromjena", ucitajKorisnika);
-        return () => window.removeEventListener("authPromjena", ucitajKorisnika);
-    }, []);
+        ucitajKorisnika()
+        window.addEventListener("authPromjena", ucitajKorisnika)
+        return () => window.removeEventListener("authPromjena", ucitajKorisnika)
+    }, [])
 
     const odjaviSe = () => {
         localStorage.removeItem("prijavljeniKorisnik");
         setKorisnik(null);
         window.dispatchEvent(new Event("authPromjena"));
         navigate(RouteNames.HOME);
-    };
+    }
 
     const isAdmin = korisnik?.uloga === "Admin";
 
@@ -66,11 +66,10 @@ export default function Izbornik() {
                         {isAdmin && (
                             <>
                                 <Nav.Link onClick={() => navigate(RouteNames.GENERIRANJE)} className="d-flex align-items-center gap-1">
-                                    <span style={{ fontSize: '1.2rem', marginRight: '4px', filter: 'drop-shadow(0 0 2px rgba(255,255,255,0.9))' }}>🪄</span>
+                                    <span style={{ fontSize: '1.2rem', marginRight: '4px', filter: 'drop-shadow(0 0 2px rgba(255,255,255,0.9))' }}>✨</span>
                                     Generiranje podataka
                                 </Nav.Link>
-                                <Nav.Link onClick={() => navigate(RouteNames.KORISNICI)} className="text-danger fw-semibold" className="text-warning fw-semibold d-flex align-items-center gap-1"
-                                >
+                                <Nav.Link onClick={() => navigate(RouteNames.KORISNICI)} className="text-warning fw-semibold d-flex align-items-center gap-1">
                                     ⚙️ Upravljanje Korisnicima
                                 </Nav.Link>
                             </>
@@ -124,5 +123,5 @@ export default function Izbornik() {
                 </Navbar.Collapse>
             </Container>
         </Navbar>
-    );
+    )
 }

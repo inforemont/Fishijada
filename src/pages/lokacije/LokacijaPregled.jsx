@@ -26,11 +26,16 @@ function LokacijeIzbor() {
 
     const [lokacije, setLokacije] = useState([])
     const [prijave, setPrijave] = useState([])
+    const [korisnik, setKorisnik] = useState(null)
     const navigate = useNavigate()
 
     const [prikaziModal, setPrikaziModal] = useState(false)
     const [trenutnaSlika, setTrenutnaSlika] = useState('')
     const [trenutniNaziv, setTrenutniNaziv] = useState('')
+
+    const [lokacijaZaBrisanje, setLokacijaZaBrisanje] = useState(null)
+    const [potvrdaBrisanjaModal, setPotvrdaBrisanjaModal] = useState(false)
+    const [uspjehBrisanjaModal, setUspjehBrisanjaModal] = useState(false)
 
     function dohvatiSlikuLokacije(mjesto) {
         if (!mjesto) return zadanaSlikaLokacije;
@@ -61,29 +66,55 @@ function LokacijeIzbor() {
     }
 
     useEffect(() => {
+        const spremljeniKorisnik = localStorage.getItem("prijavljeniKorisnik")
+        if (spremljeniKorisnik) {
+            setKorisnik(JSON.parse(spremljeniKorisnik))
+        }
+
         ucitajLokacije()
         ucitajPrijave()
     }, [])
 
-    async function obrisi(sifra) {
-        if (!confirm('sigurno obrisati?')) {
-            return
-        }
+    const isAdmin = korisnik?.uloga === "Admin"
 
-        await LokacijaService.obrisi(sifra)
-        await ucitajLokacije()
+    function pokreniBrisanje(sifra) {
+        setLokacijaZaBrisanje(sifra)
+        setPotvrdaBrisanjaModal(true)
+    }
+
+    async function potvrdiBrisanje() {
+        if (!lokacijaZaBrisanje) return
+
+        try {
+            await LokacijaService.obrisi(lokacijaZaBrisanje)
+            setPotvrdaBrisanjaModal(false)
+            setLokacijaZaBrisanje(null)
+
+            setUspjehBrisanjaModal(true)
+
+            setTimeout(() => {
+                setUspjehBrisanjaModal(false)
+                ucitajLokacije()
+            }, 2000)
+        } catch (err) {
+            console.error("Greška kod brisanja lokacije:", err)
+            setPotvrdaBrisanjaModal(false)
+            alert("Došlo je do greške prilikom brisanja lokacije.")
+        }
     }
 
     function detalji(sifra) {
-        navigate(`/lokacije/detalji/${sifra}`)
+        navigate(RouteNames.LOKACIJE_DETALJI.replace(':sifra', sifra))
     }
 
     return (
         <>
-            <Link to={RouteNames.LOKACIJE_DODAJ}
-                className="btn btn-success w-100 my-3">
-                Dodavanje nove lokacije
-            </Link>
+            {isAdmin && (
+                <Link to={RouteNames.LOKACIJE_DODAJ}
+                    className="btn btn-success w-100 my-3">
+                    Dodavanje nove lokacije
+                </Link>
+            )}
 
             <Table hover striped bordered responsive>
                 <thead>
@@ -138,14 +169,18 @@ function LokacijeIzbor() {
                                     <FormatDatuma datum={lokacija.datumOdrzavanja} prikazDatuma="Nije postavljeno" />
                                 </td>
                                 <td className={jeMobitel ? "d-flex flex-column gap-1" : ""}>
-                                    <Button size="sm" className={jeMobitel ? "w-100" : ""} onClick={() => { navigate(`/lokacije/${lokacija.sifra}`) }}>
-                                        Promjena
-                                    </Button>
-                                    {!jeMobitel && <>&nbsp;&nbsp;&nbsp;</>}
-                                    <Button size="sm" variant="danger" className={jeMobitel ? "w-100" : ""} onClick={() => obrisi(lokacija.sifra)}>
-                                        Obriši
-                                    </Button>
-                                    {!jeMobitel && <>&nbsp;&nbsp;&nbsp;</>}
+                                    {isAdmin && (
+                                        <>
+                                            <Button size="sm" className={jeMobitel ? "w-100" : ""} onClick={() => { navigate(RouteNames.LOKACIJE_PROMJENA.replace(':sifra', lokacija.sifra)) }}>
+                                                Promjena
+                                            </Button>
+                                            {!jeMobitel && <>&nbsp;&nbsp;&nbsp;</>}
+                                            <Button size="sm" variant="danger" className={jeMobitel ? "w-100" : ""} onClick={() => pokreniBrisanje(lokacija.sifra)}>
+                                                Obriši
+                                            </Button>
+                                            {!jeMobitel && <>&nbsp;&nbsp;&nbsp;</>}
+                                        </>
+                                    )}
                                     <Button size="sm" variant="success" className={jeMobitel ? "w-100" : ""} onClick={() => detalji(lokacija.sifra)}>
                                         Detalji
                                     </Button>
@@ -179,6 +214,31 @@ function LokacijeIzbor() {
                         Zatvori
                     </Button>
                 </Modal.Footer>
+            </Modal>
+
+           <Modal show={potvrdaBrisanjaModal} onHide={() => setPotvrdaBrisanjaModal(false)} centered>
+                <Modal.Header closeButton className="bg-primary text-white">
+                    <Modal.Title className="fw-bold fs-5">⚠️ Potvrda brisanja</Modal.Title>
+                </Modal.Header>
+                <Modal.Body className="text-center py-4">
+                    <p className="fs-5 mb-0">Jeste li sigurni da želite obrisati ovu stavku?</p>
+                </Modal.Body>
+                <Modal.Footer className="justify-content-center border-0 pb-3">
+                    <Button variant="danger" className="rounded-pill px-4" onClick={() => setPotvrdaBrisanjaModal(false)}>
+                        Odustani
+                    </Button>
+                    <Button variant="success" className="rounded-pill px-4 fw-bold shadow-sm" onClick={potvrdiBrisanje}>
+                        Prihvati
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
+            <Modal show={uspjehBrisanjaModal} centered backdrop="static">
+                <Modal.Body className="text-center py-5 bg-white rounded-4 shadow-lg">
+                    <div className="mb-3" style={{ fontSize: "3rem" }}>🗑️✨</div>
+                    <h4 className="fw-bold text-success mb-2">Uspješno obrisano!</h4>
+                    <p className="text-muted mb-0">Lokacija je uspješno uklonjena iz sustava.</p>
+                </Modal.Body>
             </Modal>
         </>
     )

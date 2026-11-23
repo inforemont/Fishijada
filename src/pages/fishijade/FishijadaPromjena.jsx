@@ -1,6 +1,6 @@
 import { Link, useNavigate, useParams } from "react-router-dom"
 import { RouteNames } from "../../constants"
-import { Button, Col, Form, Row, Container } from "react-bootstrap"
+import { Button, Col, Form, Row, Container, Modal } from "react-bootstrap"
 import FishijadaService from "../../services/fishijade/FishijadaService"
 import useBreakpoint from "../../hooks/useBreakpoint"
 import { useEffect, useState } from "react"
@@ -14,12 +14,16 @@ export default function FishijadaPromjena() {
     const [fishijada, setFishijada] = useState({})
     const [aktivan, setAktivan] = useState(false)
 
+    const [uspjehModal, setUspjehModal] = useState(false)
+
     async function ucitajFishijadu() {
         await FishijadaService.getBySifra(params.sifra).then((odgovor) => {
             const s = odgovor.data
-            s.datumPokretanja = s.datumPokretanja.substring(0, 10)
-            setFishijada(s)
-            setAktivan(s.aktivan)
+            if (s && s.datumPokretanja) {
+                s.datumPokretanja = s.datumPokretanja.substring(0, 10)
+            }
+            setFishijada(s || {})
+            setAktivan(s?.aktivan || false)
         })
     }
 
@@ -27,10 +31,20 @@ export default function FishijadaPromjena() {
         ucitajFishijadu()
     }, [])
 
-    async function promjeni(sifra, fishijada) {
-        await FishijadaService.promjeni(sifra, fishijada).then(() => {
-            navigate(RouteNames.FISHIJADE)
-        })
+    async function promjeni(sifra, podaciZaSlanje) {
+        try {
+            await FishijadaService.promjeni(sifra, podaciZaSlanje)
+            
+            setUspjehModal(true)
+
+            setTimeout(() => {
+                setUspjehModal(false)
+                navigate(RouteNames.FISHIJADE)
+            }, 2000)
+        } catch (err) {
+            console.error("Greška kod promjene fišijade:", err)
+            alert("Došlo je do greške prilikom spremanja podataka.")
+        }
     }
 
     async function obrisi(sifra) {
@@ -44,7 +58,14 @@ export default function FishijadaPromjena() {
 
     function obradiSubmit(e) {
         e.preventDefault()
-        const podaci = new FormData(e.target)
+        
+        const formElement = e.target
+        if (!formElement.checkValidity()) {
+            formElement.reportValidity()
+            return
+        }
+
+        const podaci = new FormData(formElement)
         promjeni(params.sifra, {
             sifra: parseInt(params.sifra),
             naziv: podaci.get('naziv'),
@@ -61,31 +82,30 @@ export default function FishijadaPromjena() {
                 Promjena fišijade
             </h3>
 
-            <Form onSubmit={obradiSubmit}>
+            <Form onSubmit={obradiSubmit} noValidate>
                 <Form.Group controlId="naziv" className="mb-3">
                     <Form.Label>Naziv</Form.Label>
                     <Form.Control type="text" name="naziv" required
-                        defaultValue={fishijada.naziv} />
+                        defaultValue={fishijada.naziv || ''} />
                 </Form.Group>
 
                 <Form.Group controlId="mjestoOdrzavanja" className="mb-3">
                     <Form.Label>Mjesto održavanja</Form.Label>
-                    <Form.Control type="text" name="mjestoOdrzavanja"
-                        defaultValue={fishijada.mjestoOdrzavanja} />
+                    <Form.Control type="text" name="mjestoOdrzavanja" required
+                        defaultValue={fishijada.mjestoOdrzavanja || ''} />
                 </Form.Group>
 
                 <Form.Group controlId="kotizacija" className="mb-3">
                     <Form.Label>Kotizacija</Form.Label>
-                    <Form.Control type="number" name="kotizacija" step={1}
-                        defaultValue={fishijada.cijena} />
+                    <Form.Control type="number" name="kotizacija" step={1} required
+                        defaultValue={fishijada.cijena || ''} />
                 </Form.Group>
 
                 <Form.Group controlId="datumPokretanja" className="mb-3">
                     <Form.Label>Datum pokretanja</Form.Label>
-                    <Form.Control type="date" name="datumPokretanja"
-                        defaultValue={fishijada.datumPokretanja} />
+                    <Form.Control type="date" name="datumPokretanja" required
+                        defaultValue={fishijada.datumPokretanja || ''} />
                 </Form.Group>
-
 
                 <Row className={`mt-4 ${jeMobitel ? 'flex-column gap-2' : ''}`}>
                     <Col xs={12} md={2}>
@@ -103,6 +123,14 @@ export default function FishijadaPromjena() {
                     </Col>
                 </Row>
             </Form>
+
+            <Modal show={uspjehModal} centered backdrop="static">
+                <Modal.Body className="text-center py-5 bg-white rounded-4 shadow-lg">
+                    <div className="mb-3" style={{ fontSize: "3rem" }}>✨🎉</div>
+                    <h4 className="fw-bold text-success mb-2">Uspješno promijenjeno!</h4>
+                    <p className="text-muted mb-0">Podaci o fišijadi su uspješno ažurirani. Preusmjeravanje...</p>
+                </Modal.Body>
+            </Modal>
         </Container>
     )
 }
