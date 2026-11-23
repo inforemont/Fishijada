@@ -5,7 +5,7 @@ import Badge from 'react-bootstrap/Badge'
 import Table from 'react-bootstrap/Table'
 import { NumericFormat } from 'react-number-format'
 import { RouteNames } from '../../constants'
-import { Button, Modal, Container } from "react-bootstrap"
+import { Button, Modal, Container, Pagination } from "react-bootstrap"
 import FormatDatuma from "../../components/FormatDatuma"
 import PrijavaService from "../../services/prijave/PrijavaService"
 import zadanaSlikaLokacije from "../../assets/slikelokacija/knezevivinogradi.jpg"
@@ -36,6 +36,16 @@ function LokacijeIzbor() {
     const [lokacijaZaBrisanje, setLokacijaZaBrisanje] = useState(null)
     const [potvrdaBrisanjaModal, setPotvrdaBrisanjaModal] = useState(false)
     const [uspjehBrisanjaModal, setUspjehBrisanjaModal] = useState(false)
+
+    const [trenutnaStranica, setTrenutnaStranica] = useState(1)
+    const poStranici = 10
+
+    const filtriraneLokacije = lokacije ? lokacije.filter((lokacija) => lokacija.sifra !== 111) : []
+
+    const zadnjiIndeks = trenutnaStranica * poStranici
+    const prviIndeks = zadnjiIndeks - poStranici
+    const trenutneLokacije = filtriraneLokacije.slice(prviIndeks, zadnjiIndeks)
+    const ukupnoStranica = Math.ceil(filtriraneLokacije.length / poStranici)
 
     function dohvatiSlikuLokacije(mjesto) {
         if (!mjesto) return zadanaSlikaLokacije;
@@ -107,6 +117,26 @@ function LokacijeIzbor() {
         navigate(RouteNames.LOKACIJE_DETALJI.replace(':sifra', sifra))
     }
 
+    const dohvatiStraniceZaPrikaz = () => {
+        const stranice = []
+        if (ukupnoStranica <= 6) {
+            for (let i = 1; i <= ukupnoStranica; i++) {
+                stranice.push(i)
+            }
+        } else {
+            stranice.push(1, 2, 3)
+            
+            if (trenutnaStranica > 4 && trenutnaStranica < ukupnoStranica - 3) {
+                stranice.push('...', trenutnaStranica)
+            } else {
+                stranice.push('...')
+            }
+
+            stranice.push(ukupnoStranica - 2, ukupnoStranica - 1, ukupnoStranica)
+        }
+        return [...new Set(stranice)]
+    }
+
     return (
         <>
             {isAdmin && (
@@ -127,7 +157,7 @@ function LokacijeIzbor() {
                     </tr>
                 </thead>
                 <tbody>
-                    {lokacije && lokacije.filter((lokacija) => lokacija.sifra !== 111).map((lokacija) => {
+                    {trenutneLokacije.map((lokacija) => {
                         const slikaZaPrikaz = lokacija.slika || dohvatiSlikuLokacije(lokacija.mjesto);
 
                         return (
@@ -191,11 +221,39 @@ function LokacijeIzbor() {
                 </tbody>
             </Table>
 
-            Ukupno lokacija : &nbsp;
-            <Badge pill bg="success">
-                {lokacije && lokacije.length}
-            </Badge>
-            &nbsp;
+            {ukupnoStranica > 1 && (
+                <div className="d-flex justify-content-center my-4">
+                    <Pagination>
+                        <Pagination.First disabled={trenutnaStranica === 1} onClick={() => setTrenutnaStranica(1)} />
+                        <Pagination.Prev disabled={trenutnaStranica === 1} onClick={() => setTrenutnaStranica((prev) => Math.max(prev - 1, 1))} />
+                        
+                        {dohvatiStraniceZaPrikaz().map((item, index) => {
+                            if (item === '...') {
+                                return <Pagination.Ellipsis key={`ellipsis-${index}`} disabled />
+                            }
+                            return (
+                                <Pagination.Item 
+                                    key={item} 
+                                    active={item === trenutnaStranica} 
+                                    onClick={() => setTrenutnaStranica(item)}
+                                >
+                                    {item}
+                                </Pagination.Item>
+                            )
+                        })}
+
+                        <Pagination.Next disabled={trenutnaStranica === ukupnoStranica} onClick={() => setTrenutnaStranica((prev) => Math.min(prev + 1, ukupnoStranica))} />
+                        <Pagination.Last disabled={trenutnaStranica === ukupnoStranica} onClick={() => setTrenutnaStranica(ukupnoStranica)} />
+                    </Pagination>
+                </div>
+            )}
+
+            <div className="mt-3 mb-4">
+                Ukupno lokacija : &nbsp;
+                <Badge pill bg="success">
+                    {filtriraneLokacije.length}
+                </Badge>
+            </div>
 
             <Modal show={prikaziModal} onHide={() => setPrikaziModal(false)} centered size="lg">
                 <Modal.Header closeButton>
@@ -216,7 +274,7 @@ function LokacijeIzbor() {
                 </Modal.Footer>
             </Modal>
 
-           <Modal show={potvrdaBrisanjaModal} onHide={() => setPotvrdaBrisanjaModal(false)} centered>
+            <Modal show={potvrdaBrisanjaModal} onHide={() => setPotvrdaBrisanjaModal(false)} centered>
                 <Modal.Header closeButton className="bg-primary text-white">
                     <Modal.Title className="fw-bold fs-5">⚠️ Potvrda brisanja</Modal.Title>
                 </Modal.Header>

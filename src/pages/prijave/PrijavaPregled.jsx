@@ -33,7 +33,7 @@ function PrijaveIzbor({ godina }) {
     const breakpoint = useBreakpoint()
     const jeMobitel = breakpoint === 'xs' || breakpoint === 'sm'
     const [prijave, setPrijave] = useState([])
-    const navigate = useNavigate();
+    const navigate = useNavigate()
     const [lokacije, setLokacije] = useState([])
     const [odabranaLokacija, setOdabranaLokacija] = useState('')
     const [korisnik, setKorisnik] = useState(null)
@@ -99,6 +99,26 @@ function PrijaveIzbor({ godina }) {
         await PrijavaService.get().then((odgovor) => {
             setPrijave(odgovor.data)
         })
+    }
+
+    const dohvatiStraniceZaPrikaz = () => {
+        const stranice = []
+        if (ukupnoStranica <= 6) {
+            for (let i = 1; i <= ukupnoStranica; i++) {
+                stranice.push(i)
+            }
+        } else {
+            stranice.push(1, 2, 3)
+            
+            if (trenutnaStranica > 4 && trenutnaStranica < ukupnoStranica - 3) {
+                stranice.push('...', trenutnaStranica)
+            } else {
+                stranice.push('...')
+            }
+
+            stranice.push(ukupnoStranica - 2, ukupnoStranica - 1, ukupnoStranica)
+        }
+        return [...new Set(stranice)]
     }
 
     return (
@@ -216,11 +236,22 @@ function PrijaveIzbor({ godina }) {
                     <Pagination>
                         <Pagination.First disabled={trenutnaStranica === 1} onClick={() => setTrenutnaStranica(1)} />
                         <Pagination.Prev disabled={trenutnaStranica === 1} onClick={() => setTrenutnaStranica((prev) => Math.max(prev - 1, 1))} />
-                        {[...Array(ukupnoStranica).keys()].map((broj) => (
-                            <Pagination.Item key={broj + 1} active={broj + 1 === trenutnaStranica} onClick={() => setTrenutnaStranica(broj + 1)}>
-                                {broj + 1}
-                            </Pagination.Item>
-                        ))}
+                        
+                        {dohvatiStraniceZaPrikaz().map((item, index) => {
+                            if (item === '...') {
+                                return <Pagination.Ellipsis key={`ellipsis-${index}`} disabled />
+                            }
+                            return (
+                                <Pagination.Item 
+                                    key={item} 
+                                    active={item === trenutnaStranica} 
+                                    onClick={() => setTrenutnaStranica(item)}
+                                >
+                                    {item}
+                                </Pagination.Item>
+                            )
+                        })}
+
                         <Pagination.Next disabled={trenutnaStranica === ukupnoStranica} onClick={() => setTrenutnaStranica((prev) => Math.min(prev + 1, ukupnoStranica))} />
                         <Pagination.Last disabled={trenutnaStranica === ukupnoStranica} onClick={() => setTrenutnaStranica(ukupnoStranica)} />
                     </Pagination>
