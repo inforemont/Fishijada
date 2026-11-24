@@ -1,43 +1,35 @@
 import PrijavaServiceMemorija from "./PrijavaServiceMemorija"
-import { DATA_SOURCE } from "../../constants"
 import PrijavaServiceLocalStorage from "./PrijavaServiceLocalStorage"
-
-let Servis = null
-switch (DATA_SOURCE) {
-    case 'memorija':
-        Servis = PrijavaServiceMemorija
-        break
-    case 'localStorage':
-        Servis = PrijavaServiceLocalStorage
-        break
-    default:
-        Servis = null
-}
+import PrijavaServiceFirebase from "./PrijavaServiceFirebase"
+import { DATA_SOURCE as DEFAULT_DATA_SOURCE } from "../../constants"
 
 const PrazanServis = {
     get: async () => ({ data: [] }),
-    dodaj: async (Prijava) => { console.error('Servis nije implementiran') },
+    dodaj: async (Prijava) => { console.error('Servis nije implementiran'); },
     getBySifra: async (sifra) => ({ data: {} }),
-    promjeni: async (sifra, Prijava) => { console.error('Servis nije implementiran') },
-    obrisi: async (sifra) => { console.error('Servis nije implementiran') },
+    promjeni: async (sifra, Prijava) => { console.error('Servis nije implementiran'); },
+    obrisi: async (sifra) => { console.error('Servis nije implementiran'); },
+};
 
-}
+const getAktivniServis = () => {
+    const trenutniIzvor = localStorage.getItem('odabraniIzvorPodataka') || DEFAULT_DATA_SOURCE;
 
-const AktivniServis = Servis || PrazanServis
-
-
-
-
-
-
-
-
-
+    switch (trenutniIzvor) {
+        case 'memorija':
+            return PrijavaServiceMemorija;
+        case 'localStorage':
+            return PrijavaServiceLocalStorage;
+        case 'firebase':
+            return PrijavaServiceFirebase;
+        default:
+            return PrazanServis;
+    }
+};
 
 export default {
-    get: () => AktivniServis.get(),
-    dodaj: (Prijava) => AktivniServis.dodaj(Prijava),
-    getBySifra: (sifra) => AktivniServis.getBySifra(sifra),
-    promjeni: (sifra, Prijava) => AktivniServis.promjeni(sifra, Prijava),
-    obrisi: (sifra) => AktivniServis.obrisi(sifra),
+    get: () => getAktivniServis().get(),
+    dodaj: (Prijava) => getAktivniServis().dodaj(Prijava),
+    getBySifra: (sifra) => getAktivniServis().getBySifra(sifra),
+    promjeni: (sifra, Prijava) => getAktivniServis().promjeni(sifra, Prijava),
+    obrisi: (sifra) => getAktivniServis().obrisi(sifra),
 }

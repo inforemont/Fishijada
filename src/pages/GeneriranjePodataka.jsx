@@ -1,14 +1,32 @@
-import { useState } from 'react';
-import { Button, Form, Alert, Container, Row, Col, Badge } from 'react-bootstrap';
+import { useState, useEffect } from 'react';
+import { Button, Form, Alert, Container, Row, Col, Badge, Spinner, Modal } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
 import { Faker, hr } from '@faker-js/faker';
 import FishijadaService from '../services/fishijade/FishijadaService';
 import PrijavaService from '../services/prijave/PrijavaService';
 import LokacijaService from '../services/lokacije/LokacijaService';
 import KorisnikService from '../services/logiranje/KorisnikService';
-import { DATA_SOURCE } from '../constants';
+import { DATA_SOURCE, RouteNames } from '../constants';
+import zadanaSlikaLokacije from '../assets/slikelokacija/knezevivinogradi.jpg';
 
 export default function GeneriranjePodataka() {
-    const [trenutniIzvor, setTrenutniIzvor] = useState(DATA_SOURCE);
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const spremljeniKorisnik = localStorage.getItem("prijavljeniKorisnik");
+        if (!spremljeniKorisnik) {
+            navigate(RouteNames.LOGIN);
+            return;
+        }
+        const korisnik = JSON.parse(spremljeniKorisnik);
+        if (korisnik.uloga !== "Admin") {
+            navigate(RouteNames.HOME);
+        }
+    }, [navigate]);
+
+    const [trenutniIzvor, setTrenutniIzvor] = useState(() => {
+        return localStorage.getItem("odabraniIzvorPodataka") || DATA_SOURCE;
+    });
 
     const [brojFishijada, setBrojFishijada] = useState(8)
     const [brojPrijava, setBrojPrijava] = useState(30)
@@ -16,19 +34,48 @@ export default function GeneriranjePodataka() {
     const [brojKorisnika, setBrojKorisnika] = useState(5)
     const [poruka, setPoruka] = useState(null)
     const [loading, setLoading] = useState(false)
+    const [loadingTekst, setLoadingTekst] = useState('')
+
+    const [showModal, setShowModal] = useState(false)
+    const [modalConfig, setModalConfig] = useState({ naslov: '', tekst: '', akcija: null })
+
+    useEffect(() => {
+        if (poruka) {
+            const timer = setTimeout(() => {
+                setPoruka(null);
+            }, 2000);
+            return () => clearTimeout(timer);
+        }
+    }, [poruka]);
 
     const faker = new Faker({
         locale: [hr]
     })
 
-    const uvoziSlikeIzMape = () => {
-        try {
-            const uvoziModule = import.meta.glob('../assets/slikegalerija/*.{jpg,jpeg,png,webp,avif}', { eager: true });
-            return Object.values(uvoziModule).map(modul => modul.default);
-        } catch (e) {
-            console.log("Mapa sa slikama nije pronađena ili je prazna.");
-            return [];
+    const provjeriAdminOvlasti = () => {
+        const spremljeniKorisnik = localStorage.getItem("prijavljeniKorisnik");
+        if (!spremljeniKorisnik) {
+            navigate(RouteNames.LOGIN);
+            return false;
         }
+        const korisnik = JSON.parse(spremljeniKorisnik);
+        if (korisnik.uloga !== "Admin") {
+            setPoruka({ tip: 'danger', tekst: 'Nemate ovlasti za generiranje podataka!' });
+            return false;
+        }
+        return true;
+    }
+
+    const generirajRandomSlike = () => {
+        const brojSlika = faker.number.int({ min: 3, max: 8 });
+        const slike = [];
+        
+        // Nasumično biramo brojeve od 1 do 51 koji odgovaraju nazivima datoteka u public/slikegalerija/
+        for (let i = 0; i < brojSlika; i++) {
+            const randomBroj = faker.number.int({ min: 1, max: 51 });
+            slike.push(String(randomBroj));
+        }
+        return slike;
     }
 
     const promjeniIzvorPodataka = () => {
@@ -42,16 +89,22 @@ export default function GeneriranjePodataka() {
         }
         
         setTrenutniIzvor(noviIzvor)
+        localStorage.setItem("odabraniIzvorPodataka", noviIzvor);
+        
         setPoruka({
             tip: 'info',
             tekst: `Izvor podataka uspješno promijenjen na: ${noviIzvor}`
         })
+        
+        setTimeout(() => {
+            window.location.reload();
+        }, 500);
     }
 
     const generirajFishijade = async (broj) => {
+        if (!provjeriAdminOvlasti()) return;
         const rezultatLokacija = await LokacijaService.get()
         const lokacije = rezultatLokacija.data || []
-
         const rezultatPrijava = await PrijavaService.get()
         const prijave = rezultatPrijava.data || []
 
@@ -62,13 +115,17 @@ export default function GeneriranjePodataka() {
             if (lokacije.length > 0) {
                 const brojZaOdabrati = faker.number.int({ min: 1, max: Math.min(10, lokacije.length) })
                 const odabraneLokacije = faker.helpers.arrayElements(lokacije, brojZaOdabrati)
-
                 randomLokacijeSifre = odabraneLokacije.map(l => l.sifra)
 
                 if (prijave.length > 0) {
                     odabraneLokacije.forEach(lokacija => {
                         const brojPrijavaZaOvuLokaciju = faker.number.int({ min: 1, max: Math.min(50, prijave.length) });
-                        const odabranePrijaveZaLokaciju = faker.helpers.arrayElements(prijave, brojPrijavaZaOvuLokaciju);
+                        const prijaveZaOvuLokaciju = prijave.filter(p => String(p.lokacija) === String(lokacija.sifra) || String(p.lokacijaId) === String(lokacija.sifra));
+                        
+                        const odabranePrijaveZaLokaciju = prijaveZaOvuLokaciju.length > 0 
+                            ? faker.helpers.arrayElements(prijaveZaOvuLokaciju, Math.min(brojPrijavaZaOvuLokaciju, prijaveZaOvuLokaciju.length))
+                            : faker.helpers.arrayElements(prijave, Math.min(brojPrijavaZaOvuLokaciju, prijave.length));
+
                         prijavePoLokacijama[lokacija.sifra] = odabranePrijaveZaLokaciju.map(p => p.sifra);
                     })
                 }
@@ -89,38 +146,65 @@ export default function GeneriranjePodataka() {
     }
 
     const generirajPrijave = async (broj) => {
+        if (!provjeriAdminOvlasti()) return;
         let rezultatLokacija = await LokacijaService.get()
         let lokacije = rezultatLokacija.data || []
 
-        const sveSlikeIzMape = uvoziSlikeIzMape();
+        if (lokacije.length === 0) {
+            throw new Error("Nema pronađenih lokacija u bazi. Prvo generirajte lokacije!");
+        }
 
-        for (const lokacija of lokacije) {
-            const brojPrijavaZaOvuLokaciju = faker.number.int({ min: 1, max: Math.min(20, broj) })
-
-            for (let j = 0; j < brojPrijavaZaOvuLokaciju; j++) {
-                let odabraneSlikeZaPrijavu = [];
-                if (sveSlikeIzMape.length > 0) {
-                    const brojSlikaZaUbaciti = faker.number.int({ min: 1, max: Math.min(10, sveSlikeIzMape.length) });
-                    odabraneSlikeZaPrijavu = faker.helpers.arrayElements(sveSlikeIzMape, brojSlikaZaUbaciti);
-                }
-
-                const prijava = {
-                    imePrezime: faker.person.firstName() + ' ' + faker.person.lastName(),
-                    ekipa: 'Ekipa ' + faker.person.lastName() + ' ' + faker.number.int({ min: 1, max: 100 }),
-                    stol: faker.number.int({ min: 1, max: 150 }),
-                    email: faker.internet.email(),
-                    kotizacijaPlacena: faker.datatype.boolean(),
-                    prvenstvoHrvatske: false,
-                    lokacija: lokacija.sifra,
-                    slike: odabraneSlikeZaPrijavu
-                }
-
-                await PrijavaService.dodaj(prijava);
+        for (let j = 0; j < broj; j++) {
+            const nasumicnaLokacija = faker.helpers.arrayElement(lokacije);
+            const prijava = {
+                imePrezime: faker.person.firstName() + ' ' + faker.person.lastName(),
+                ekipa: 'Ekipa ' + faker.person.lastName() + ' ' + faker.number.int({ min: 1, max: 100 }),
+                stol: faker.number.int({ min: 1, max: 150 }),
+                email: faker.internet.email(),
+                kotizacijaPlacena: faker.datatype.boolean(),
+                prvenstvoHrvatske: false,
+                lokacija: nasumicnaLokacija.sifra,
+                lokacijaId: nasumicnaLokacija.sifra,
+                slike: generirajRandomSlike()
             }
+            await PrijavaService.dodaj(prijava);
+        }
+    }
+
+    const napuniPostojecePrijaveSlikama = async () => {
+        if (!provjeriAdminOvlasti()) return;
+        setLoading(true)
+        setLoadingTekst('Punjenje postojećih prijava lokalnim slikama...')
+        setPoruka(null)
+
+        try {
+            const rezultat = await PrijavaService.get();
+            const prijave = rezultat.data || [];
+
+            if (prijave.length === 0) {
+                setPoruka({ tip: 'warning', tekst: 'Nema pronađenih prijava u bazi koje bi se napunile slikama!' })
+                setLoading(false)
+                return
+            }
+
+            let brojac = 0;
+            for (const prijava of prijave) {
+                const izmjenjenaPrijava = { ...prijava, slike: generirajRandomSlike() };
+                await PrijavaService.promjeni(prijava.sifra, izmjenjenaPrijava);
+                brojac++;
+            }
+
+            setPoruka({ tip: 'success', tekst: `Uspješno dodane lokalne slike u galerije za ${brojac} postojećih prijava!` })
+        } catch (error) {
+            setPoruka({ tip: 'danger', tekst: 'Greška pri punjenju slika: ' + error.message })
+        } finally {
+            setLoading(false)
+            setLoadingTekst('')
         }
     }
 
     const generirajLokacije = async (broj) => {
+        if (!provjeriAdminOvlasti()) return;
         const naziviLokacija = [
             'Kneževi Vinogradi', 'Luč', 'Jagodnjak', 'Baranjsko Petrovo Selo',
             'Petlovac', 'Lug', 'Kopačevo', 'Zmajevac', 'Batina', 'Darda'
@@ -137,6 +221,7 @@ export default function GeneriranjePodataka() {
     }
 
     const generirajKorisnike = async (broj) => {
+        if (!provjeriAdminOvlasti()) return;
         for (let i = 0; i < broj; i++) {
             const ime = faker.person.firstName()
             const prezime = faker.person.lastName()
@@ -153,7 +238,9 @@ export default function GeneriranjePodataka() {
 
     const handleGenerirajFishijade = async (e) => {
         e.preventDefault()
+        if (!provjeriAdminOvlasti()) return;
         setLoading(true)
+        setLoadingTekst('Generiranje fišijada u tijeku...')
         setPoruka(null)
 
         try {
@@ -177,12 +264,15 @@ export default function GeneriranjePodataka() {
             setPoruka({ tip: 'danger', tekst: 'Greška pri generiranju fišijada: ' + error.message })
         } finally {
             setLoading(false)
+            setLoadingTekst('')
         }
     };
 
     const handleGenerirajPrijave = async (e) => {
         e.preventDefault()
+        if (!provjeriAdminOvlasti()) return;
         setLoading(true)
+        setLoadingTekst('Generiranje prijava s lokalnim slikama...')
         setPoruka(null)
 
         try {
@@ -194,17 +284,20 @@ export default function GeneriranjePodataka() {
             }
 
             await generirajPrijave(brojPrijava)
-            setPoruka({ tip: 'success', tekst: `Uspješno generirano ${brojPrijava} prijava s nasumičnim slikama iz galerije!` })
+            setPoruka({ tip: 'success', tekst: `Uspješno generirano ${brojPrijava} prijava s lokalnom galerijom slika!` })
         } catch (error) {
             setPoruka({ tip: 'danger', tekst: 'Greška pri generiranju prijava: ' + error.message })
         } finally {
             setLoading(false)
+            setLoadingTekst('')
         }
     }
 
     const handleGenerirajLokacije = async (e) => {
         e.preventDefault()
+        if (!provjeriAdminOvlasti()) return;
         setLoading(true)
+        setLoadingTekst('Generiranje lokacija u tijeku...')
         setPoruka(null)
 
         try {
@@ -214,12 +307,15 @@ export default function GeneriranjePodataka() {
             setPoruka({ tip: 'danger', tekst: 'Greška pri generiranju lokacija: ' + error.message })
         } finally {
             setLoading(false)
+            setLoadingTekst('')
         }
     }
 
     const handleGenerirajKorisnike = async (e) => {
         e.preventDefault()
+        if (!provjeriAdminOvlasti()) return;
         setLoading(true)
+        setLoadingTekst('Generiranje korisnika u tijeku...')
         setPoruka(null)
 
         try {
@@ -229,12 +325,43 @@ export default function GeneriranjePodataka() {
             setPoruka({ tip: 'danger', tekst: 'Greška pri generiranju korisnika: ' + error.message })
         } finally {
             setLoading(false)
+            setLoadingTekst('')
         }
     }
 
-    const handleObrisiPrijave = async () => {
-        if (!window.confirm('Jeste li sigurni da želite obrisati sve prijave?')) return
+    const otvoriModalZaBrisanje = (vrsta) => {
+        if (!provjeriAdminOvlasti()) return;
+
+        let naslov = ''
+        let tekst = ''
+        let akcija = null
+
+        if (vrsta === 'lokacije') {
+            naslov = 'Brisanje lokacija'
+            tekst = 'Jeste li sigurni da želite obrisati sve lokacije?'
+            akcija = izvrsiBrisanjeLokacija
+        } else if (vrsta === 'prijave') {
+            naslov = 'Brisanje prijava'
+            tekst = 'Jeste li sigurni da želite obrisati sve prijave?'
+            akcija = izvrsiBrisanjePrijava
+        } else if (vrsta === 'fishijade') {
+            naslov = 'Brisanje fišijada'
+            tekst = 'Jeste li sigurni da želite obrisati sve fišijade?'
+            akcija = izvrsiBrisanjeFishijada
+        } else if (vrsta === 'korisnici') {
+            naslov = 'Brisanje korisnika'
+            tekst = 'Jeste li sigurni da želite obrisati sve korisnike?'
+            akcija = izvrsiBrisanjeKorisnika
+        }
+
+        setModalConfig({ naslov, tekst, akcija })
+        setShowModal(true)
+    }
+
+    const izvrsiBrisanjePrijava = async () => {
+        setShowModal(false)
         setLoading(true)
+        setLoadingTekst('Brisanje prijava...')
         setPoruka(null)
         try {
             const rezultat = await PrijavaService.get()
@@ -246,12 +373,14 @@ export default function GeneriranjePodataka() {
             setPoruka({ tip: 'danger', tekst: 'Greška pri brisanju prijava: ' + error.message })
         } finally {
             setLoading(false)
+            setLoadingTekst('')
         }
     }
 
-    const handleObrisiFishijade = async () => {
-        if (!window.confirm('Jeste li sigurni da želite obrisati sve fišijade?')) return
+    const izvrsiBrisanjeFishijada = async () => {
+        setShowModal(false)
         setLoading(true)
+        setLoadingTekst('Brisanje fišijada...')
         setPoruka(null)
         try {
             const rezultat = await FishijadaService.get();
@@ -263,12 +392,14 @@ export default function GeneriranjePodataka() {
             setPoruka({ tip: 'danger', tekst: 'Greška pri brisanju fišijada: ' + error.message })
         } finally {
             setLoading(false)
+            setLoadingTekst('')
         }
     }
 
-    const handleObrisiLokacije = async () => {
-        if (!window.confirm('Jeste li sigurni da želite obrisati sve lokacije?')) return
+    const izvrsiBrisanjeLokacija = async () => {
+        setShowModal(false)
         setLoading(true)
+        setLoadingTekst('Brisanje lokacija...')
         setPoruka(null)
         try {
             const rezultat = await LokacijaService.get()
@@ -280,12 +411,14 @@ export default function GeneriranjePodataka() {
             setPoruka({ tip: 'danger', tekst: 'Greška pri brisanju lokacija: ' + error.message })
         } finally {
             setLoading(false)
+            setLoadingTekst('')
         }
     }
 
-    const handleObrisiKorisnike = async () => {
-        if (!window.confirm('Jeste li sigurni da želite obrisati sve korisnike?')) return
+    const izvrsiBrisanjeKorisnika = async () => {
+        setShowModal(false)
         setLoading(true)
+        setLoadingTekst('Brisanje korisnika...')
         setPoruka(null)
         try {
             const rezultat = await KorisnikService.get();
@@ -297,11 +430,40 @@ export default function GeneriranjePodataka() {
             setPoruka({ tip: 'danger', tekst: 'Greška pri brisanju korisnika: ' + error.message })
         } finally {
             setLoading(false)
+            setLoadingTekst('')
         }
     }
 
     return (
-        <Container className="mt-4 mb-5">
+        <Container className="mt-4 mb-5 position-relative">
+            {loading && (
+                <div 
+                    className="position-fixed top-0 start-0 w-100 h-100 d-flex flex-column justify-content-center align-items-center bg-white bg-opacity-75"
+                    style={{ zIndex: 1050 }}
+                >
+                    <Spinner animation="border" variant="success" style={{ width: '4rem', height: '4rem' }} />
+                    <h4 className="mt-3 text-success fw-bold">{loadingTekst || 'Obrada u tijeku...'}</h4>
+                    <p className="text-muted small">Molimo pričekajte, podaci se sinkroniziraju.</p>
+                </div>
+            )}
+
+            <Modal show={showModal} onHide={() => setShowModal(false)} centered>
+                <Modal.Header closeButton className="bg-danger text-white">
+                    <Modal.Title className="fw-bold fs-5">⚠️ {modalConfig.naslov}</Modal.Title>
+                </Modal.Header>
+                <Modal.Body className="py-4">
+                    <p className="fs-6 mb-0 text-dark fw-semibold">{modalConfig.tekst}</p>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowModal(false)} className="rounded-pill px-4">
+                        Odustani
+                    </Button>
+                    <Button variant="danger" onClick={modalConfig.akcija} className="rounded-pill px-4 fw-bold">
+                        Potvrdi brisanje
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
             <div className="d-flex justify-content-between align-items-center mb-3">
                 <div>
                     <h1>Generiranje podataka</h1>
@@ -410,8 +572,18 @@ export default function GeneriranjePodataka() {
                 </Col>
             </Row>
 
+            <div className="p-3 border rounded shadow-sm bg-white mt-4 text-center">
+                <h4 className="fs-5 mb-2">📸 Brzo punjenje galerija za postojeće prijave</h4>
+                <p className="text-muted small mb-3">
+                    Ako već imaš prijave u bazi, klikom na ovaj gumb odmah ćeš im dodati nasumične lokalne slike u galeriju.
+                </p>
+                <Button variant="warning" onClick={napuniPostojecePrijaveSlikama} disabled={loading} className="fw-semibold px-4">
+                    {loading ? 'Punjenje u tijeku...' : '🖼️ Napuni sve postojeće prijave lokalnim slikama'}
+                </Button>
+            </div>
+
             <Alert variant="warning" className="mt-4">
-                <strong>Preporučen redoslijed:</strong> Lokacije → Prijave → Fišijade (Prijave automatski povlače do 10 nasumičnih slika iz mape `src/assets/slikegalerija`).
+                <strong>Preporučen redoslijed:</strong> Lokacije → Prijave → Fišijade.
             </Alert>
 
             <hr className="my-4" />
@@ -423,22 +595,22 @@ export default function GeneriranjePodataka() {
 
             <Row className="mt-3 g-2">
                 <Col md={3}>
-                    <Button variant="danger" onClick={handleObrisiLokacije} disabled={loading} className="w-100">
+                    <Button variant="danger" onClick={() => otvoriModalZaBrisanje('lokacije')} disabled={loading} className="w-100">
                         Obriši sve lokacije
                     </Button>
                 </Col>
                 <Col md={3}>
-                    <Button variant="danger" onClick={handleObrisiPrijave} disabled={loading} className="w-100">
+                    <Button variant="danger" onClick={() => otvoriModalZaBrisanje('prijave')} disabled={loading} className="w-100">
                         Obriši sve prijave
                     </Button>
                 </Col>
                 <Col md={3}>
-                    <Button variant="danger" onClick={handleObrisiFishijade} disabled={loading} className="w-100">
+                    <Button variant="danger" onClick={() => otvoriModalZaBrisanje('fishijade')} disabled={loading} className="w-100">
                         Obriši sve fišijade
                     </Button>
                 </Col>
                 <Col md={3}>
-                    <Button variant="danger" onClick={handleObrisiKorisnike} disabled={loading} className="w-100">
+                    <Button variant="danger" onClick={() => otvoriModalZaBrisanje('korisnici')} disabled={loading} className="w-100">
                         Obriši sve korisnike
                     </Button>
                 </Col>

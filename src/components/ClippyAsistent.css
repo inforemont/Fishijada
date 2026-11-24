@@ -1,0 +1,71 @@
+
+.clippy-kontejner {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    animation: ulijetanjeSvrha 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes ulijetanjeSvrha {
+    0% {
+        transform: translate(-300px, -400px) rotate(-45deg) scale(0.3);
+        opacity: 0;
+    }
+    60% {
+        transform: translate(20px, 10px) rotate(15deg) scale(1.1);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(0, 0) rotate(0deg) scale(1);
+        opacity: 1;
+    }
+}
+
+.clippy-ikona {
+    font-size: 3.5rem;
+    cursor: pointer;
+    background: white;
+    border-radius: 50%;
+    padding: 5px 14px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+    user-select: none;
+    animation: poskakivanjeIkone 3s infinite ease-in-out;
+    transition: transform 0.2s ease;
+}
+
+@keyframes poskakivanjeIkone {
+    0%, 100% {
+        transform: translateY(0) rotate(0deg);
+    }
+    30% {
+        transform: translateY(-12px) rotate(-8deg);
+    }
+    60% {
+        transform: translateY(-4px) rotate(8deg);
+    }
+}
+
+.clippy-ikona:hover {
+    transform: scale(1.2) rotate(15deg) !important;
+}
+
+.clippy-balon {
+    position: relative;
+    background: #2e4a34;
+    color: white;
+    padding: 15px 30px 15px 15px;
+    border-radius: 12px;
+    max-width: 280px;
+    margin-bottom: 12px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    animation: pojaviSeBalon 0.5s ease-out;
+}
+
+@keyframes pojaviSeBalon {
+    from { opacity: 0; transform: scale(0.8); }
+    to { opacity: 1; transform: scale(1); }
+}

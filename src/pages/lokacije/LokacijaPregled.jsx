@@ -161,7 +161,7 @@ function LokacijeIzbor() {
                         <tbody>
                             {trenutneLokacije.map((lokacija) => {
                                 const slikaZaPrikaz = lokacija.slika || dohvatiSlikuLokacije(lokacija.mjesto);
-                                const brojEkipa = prijave.filter(p => Number(p.lokacija) === Number(lokacija.sifra)).length;
+                                const brojEkipa = prijave.filter(p => String(p.lokacija) === String(lokacija.sifra)).length;
 
                                 return (
                                     <tr key={lokacija.sifra}>
@@ -230,8 +230,8 @@ function LokacijeIzbor() {
             {jeMobitel && (
                 <div className="d-flex flex-column gap-3">
                     {trenutneLokacije.map((lokacija) => {
-                        const slikaZaPrikaz = lokacija.slika || dohvatiSlikuLokacije(lokacija.mjesto);
-                        const brojEkipa = prijave.filter(p => Number(p.lokacija) === Number(lokacija.sifra)).length;
+                        const slikaZaPrikaz = lokacija.slika || dohvatiSlikuLokacije(lokacija.mjesto)
+                        const brojEkipa = prijave.filter(p => String(p.lokacija) === String(lokacija.sifra)).length
 
                         return (
                             <Card key={lokacija.sifra} className="shadow-sm border-0 rounded-3 p-3">

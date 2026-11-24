@@ -2,6 +2,9 @@ import { useState } from "react"
 import { Container, Card, Form, Button, Alert } from "react-bootstrap"
 import { useNavigate, Link } from "react-router-dom"
 import { RouteNames } from "../../constants"
+import KorisnikService from "../../services/logiranje/KorisnikService"
+
+import pandaHappy from "../../assets/pandahappy.gif"
 
 export default function Registracija() {
     const navigate = useNavigate()
@@ -14,39 +17,71 @@ export default function Registracija() {
     })
     const [poruka, setPoruka] = useState("")
     const [greska, setGreska] = useState("")
+    const [isSubmitting, setIsSubmitting] = useState(false)
 
     const handleChange = (e) => {
         const { name, value } = e.target
         setForm(prev => ({ ...prev, [name]: value }))
     }
 
-    const obradiRegistraciju = (e) => {
+    const obradiRegistraciju = async (e) => {
         e.preventDefault()
         setGreska("")
         setPoruka("")
 
-        if (!form.ime || !form.email || !form.lozinka) {
+        if (!form.ime.trim() || !form.email.trim() || !form.lozinka) {
             setGreska("Molimo ispunite sva obavezna polja.")
             return
         }
 
-        setPoruka("Uspješna registracija! Možete se prijaviti u sustav.")
-        setTimeout(() => {
-            navigate(RouteNames.LOGIN)
-        }, 1500)
+        if (form.lozinka.length < 8) {
+            setGreska("Lozinka mora imati najmanje 8 znakova.")
+            return
+        }
+
+        setIsSubmitting(true)
+
+        try {
+
+            await KorisnikService.dodaj({
+                ime: form.ime.trim(),
+                prezime: form.prezime.trim(),
+                email: form.email.trim(),
+                lozinka: form.lozinka,
+                uloga: 'Korisnik'
+            })
+
+            setPoruka("Uspješna registracija! Možete se prijaviti u sustav.")
+            setTimeout(() => {
+                navigate(RouteNames.LOGIN)
+            }, 1500)
+        } catch (err) {
+            setGreska(err.message || "Greška prilikom registracije u sustav.")
+        } finally {
+            setIsSubmitting(false)
+        }
     }
 
     return (
         <Container className="d-flex justify-content-center align-items-center my-5">
             <Card className="shadow-lg border-0 rounded-4 p-4" style={{ maxWidth: "450px", width: "100%" }}>
                 <Card.Body>
+                    <div className="text-center mb-3">
+                        <img 
+                            src={pandaHappy} 
+                            alt="Sretna panda" 
+                            style={{ width: "150px", height: "110px", objectFit: "cover", borderRadius: "8px" }}
+                            className="shadow-sm border border-success mb-2"
+                        />
+                    </div>
+
                     <h3 className="fw-bold text-center mb-2">Registracija računa</h3>
                     <p className="text-muted text-center small mb-4">
                         Stvorite novi korisnički račun za sudjelovanje
                     </p>
 
-                    {poruka && <Alert variant="success" className="py-2 small">{poruka}</Alert>}
-                    {greska && <Alert variant="danger" className="py-2 small">{greska}</Alert>}
+                    {poruka && <Alert variant="success" className="py-2 small text-center">{poruka}</Alert>}
+                    {greska && <Alert variant="danger" className="py-2 small text-center">{greska}</Alert>}
 
                     <Form onSubmit={obradiRegistraciju}>
                         <Form.Group className="mb-3">
@@ -94,10 +129,13 @@ export default function Registracija() {
                                 onChange={handleChange}
                                 required
                             />
+                            <Form.Text className="text-muted small">
+                                Minimalno 8 znakova.
+                            </Form.Text>
                         </Form.Group>
 
-                        <Button variant="success" type="submit" className="w-100 fw-bold py-2 rounded-pill">
-                            Registriraj se
+                        <Button variant="success" type="submit" className="w-100 fw-bold py-2 rounded-pill shadow-sm" disabled={isSubmitting}>
+                            {isSubmitting ? 'Registracija u tijeku...' : 'Registriraj se'}
                         </Button>
                     </Form>
 

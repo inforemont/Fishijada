@@ -3,6 +3,7 @@ import { Container, Card, Form, Button, Alert } from "react-bootstrap"
 import { useNavigate } from "react-router-dom"
 import { RouteNames } from "../../constants"
 import AuthService from "../../services/logiranje/AuthService"
+import ClippyAsistent from "../../components/ClippyAsistent"
 
 export default function ZaboravljenaLozinka() {
     const navigate = useNavigate()
@@ -53,8 +54,8 @@ export default function ZaboravljenaLozinka() {
                         </Button>
 
                         <div className="text-center">
-                            <Button
-                                variant="link"
+                            <Button 
+                                variant="link" 
                                 className="text-decoration-none small text-muted"
                                 onClick={() => navigate(RouteNames.LOGIN)}
                             >
@@ -64,6 +65,8 @@ export default function ZaboravljenaLozinka() {
                     </Form>
                 </Card.Body>
             </Card>
+
+            <ClippyAsistent />
         </Container>
     )
 }

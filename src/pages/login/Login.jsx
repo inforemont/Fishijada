@@ -3,6 +3,7 @@ import { Container, Card, Form, Button, Alert } from "react-bootstrap"
 import { useNavigate } from "react-router-dom"
 import { RouteNames } from "../../constants"
 import AuthService from "../../services/logiranje/AuthService"
+import ClippyAsistent from "../../components/ClippyAsistent"
 
 import pandaHappy from "../../assets/pandahappy.gif"
 import pandaMad from "../../assets/pandamad.gif"
@@ -211,6 +212,8 @@ export default function Login() {
                     </div>
                 </Card.Body>
             </Card>
+
+            <ClippyAsistent />
         </Container>
     )
 }
