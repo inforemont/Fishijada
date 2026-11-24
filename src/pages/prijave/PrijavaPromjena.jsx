@@ -12,19 +12,25 @@ export default function PrijavaPromjena() {
 
     const [lokacije, setLokacije] = useState([])
     const [odabranaLokacija, setOdabranaLokacija] = useState('')
-
     const [prijava, setPrijava] = useState({})
+    const [korisnik, setKorisnik] = useState(null)
 
     async function ucitajPrijave() {
         try {
+            const spremljeniKorisnik = localStorage.getItem("prijavljeniKorisnik")
+            if (spremljeniKorisnik) {
+                setKorisnik(JSON.parse(spremljeniKorisnik))
+            }
+
             const odgovorLokacije = await LokacijaService.get()
-            setLokacije(odgovorLokacije.data)
+            setLokacije(odgovorLokacije.data || [])
 
             const odgovorPrijava = await PrijavaService.getBySifra(params.sifra)
-            setPrijava(odgovorPrijava.data)
+            const pData = odgovorPrijava.data || {}
+            setPrijava(pData)
 
-            if (odgovorPrijava.data.lokacijaSifra) {
-                setOdabranaLokacija(odgovorPrijava.data.lokacijaSifra)
+            if (pData.lokacija !== undefined && pData.lokacija !== null) {
+                setOdabranaLokacija(String(pData.lokacija))
             }
         } catch (error) {
             console.error("Ne mogu učitati podatke", error)
@@ -33,24 +39,41 @@ export default function PrijavaPromjena() {
 
     useEffect(() => {
         ucitajPrijave()
-    }, [])
+    }, [params.sifra])
+
+    const isAdmin = korisnik?.uloga === "Admin"
 
     async function promjeni(prijavaSlanje) {
-        await PrijavaService.promjeni(params.sifra, prijavaSlanje).then(() => {
+        try {
+            await PrijavaService.promjeni(params.sifra, prijavaSlanje)
             navigate(RouteNames.PRIJAVE)
-        })
+        } catch (error) {
+            console.error("Greška kod promjene prijave:", error)
+            alert("Došlo je do greške prilikom spremanja promjena.")
+        }
     }
 
     function obradiSubmit(e) {
         e.preventDefault()
         const podaci = new FormData(e.target)
+
+        if (!odabranaLokacija) {
+            alert("Molimo odaberite lokaciju.")
+            return
+        }
+
+        // Ako korisnik nije admin, polje za stol je disabled pa ga čitamo direktno iz state-a (prijava.stol)
+        const noviStol = isAdmin 
+            ? (parseInt(podaci.get('stol')) || 0) 
+            : (prijava.stol || 0)
+
         promjeni({
             imePrezime: podaci.get('imePrezime'),
             ekipa: podaci.get('ekipa'),
-            stol: parseInt(podaci.get('stol')),
+            stol: noviStol,
             email: podaci.get('email'),
             kotizacijaPlacena: podaci.get('kotizacijaPlacena') === 'on',
-            lokacija: parseInt(odabranaLokacija)
+            lokacija: isNaN(odabranaLokacija) ? odabranaLokacija : parseInt(odabranaLokacija)
         })
     }
 
@@ -62,35 +85,40 @@ export default function PrijavaPromjena() {
 
             <Form onSubmit={obradiSubmit}>
 
-                <Form.Group controlId="imePrezime">
+                <Form.Group controlId="imePrezime" className="mb-3">
                     <Form.Label>IME I PREZIME</Form.Label>
                     <Form.Control type="text" name="imePrezime" required
-                        defaultValue={prijava.imePrezime} />
+                        defaultValue={prijava.imePrezime || ''} />
                 </Form.Group>
 
-                <Form.Group controlId="ekipa">
+                <Form.Group controlId="ekipa" className="mb-3">
                     <Form.Label>EKIPA</Form.Label>
                     <Form.Control type="text" name="ekipa" required
-                        defaultValue={prijava.ekipa} />
+                        defaultValue={prijava.ekipa || ''} />
                 </Form.Group>
 
-                <Form.Group controlId="stol">
-                    <Form.Label>STOL</Form.Label>
-                    <Form.Control type="number" name="stol" required
-                        defaultValue={prijava.stol} />
+                <Form.Group controlId="stol" className="mb-3">
+                    <Form.Label>STOL {isAdmin ? "" : "(Zaključano)"}</Form.Label>
+                    <Form.Control 
+                        type="number" 
+                        name="stol" 
+                        required
+                        disabled={!isAdmin} // Zaključano ako nije admin
+                        defaultValue={prijava.stol || ''} 
+                    />
                 </Form.Group>
 
-                <Form.Group controlId="email">
+                <Form.Group controlId="email" className="mb-3">
                     <Form.Label>E-mail</Form.Label>
                     <Form.Control type="email" name="email" required
-                        defaultValue={prijava.email} />
+                        defaultValue={prijava.email || ''} />
                 </Form.Group>
 
-                <Form.Group controlId="kotizacijaPlacena" className="mt-3">
+                <Form.Group controlId="kotizacijaPlacena" className="mt-3 mb-3">
                     <Form.Check
                         label="Kotizacija uplaćena"
                         name="kotizacijaPlacena"
-                        defaultChecked={prijava && prijava.kotizacijaPlacena}
+                        defaultChecked={!!prijava.kotizacijaPlacena}
                     />
                 </Form.Group>
 
@@ -114,12 +142,12 @@ export default function PrijavaPromjena() {
                 <Row className="mt-4">
                     <Col>
                         <Link to={RouteNames.PRIJAVE}
-                            className="btn btn-danger">
+                            className="btn btn-danger w-100">
                             Odustani
                         </Link>
                     </Col>
                     <Col>
-                        <Button type="submit" variant="success">
+                        <Button type="submit" variant="success" className="w-100">
                             Promijeni
                         </Button>
                     </Col>

@@ -17,15 +17,44 @@ export default function KorisniciPregled() {
             const trenutni = AuthService.dohvatiPrijavljenogKorisnika()
             setPrijavljeniKorisnik(trenutni)
 
-
             const odgovor = await KorisnikService.get()
-            setKorisnici(odgovor.data || [])
+            let dohvaceniKorisnici = odgovor.data || []
+
+            if (trenutni) {
+                const postojiVec = dohvaceniKorisnici.some(k => 
+                    (k.email && trenutni.email && k.email.toLowerCase().trim() === trenutni.email.toLowerCase().trim()) ||
+                    (k.sifra && trenutni.sifra && String(k.sifra) === String(trenutni.sifra))
+                )
+
+                if (!postojiVec) {
+                    dohvaceniKorisnici.push({
+                        sifra: trenutni.sifra || 'admin-trenutni',
+                        ime: trenutni.ime || trenutni.imePrezime || 'Glavni',
+                        prezime: trenutni.prezime || 'Admin',
+                        email: trenutni.email,
+                        uloga: trenutni.uloga || 'Admin'
+                    })
+                }
+            }
+
+            const jedinstveniKorisnici = dohvaceniKorisnici.filter((korisnik, index, self) =>
+                index === self.findIndex((k) => (
+                    k.email && korisnik.email && k.email.toLowerCase().trim() === korisnik.email.toLowerCase().trim()
+                ))
+            )
+
+            jedinstveniKorisnici.sort((a, b) => {
+                if (a.uloga === 'Admin' && b.uloga !== 'Admin') return -1;
+                if (a.uloga !== 'Admin' && b.uloga === 'Admin') return 1;
+                return 0;
+            })
+
+            setKorisnici(jedinstveniKorisnici)
         } catch (err) {
             console.error(err)
             setGreska("Greška prilikom dohvaćanja korisnika.")
         }
     }
-
     useEffect(() => {
         ucitajPodatke()
     }, [])
@@ -46,7 +75,6 @@ export default function KorisniciPregled() {
     }
 
     const prisiliPromjenuLozinke = async (korisnik) => {
-
         const novaPrivremenaLozinka = prompt("Unesite novu privremenu lozinku za korisnika " + korisnik.email + ":");
 
         if (!novaPrivremenaLozinka) return;
@@ -94,7 +122,6 @@ export default function KorisniciPregled() {
                 <tbody>
                     {korisnici && korisnici.length > 0 ? (
                         korisnici.map((k) => {
-
                             const jeLiMojProfil = prijavljeniKorisnik && (String(k.sifra) === String(prijavljeniKorisnik.sifra) || k.email === prijavljeniKorisnik.email);
 
                             return (
@@ -120,7 +147,6 @@ export default function KorisniciPregled() {
                                                 Uredi moj profil
                                             </Button>
                                         ) : (
-
                                             <>
                                                 <Button
                                                     variant="outline-warning"

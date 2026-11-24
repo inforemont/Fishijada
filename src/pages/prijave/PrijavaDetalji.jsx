@@ -7,6 +7,26 @@ import useBreakpoint from "../../hooks/useBreakpoint"
 import Cropper from "react-cropper"
 import "cropperjs/dist/cropper.css"
 
+const galerijaSlike = import.meta.glob('../../assets/slikegalerija/*.jpg', { eager: true, import: 'default' });
+
+function dohvatiSlikuGalerije(naziv) {
+    if (!naziv) return null;
+
+    // Ako je slika base64 string (korisnički upload / crop) ili pravi link, vrati je direktno
+    if (naziv.startsWith('data:image') || naziv.startsWith('http://') || naziv.startsWith('https://')) {
+        return naziv;
+    }
+
+    // Izvuci samo čisti naziv bez ekstenzije (npr. ako piše "1.jpg", ostaje "1")
+    const cistiNaziv = String(naziv).replace(/\.[^/.]+$/, "");
+    
+    // Složi ključ kakav Vite očekuje u glob objektu
+    const kljuc = `../../assets/slikegalerija/${cistiNaziv}.jpg`;
+
+    // Vrati pronađenu sliku iz glob-a ili null ako ne postoji
+    return galerijaSlike[kljuc] || null;
+}
+
 export default function PrijavaDetalji() {
     const breakpoint = useBreakpoint()
     const jeMobitel = breakpoint === 'xs' || breakpoint === 'sm'
@@ -42,12 +62,26 @@ export default function PrijavaDetalji() {
     }, [sifra])
 
     async function ucitajDetalje() {
-        await PrijavaService.getBySifra(sifra).then((odgovor) => {
+        try {
+            const odgovor = await PrijavaService.getBySifra(sifra)
+            
+
+            if (!odgovor || !odgovor.data) {
+                setPrijava(null)
+                setSlike([])
+                return
+            }
+
             const data = odgovor.data
             setPrijava(data)
-            setSlike(data.slike || [])
-        })
+            
+            const ucitaneSlike = (data.slike || []).map(s => typeof s === 'string' ? { url: s } : s)
+            setSlike(ucitaneSlike)
+        } catch (err) {
+            console.error("Greška pri učitavanju detalja:", err)
+        }
     }
+
 
     const toBase64 = file => new Promise((resolve, reject) => {
         const reader = new FileReader()
@@ -82,18 +116,22 @@ export default function PrijavaDetalji() {
             const base64Promises = files.map(file => toBase64(file))
             const base64Results = await Promise.all(base64Promises)
 
-            const azuriraneSlike = [...slike, ...base64Results]
+            const noveSlikeObjekti = base64Results.map(base64 => ({ url: base64 }))
+            const azuriraneSlike = [...slike, ...noveSlikeObjekti]
             
-            const izmjenjenaPrijava = { ...prijava, slike: azuriraneSlike }
+            const izmjenjenaPrijava = { 
+                ...prijava, 
+                slike: azuriraneSlike.map(s => s.url) 
+            }
+
             await PrijavaService.promjeni(sifra, izmjenjenaPrijava)
 
             setSlike(azuriraneSlike)
             setPrijava(izmjenjenaPrijava)
-
             setUspjehUploadaModal(true)
         } catch (err) {
             console.error("Greška kod uploada slika:", err)
-            setGreskaUploada('Došlo je do greške prilikom učitavanja fotografija.')
+            setGreskaUploada('Došlo je do greške prilikom učitavanja fotografija na bazu.')
         }
     }
 
@@ -107,7 +145,10 @@ export default function PrijavaDetalji() {
 
         try {
             const azuriraneSlike = slike.filter((_, idx) => idx !== slikaZaBrisanjeIndex)
-            const izmjenjenaPrijava = { ...prijava, slike: azuriraneSlike }
+            const izmjenjenaPrijava = { 
+                ...prijava, 
+                slike: azuriraneSlike.map(s => s.url) 
+            }
             
             await PrijavaService.promjeni(sifra, izmjenjenaPrijava)
 
@@ -133,13 +174,14 @@ export default function PrijavaDetalji() {
     const ukupnoStranica = Math.ceil(slike.length / brojPoStranici)
 
     const otvoriZumiranje = (slika) => {
-        setAktivnaSlika(slika.url || slika)
+        const siroviUrl = slika.url || slika;
+        setAktivnaSlika(dohvatiSlikuGalerije(siroviUrl))
         setPrikaziModal(true)
     }
 
     const otvoriCrop = (slika, indexNaStranici) => {
         const url = slika.url || slika;
-        setAktivnaSlikaZaCrop(url);
+        setAktivnaSlikaZaCrop(dohvatiSlikuGalerije(url));
         const stvarniIndex = prviIndeks + indexNaStranici;
         setAktivniIndexSlike(stvarniIndex);
         setPrikaziCropModal(true);
@@ -152,13 +194,13 @@ export default function PrijavaDetalji() {
             const croppedImageUrl = croppedCanvas.toDataURL();
 
             const noveSlike = [...slike];
-            if (typeof noveSlike[aktivniIndexSlike] === 'object' && noveSlike[aktivniIndexSlike] !== null) {
-                noveSlike[aktivniIndexSlike] = { ...noveSlike[aktivniIndexSlike], url: croppedImageUrl };
-            } else {
-                noveSlike[aktivniIndexSlike] = croppedImageUrl;
-            }
+            noveSlike[aktivniIndexSlike] = { url: croppedImageUrl };
 
-            const izmjenjenaPrijava = { ...prijava, slike: noveSlike }
+            const izmjenjenaPrijava = { 
+                ...prijava, 
+                slike: noveSlike.map(s => s.url) 
+            }
+            
             await PrijavaService.promjeni(sifra, izmjenjenaPrijava)
 
             setSlike(noveSlike);
@@ -264,10 +306,11 @@ export default function PrijavaDetalji() {
                 <>
                     <Row className="g-4 my-2">
                         {trenutneSlike.map((slika, index) => {
-                            const imageUrl = slika.url || slika;
+                            const siroviUrl = slika.url || slika;
+                            const imageUrl = dohvatiSlikuGalerije(siroviUrl);
                             const stvarniIndex = prviIndeks + index;
                             return (
-                                <Col xs={12} md={dohvatiSirinuStupca()} key={slika.id || index}>
+                                <Col xs={12} md={dohvatiSirinuStupca()} key={index}>
                                     <Card className="h-100 shadow-sm border-0 rounded-3 overflow-hidden">
                                         <div
                                             style={{
@@ -292,8 +335,6 @@ export default function PrijavaDetalji() {
                                                     objectFit: 'contain',
                                                     transition: 'transform 0.2s ease-in-out'
                                                 }}
-                                                onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.03)'}
-                                                onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
                                             />
                                         </div>
                                         <Card.Body className="text-center p-2 bg-light d-flex flex-column justify-content-between">
@@ -355,6 +396,7 @@ export default function PrijavaDetalji() {
                 </>
             )}
 
+            {/* Modali */}
             <Modal show={prikaziModal} onHide={() => setPrikaziModal(false)} size="lg" centered>
                 <Modal.Header closeButton className="border-0 pb-0">
                     <Modal.Title className="fs-6 text-muted">Pregled fotografije</Modal.Title>
@@ -444,7 +486,6 @@ export default function PrijavaDetalji() {
 
             <Button
                 variant="secondary"
-                export={() => navigate(RouteNames.PRIJAVE)}
                 onClick={() => navigate(RouteNames.PRIJAVE)}
                 className={`mt-3 mb-4 ${jeMobitel ? 'w-100' : ''}`}
             >

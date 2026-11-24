@@ -6,8 +6,7 @@ import FishijadaService from '../services/fishijade/FishijadaService';
 import PrijavaService from '../services/prijave/PrijavaService';
 import LokacijaService from '../services/lokacije/LokacijaService';
 import KorisnikService from '../services/logiranje/KorisnikService';
-import { DATA_SOURCE, RouteNames } from '../constants';
-import zadanaSlikaLokacije from '../assets/slikelokacija/knezevivinogradi.jpg';
+import { DATA_SOURCE, RouteNames } from '../constants'; 
 
 export default function GeneriranjePodataka() {
     const navigate = useNavigate();
@@ -66,17 +65,16 @@ export default function GeneriranjePodataka() {
         return true;
     }
 
-    const generirajRandomSlike = () => {
-        const brojSlika = faker.number.int({ min: 3, max: 8 });
-        const slike = [];
-        
-        // Nasumično biramo brojeve od 1 do 51 koji odgovaraju nazivima datoteka u public/slikegalerija/
-        for (let i = 0; i < brojSlika; i++) {
-            const randomBroj = faker.number.int({ min: 1, max: 51 });
-            slike.push(String(randomBroj));
-        }
-        return slike;
+   const generirajRandomSlike = () => {
+    const brojSlika = faker.number.int({ min: 3, max: 8 });
+    const slike = [];
+    
+    for (let i = 0; i < brojSlika; i++) {
+        const randomBroj = faker.number.int({ min: 1, max: 51 });
+        slike.push(String(randomBroj)); // Sprema npr. "15"
     }
+    return slike;
+}
 
     const promjeniIzvorPodataka = () => {
         let noviIzvor
@@ -108,6 +106,9 @@ export default function GeneriranjePodataka() {
         const rezultatPrijava = await PrijavaService.get()
         const prijave = rezultatPrijava.data || []
 
+        // Definirane dozvoljene cjelobrojne vrijednosti kotizacije
+        const dozvoljeneCijene = [40, 45, 50, 55, 60, 65, 70, 75, 80];
+
         for (let i = 0; i < broj; i++) {
             let randomLokacijeSifre = []
             let prijavePoLokacijama = {}
@@ -134,7 +135,7 @@ export default function GeneriranjePodataka() {
             const fishijada = {
                 naziv: `Prvenstvo Baranje ${2020 + i}`,
                 mjestoOdrzavanja: 'Beli Manastir',
-                cijena: faker.number.float({ min: 10, max: 30, precision: 1 }),
+                cijena: faker.helpers.arrayElement(dozvoljeneCijene), // Odabire jednu od zadanih vrijednosti
                 datumPokretanja: new Date(2020 + i, 4, 15).toISOString(),
                 aktivan: i === 0,
                 lokacije: randomLokacijeSifre,
@@ -144,6 +145,7 @@ export default function GeneriranjePodataka() {
             await FishijadaService.dodaj(fishijada)
         }
     }
+
 
     const generirajPrijave = async (broj) => {
         if (!provjeriAdminOvlasti()) return;

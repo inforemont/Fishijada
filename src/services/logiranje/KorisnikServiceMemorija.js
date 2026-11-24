@@ -55,7 +55,7 @@ async function dodaj(korisnik) {
         korisnik.lozinka = bcrypt.hashSync(korisnik.lozinka, 10)
     }
     
-    korisnik.uloga = korrisnik.uloga || 'Korisnik'
+    korisnik.uloga = korisnik.uloga || 'Korisnik'
     
     korisnici.push(korisnik)
     return { data: korisnik }
