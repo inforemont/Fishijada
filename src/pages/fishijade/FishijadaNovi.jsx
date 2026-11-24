@@ -27,7 +27,7 @@ export default function FishijadaNovi() {
     const validateForm = (currentForm) => {
         const dataToValidate = {
             ...currentForm,
-            kotizacija: currentForm.kotizacija !== '' ? Number(currentForm.kotizacija) : NaN
+            cijena: currentForm.kotizacija !== '' ? Number(currentForm.kotizacija) : NaN
         }
 
         const result = ShemaFishijada.safeParse(dataToValidate)
@@ -37,7 +37,7 @@ export default function FishijadaNovi() {
 
         const newErrors = {}
         result.error.issues.forEach((issue) => {
-            const fieldName = issue.path[0]
+            const fieldName = issue.path[0] === 'cijena' ? 'kotizacija' : issue.path[0]
             if (!newErrors[fieldName]) {
                 newErrors[fieldName] = issue.message
             }
@@ -121,7 +121,6 @@ export default function FishijadaNovi() {
                         display: inline-block;
                         animation: skakanjeVratolomije 2.5s infinite ease-in-out;
                     }
-                    /* Responzivni okvir za pandu koji se postepeno smanjuje */
                     .panda-prozor {
                         width: 100%;
                         max-width: 190px;
