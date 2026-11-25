@@ -6,7 +6,6 @@ import { IME_APLIKACIJE, RouteNames } from './constants'
 import { Route, Routes, Navigate } from 'react-router-dom'
 import React, { lazy, Suspense } from 'react'
 
-// Dinamičko učitavanje stranica (Lazy Loading)
 const Home = lazy(() => import('./pages/Home'))
 const O_Aplikaciji = lazy(() => import('./pages/O_Aplikaciji'))
 const FishijadePregled = lazy(() => import('./pages/fishijade/FishijadePregled'))
@@ -65,7 +64,6 @@ function App() {
 
               <Route path={RouteNames.GENERIRANJE} element={<GeneriranjePodataka />} />
 
-              {/* Auth rute */}
               <Route path={RouteNames.LOGIN} element={<Login />} />
               <Route path={RouteNames.REGISTRACIJA} element={<Registracija />} />
               <Route path={RouteNames.KORISNICI} element={<KorisniciPregled />} />

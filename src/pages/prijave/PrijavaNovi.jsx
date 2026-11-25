@@ -27,7 +27,6 @@ export default function PrijavaNovi() {
     const [statusUploada, setStatusUploada] = useState('')
     const [isSubmitting, setIsSubmitting] = useState(false)
 
-
     const [duplaPrijavaModal, setDuplaPrijavaModal] = useState(false)
 
     const [form, setForm] = useState({
@@ -127,22 +126,29 @@ export default function PrijavaNovi() {
     const validateForm = (currentForm) => {
         const dataToValidate = {
             ...currentForm,
-            stol: currentForm.stol !== '' ? Number(currentForm.stol) : NaN,
-            lokacija: currentForm.lokacija !== '' ? Number(currentForm.lokacija) : NaN
+            stol: currentForm.stol !== '' ? Number(currentForm.stol) : NaN
+            // LOKACIJA JE UKLONJENA IZ ZOD PROVJERE OVDJE
         }
 
         const result = ShemaPrijava.safeParse(dataToValidate)
-        if (result.success) {
-            return {}
+        const newErrors = {}
+
+        if (!result.success) {
+            result.error.issues.forEach((issue) => {
+                const fieldName = issue.path[0]
+                if (!newErrors[fieldName]) {
+                    newErrors[fieldName] = issue.message
+                }
+            })
         }
 
-        const newErrors = {}
-        result.error.issues.forEach((issue) => {
-            const fieldName = issue.path[0]
-            if (!newErrors[fieldName]) {
-                newErrors[fieldName] = issue.message
-            }
-        })
+        // Ručna provjera za lokaciju (ako je prazna, postavi grešku, inače je očisti)
+        if (!currentForm.lokacija || currentForm.lokacija === '') {
+            newErrors.lokacija = 'Molimo odaberite lokaciju.'
+        } else {
+            delete newErrors.lokacija
+        }
+
         return newErrors
     }
 
@@ -190,7 +196,7 @@ export default function PrijavaNovi() {
         if (prijavljeniKorisnik) {
             const vecPostojiNaLokaciji = svePrijave.some(p => 
                 String(p.korisnikSifra) === String(prijavljeniKorisnik.sifra) && 
-                Number(p.lokacija) === Number(form.lokacija)
+                String(p.lokacija) === String(form.lokacija)
             )
 
             if (vecPostojiNaLokaciji) {
@@ -210,7 +216,7 @@ export default function PrijavaNovi() {
             email: form.email.trim(),
             kotizacijaPlacena: form.kotizacijaPlacena,
             prvenstvoHrvatske: form.prvenstvoHrvatske,
-            lokacija: parseInt(form.lokacija),
+            lokacija: form.lokacija, // Sprema se točno odabrana vrijednost bez prisilnog pretvaranja u broj
             slike: odabraneSlikeBase64
         }
 
@@ -236,7 +242,7 @@ export default function PrijavaNovi() {
         setIsSubmitting(false)
     }
 
-    const odabraniObjekt = lokacije.find(l => l.sifra == form.lokacija)
+    const odabraniObjekt = lokacije.find(l => String(l.sifra) === String(form.lokacija))
     const jeBeliManastir = odabraniObjekt?.mjesto === 'Beli Manastir'
 
     function postaviRobotoFont(doc) {
@@ -249,7 +255,7 @@ export default function PrijavaNovi() {
         const doc = new jsPDF()
         postaviRobotoFont(doc)
 
-        const odabraniNazivLokacije = lokacije.find(l => l.sifra == form.lokacija)?.mjesto || 'Nepoznata lokacija'
+        const odabraniNazivLokacije = lokacije.find(l => String(l.sifra) === String(form.lokacija))?.mjesto || 'Nepoznata lokacija'
 
         doc.setFont("Roboto", "bold")
         doc.setFontSize(14)
@@ -314,7 +320,6 @@ export default function PrijavaNovi() {
                         display: inline-block;
                         animation: skakanjeVratolomije 2.5s infinite ease-in-out;
                     }
-                    /* Responzivni okvir za pandu koji se postepeno smanjuje */
                     .panda-prozor {
                         width: 100%;
                         max-width: 190px;

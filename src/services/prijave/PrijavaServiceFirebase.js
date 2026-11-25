@@ -1,4 +1,4 @@
-import { collection, doc, updateDoc, getDoc, getDocs, addDoc, deleteDoc } from "firebase/firestore"
+import { collection, doc, updateDoc, getDoc, getDocs, addDoc, deleteDoc, query, where, limit } from "firebase/firestore"
 import getFirebaseDB from "../firebase/firebase"
 
 const COLLECTION_NAME = 'prijave'
@@ -22,22 +22,40 @@ async function get() {
 
 async function getBySifra(sifra) {
     try {
-        const docRef = doc(getFirebaseDB(), COLLECTION_NAME, String(sifra))
-        const docSnap = await getDoc(docRef)
+        const db = getFirebaseDB();
+        const kolekcijaRef = collection(db, COLLECTION_NAME);
+
+        const docRef = doc(db, COLLECTION_NAME, String(sifra));
+        const docSnap = await getDoc(docRef);
         
         if (docSnap.exists()) {
-            const data = docSnap.data()
             return {
                 success: true,
                 data: {
                     sifra: docSnap.id,
-                    ...data
+                    ...docSnap.data()
                 }
-            }
+            };
         }
-        return { success: false, data: null }
+
+        const q = query(kolekcijaRef, where("sifra", "==", Number(sifra) || String(sifra)), limit(1));
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
+            const korDoc = querySnapshot.docs[0];
+            return {
+                success: true,
+                data: {
+                    sifra: korDoc.id,
+                    ...korDoc.data()
+                }
+            };
+        }
+
+        return { success: false, data: null };
     } catch (e) {
-        return { success: false, data: null, message: e.message }
+        console.error("Greška kod dohvaćanja po šifri: ", e);
+        return { success: false, data: null, message: e.message };
     }
 }
 

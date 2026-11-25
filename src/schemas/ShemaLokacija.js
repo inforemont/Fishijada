@@ -10,7 +10,6 @@ export const ShemaLokacija = z.object({
 
   mjesto: z.string()
     .min(1, "Naziv mjesta je obavezan!")
-    .regex(noNumbersRegex, "Naziv mjesta ne smije sadržavati brojeve!")
     .trim(),
 
   zupanija: z.string()
@@ -19,7 +18,7 @@ export const ShemaLokacija = z.object({
     .trim(),
 
   posta: z.number({ 
-    error: "Pogrešan unos!" 
+    invalid_type_error: "Poštanski broj mora biti broj!" 
   })
     .min(10000, "Poštanski broj mora imati 5 znamenaka!")
     .max(99999, "Poštanski broj mora imati 5 znamenaka!"),
@@ -28,6 +27,5 @@ export const ShemaLokacija = z.object({
     .min(1, "Datum održavanja je obavezan!"),
 
   slika: z.string().optional(),
-
   ekipe: z.array(z.any()).optional()
 })

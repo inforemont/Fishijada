@@ -4,8 +4,31 @@ import bcrypt from 'bcryptjs'
 
 const COLLECTION_NAME = 'korisnici'
 
+async function provjeriIStvoriAdmina() {
+    try {
+        const db = getFirebaseDB();
+        const q = query(collection(db, COLLECTION_NAME), where("email", "==", "admin@fishijada.hr"), limit(1));
+        const snapshot = await getDocs(q);
+        
+        if (snapshot.empty) {
+            const adminKorisnik = {
+                email: 'admin@fishijada.hr',
+                lozinka: bcrypt.hashSync('Fishijada123!', 10),
+                uloga: 'Admin',
+                ime: 'Glavni',
+                prezime: 'Admin'
+            };
+            await addDoc(collection(db, COLLECTION_NAME), adminKorisnik);
+            console.log("Početni admin uspješno dodan u Firebase!");
+        }
+    } catch (e) {
+        console.error("Greška kod provjere/stvaranja admina na Firebaseu: ", e);
+    }
+}
+
 async function inicijalizirajPocetneKorisnike() {
     try {
+        await provjeriIStvoriAdmina();
         const db = getFirebaseDB();
         const snapshot = await getDocs(collection(db, COLLECTION_NAME));
         

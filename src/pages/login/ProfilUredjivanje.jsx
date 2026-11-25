@@ -13,6 +13,8 @@ export default function ProfilUredivanje() {
     const jeMobitel = breakpoint === 'xs' || breakpoint === 'sm'
     const navigate = useNavigate()
 
+    const [prijavljeniKorisnik, setPrijavljeniKorisnik] = useState(null)
+
     const [formProfil, setFormProfil] = useState({ ime: "", prezime: "" })
     const [formLozinka, setFormLozinka] = useState({ staraLozinka: "", novaLozinka: "" })
 
@@ -34,6 +36,7 @@ export default function ProfilUredivanje() {
     useEffect(() => {
         const korisnik = AuthService.dohvatiPrijavljenogKorisnika()
         if (korisnik) {
+            setPrijavljeniKorisnik(korisnik)
             setFormProfil({
                 ime: korisnik.ime || "",
                 prezime: korisnik.prezime || ""
@@ -137,7 +140,7 @@ export default function ProfilUredivanje() {
 
     const imaGresaka = 
         Object.keys(touchedProfil).some(k => errorsProfil[k]) || 
-        Object.keys(touchedLozinka).some(k => errorsLozinka[k])
+        (prijavljeniKorisnik?.uloga !== 'Admin' && Object.keys(touchedLozinka).some(k => errorsLozinka[k]))
 
     return (
         <Container className={`d-flex justify-content-center align-items-center ${jeMobitel ? 'my-2 px-2' : 'my-5'}`}>
@@ -238,59 +241,61 @@ export default function ProfilUredivanje() {
                         </Form>
                     </Card>
 
-                    <Card className={`p-3 mb-3 border bg-white shadow-sm ${jeMobitel ? 'p-2' : ''}`}>
-                        <h5 className="fw-bold text-secondary fs-6 mb-1">Promjena lozinke</h5>
-                        <p className="text-muted small mb-2" style={{ fontSize: "11px" }}>Min. 13 znakova, veliko slovo, malo slovo, broj i poseban znak.</p>
+                    {prijavljeniKorisnik?.uloga !== 'Admin' && (
+                        <Card className={`p-3 mb-3 border bg-white shadow-sm ${jeMobitel ? 'p-2' : ''}`}>
+                            <h5 className="fw-bold text-secondary fs-6 mb-1">Promjena lozinke</h5>
+                            <p className="text-muted small mb-2" style={{ fontSize: "11px" }}>Min. 13 znakova, veliko slovo, malo slovo, broj i poseban znak.</p>
 
-                        {porukaLozinka && <Alert variant="success" className="py-1 small text-center">{porukaLozinka}</Alert>}
-                        {greskaLozinka && <Alert variant="danger" className="py-1 small text-center">⚠️ {greskaLozinka}</Alert>}
+                            {porukaLozinka && <Alert variant="success" className="py-1 small text-center">{porukaLozinka}</Alert>}
+                            {greskaLozinka && <Alert variant="danger" className="py-1 small text-center">⚠️ {greskaLozinka}</Alert>}
 
-                        <Form onSubmit={spremiLozinku} noValidate>
-                            <Form.Group className="mb-2">
-                                <Form.Label className="fw-semibold small mb-1">Trenutna lozinka</Form.Label>
-                                <Form.Control
+                            <Form onSubmit={spremiLozinku} noValidate>
+                                <Form.Group className="mb-2">
+                                    <Form.Label className="fw-semibold small mb-1">Trenutna lozinka</Form.Label>
+                                    <Form.Control
+                                        size={jeMobitel ? "sm" : ""}
+                                        type="password"
+                                        name="staraLozinka"
+                                        placeholder="••••••••"
+                                        value={formLozinka.staraLozinka}
+                                        onChange={handleLozinkaChange}
+                                        isInvalid={touchedLozinka.staraLozinka && !!errorsLozinka.staraLozinka}
+                                        isValid={touchedLozinka.staraLozinka && !errorsLozinka.staraLozinka && formLozinka.staraLozinka.length > 0}
+                                    />
+                                    {touchedLozinka.staraLozinka && errorsLozinka.staraLozinka && (
+                                        <div className="text-danger fw-semibold small mt-1">{errorsLozinka.staraLozinka}</div>
+                                    )}
+                                </Form.Group>
+
+                                <Form.Group className="mb-3">
+                                    <Form.Label className="fw-semibold small mb-1">Nova lozinka</Form.Label>
+                                    <Form.Control
+                                        size={jeMobitel ? "sm" : ""}
+                                        type="password"
+                                        name="novaLozinka"
+                                        placeholder="••••••••"
+                                        value={formLozinka.novaLozinka}
+                                        onChange={handleLozinkaChange}
+                                        isInvalid={touchedLozinka.novaLozinka && !!errorsLozinka.novaLozinka}
+                                        isValid={touchedLozinka.novaLozinka && !errorsLozinka.novaLozinka && formLozinka.novaLozinka.length >= 13}
+                                    />
+                                    {touchedLozinka.novaLozinka && errorsLozinka.novaLozinka && (
+                                        <div className="text-danger fw-semibold small mt-1">{errorsLozinka.novaLozinka}</div>
+                                    )}
+                                </Form.Group>
+
+                                <Button 
+                                    variant="primary" 
+                                    type="submit" 
                                     size={jeMobitel ? "sm" : ""}
-                                    type="password"
-                                    name="staraLozinka"
-                                    placeholder="••••••••"
-                                    value={formLozinka.staraLozinka}
-                                    onChange={handleLozinkaChange}
-                                    isInvalid={touchedLozinka.staraLozinka && !!errorsLozinka.staraLozinka}
-                                    isValid={touchedLozinka.staraLozinka && !errorsLozinka.staraLozinka && formLozinka.staraLozinka.length > 0}
-                                />
-                                {touchedLozinka.staraLozinka && errorsLozinka.staraLozinka && (
-                                    <div className="text-danger fw-semibold small mt-1">{errorsLozinka.staraLozinka}</div>
-                                )}
-                            </Form.Group>
-
-                            <Form.Group className="mb-3">
-                                <Form.Label className="fw-semibold small mb-1">Nova lozinka</Form.Label>
-                                <Form.Control
-                                    size={jeMobitel ? "sm" : ""}
-                                    type="password"
-                                    name="novaLozinka"
-                                    placeholder="••••••••"
-                                    value={formLozinka.novaLozinka}
-                                    onChange={handleLozinkaChange}
-                                    isInvalid={touchedLozinka.novaLozinka && !!errorsLozinka.novaLozinka}
-                                    isValid={touchedLozinka.novaLozinka && !errorsLozinka.novaLozinka && formLozinka.novaLozinka.length >= 13}
-                                />
-                                {touchedLozinka.novaLozinka && errorsLozinka.novaLozinka && (
-                                    <div className="text-danger fw-semibold small mt-1">{errorsLozinka.novaLozinka}</div>
-                                )}
-                            </Form.Group>
-
-                            <Button 
-                                variant="primary" 
-                                type="submit" 
-                                size={jeMobitel ? "sm" : ""}
-                                className="w-50 d-block mx-auto fw-bold py-2 rounded-pill shadow-sm"
-                                disabled={isSubmittingLozinka}
-                            >
-                                {isSubmittingLozinka ? 'Mijenjanje...' : 'Spremi novu lozinku'}
-                            </Button>
-                        </Form>
-                    </Card>
+                                    className="w-50 d-block mx-auto fw-bold py-2 rounded-pill shadow-sm"
+                                    disabled={isSubmittingLozinka}
+                                >
+                                    {isSubmittingLozinka ? 'Mijenjanje...' : 'Spremi novu lozinku'}
+                                </Button>
+                            </Form>
+                        </Card>
+                    )}
 
                     <div>
                         <Button 
